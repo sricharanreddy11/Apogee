@@ -296,7 +296,7 @@ theme_override_constants/separation = 10
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(138, 44)
-text = "Back to missions"
+text = "Back to briefing"
 
 [node name="RemovalHint" type="Label" parent="Insets/Page/Actions"]
 layout_mode = 2

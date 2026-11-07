@@ -328,11 +328,7 @@ func _refresh_build() -> void:
 
 	var cost := int(stats.cost_credits)
 	%MissionTag.text = "ASSEMBLY BAY    /    %s  %s" % [_mission.id, _mission.title.to_upper()]
-	var body := String(_mission.scenario.get("body_id", "earth")).capitalize()
-	var spawn := String(_mission.scenario.get("spawn_profile", "surface_north")).replace("_", " ")
-	%MissionBriefing.text = "%s\nStart: %s / %s  |  Budget: %d CR  |  Reward: %d CR" % [
-		_mission.objective_text, body, spawn, _mission.budget_credits, _mission.reward_credits,
-	]
+	%MissionBriefing.text = _mission.objective_text
 	%BudgetValue.text = "%d / %d CR" % [cost, _mission.budget_credits]
 	%BudgetBar.max_value = maxi(1, _mission.budget_credits)
 	%BudgetBar.value = cost

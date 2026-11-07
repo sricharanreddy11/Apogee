@@ -125,9 +125,9 @@ itself replayable even if a developer test state omits its prerequisite.
 | --- | --- |
 | `show_main_menu()` | Open the menu containing mission cards. `show_mission_select()` is a compatibility alias. |
 | `is_mission_unlocked(id) -> bool` | Check release state and prerequisite completion. |
-| `select_mission(id) -> bool` | Validate/unlock-check, store the mission, clear prior attempt/config, and open the builder directly. Failed selection leaves the current mission unchanged. |
+| `select_mission(id) -> bool` | Validate/unlock-check, store the mission, clear prior attempt/config, and open the mission briefing. Failed selection leaves the current mission unchanged. |
 | `get_selected_mission() -> MissionDefinition` | Return the selected definition; consumers treat it as read-only. |
-| `show_builder()` | Pass the mission and any preserved config copy to the builder. |
+| `show_builder()` | Pass the mission and any preserved draft or confirmed config to the builder. |
 | `prepare_launch(config) -> bool` | Revalidate, preserve a design copy, then open preflight. Invalid configs stay blocked. |
 | `show_preflight() -> bool` | Open the separate launchpad preview for a prepared, unlocked mission. |
 | `edit_rocket(config, mission_id) -> bool` | Preserve a copy and reopen its builder; also supports direct F6 preview runs. |

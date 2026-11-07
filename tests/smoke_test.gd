@@ -42,7 +42,11 @@ func _run() -> void:
 	mission_card.get_node("%SelectButton").pressed.emit()
 	await process_frame
 	await process_frame
-	_check(current_scene.name == "RocketBuilder", "A mission card opens the real builder.")
+	_check(current_scene.name == "MissionBriefing", "A mission card opens its briefing first.")
+	current_scene.get_node("%Primary").pressed.emit()
+	await process_frame
+	await process_frame
+	_check(current_scene.name == "RocketBuilder", "The briefing opens the real builder.")
 	_check(current_scene.get_node_or_null("%Carousel") != null, "RocketLab's parts carousel is present.")
 	# Retain coverage of Member 1's existing static flight entry point.
 	game.start_flight(config)

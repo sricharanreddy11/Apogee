@@ -6,6 +6,7 @@ signal flight_launch_requested(config: RocketConfig, mission_id: String)
 
 const MENU := preload("res://scenes/ui/main_menu.tscn")
 const SANDBOX := preload("res://scenes/ui/ui_sandbox.tscn")
+const BRIEFING := preload("res://scenes/missions/mission_select.tscn")
 const BUILDER := preload("res://scenes/builder/rocket_builder.tscn")
 const PREFLIGHT := preload("res://scenes/flight/launchpad_preview.tscn")
 const FLIGHT := preload("res://scenes/flight/flight.tscn")
@@ -21,12 +22,13 @@ var completed_missions: Array[String] = []
 var best_scores: Dictionary = {}
 var last_navigation_error: String = ""
 var _mission: MissionDefinition
+var _builder_draft: RocketConfig
 
 
 func select_mission(id: String) -> bool:
 	if not _load_mission(id):
 		return false
-	show_builder()
+	_show_mission_briefing()
 	return true
 
 
@@ -42,6 +44,7 @@ func _load_mission(id: String) -> bool:
 	_mission = mission
 	selected_mission_id = mission.id
 	current_rocket_config = null
+	_builder_draft = null
 	last_result = null
 	last_navigation_error = ""
 	return true
@@ -89,16 +92,30 @@ func show_ui_sandbox() -> void:
 	_switch_screen(screen)
 
 
+func _show_mission_briefing() -> void:
+	var screen := BRIEFING.instantiate()
+	screen.setup(_mission)
+	screen.build_requested.connect(show_builder)
+	screen.back_requested.connect(show_main_menu)
+	_switch_screen(screen)
+
+
+func _return_to_briefing(builder: BuilderController) -> void:
+	_builder_draft = builder.build_config()
+	_show_mission_briefing()
+
+
 func show_builder() -> void:
 	if _mission == null:
 		show_main_menu()
 		return
-	var screen := BUILDER.instantiate()
+	var screen := BUILDER.instantiate() as BuilderController
 	screen.setup(_mission)
-	if current_rocket_config != null:
-		screen.load_config(current_rocket_config.copy())
+	var config := _builder_draft if _builder_draft != null else current_rocket_config
+	if config != null:
+		screen.load_config(config)
 	screen.configuration_confirmed.connect(prepare_launch)
-	screen.back_requested.connect(show_main_menu)
+	screen.back_requested.connect(_return_to_briefing.bind(screen))
 	_switch_screen(screen)
 
 
@@ -117,6 +134,7 @@ func prepare_launch(config: RocketConfig) -> bool:
 			screen.show_validation_errors(validation.errors, validation.warnings)
 		return false
 	current_rocket_config = config.copy()
+	_builder_draft = null
 	last_result = null
 	last_navigation_error = ""
 	return show_preflight()
@@ -129,6 +147,7 @@ func edit_rocket(config: RocketConfig, mission_id: String) -> bool:
 		if not _load_mission(mission_id):
 			return false
 	current_rocket_config = config.copy()
+	_builder_draft = null
 	show_builder()
 	return true
 
@@ -160,6 +179,7 @@ func start_flight(config: RocketConfig) -> void:
 	if _mission == null or config == null:
 		return
 	current_rocket_config = config.copy()
+	_builder_draft = null
 	last_result = null
 	var screen := FLIGHT.instantiate()
 	screen.setup(current_rocket_config.copy(), selected_mission_id)

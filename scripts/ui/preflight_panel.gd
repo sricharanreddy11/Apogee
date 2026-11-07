@@ -39,8 +39,8 @@ func _render() -> void:
 	%ObjectiveLabel.text = _mission.objective_text
 	%LocationLabel.text = "Start: %s" % _mission.starting_location
 	%RocketName.text = _config.rocket_name
-	%CostLabel.text = "Cost: %d / %d CR\nReward: %d CR" % [
-		int(_stats.get("cost_credits", 0)), _mission.budget_credits, _mission.reward_credits,
+	%CostLabel.text = "Cost: %d / %d CR" % [
+		int(_stats.get("cost_credits", 0)), _mission.budget_credits,
 	]
 	%MassLabel.text = "Wet mass: %.0f kg\nFuel: %.0f kg  |  Stages: %d" % [
 		float(_stats.get("wet_mass_kg", 0.0)), float(_stats.get("fuel_kg", 0.0)), _config.stages.size(),

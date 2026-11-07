@@ -1,0 +1,238 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/mission_projection.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/mission_control/earth.svg" id="2"]
+[ext_resource type="Texture2D" path="res://assets/mission_control/moon.svg" id="3"]
+[ext_resource type="Texture2D" path="res://assets/mission_control/probe.svg" id="4"]
+
+[sub_resource type="Curve2D" id="M01"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 244, 339, 0, 0, 0, 0, 243, 306, 0, 0, 0, 0, 245, 271, 0, 0, 0, 0, 253, 234, 0, 0, 0, 0, 270, 195, 0, 0, 0, 0, 292, 151, 0, 0, 0, 0, 322, 114, 0, 0, 0, 0, 361, 84, 0, 0, 0, 0, 410, 65, 0, 0, 0, 0, 457, 59)
+}
+point_count = 10
+
+[sub_resource type="Curve2D" id="M02"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 465, 247, 0, 0, 0, 0, 456, 279, 0, 0, 0, 0, 431, 308, 0, 0, 0, 0, 392, 331, 0, 0, 0, 0, 343, 346, 0, 0, 0, 0, 288, 351, 0, 0, 0, 0, 233, 346, 0, 0, 0, 0, 184, 331, 0, 0, 0, 0, 145, 308, 0, 0, 0, 0, 120, 279, 0, 0, 0, 0, 111, 247, 0, 0, 0, 0, 120, 215, 0, 0, 0, 0, 145, 186, 0, 0, 0, 0, 184, 163, 0, 0, 0, 0, 233, 148, 0, 0, 0, 0, 288, 143, 0, 0, 0, 0, 343, 148, 0, 0, 0, 0, 392, 163, 0, 0, 0, 0, 431, 186, 0, 0, 0, 0, 456, 215, 0, 0, 0, 0, 465, 247)
+}
+point_count = 21
+
+[sub_resource type="Curve2D" id="M03"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 91, 330, 0, 0, 0, 0, 139, 301, 0, 0, 0, 0, 188, 263, 0, 0, 0, 0, 241, 215, 0, 0, 0, 0, 294, 174, 0, 0, 0, 0, 348, 143, 0, 0, 0, 0, 401, 137, 0, 0, 0, 0, 450, 151, 0, 0, 0, 0, 485, 182, 0, 0, 0, 0, 509, 227, 0, 0, 0, 0, 525, 268)
+}
+point_count = 11
+
+[sub_resource type="Curve2D" id="M04"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 103, 114, 0, 0, 0, 0, 150, 123, 0, 0, 0, 0, 204, 146, 0, 0, 0, 0, 253, 178, 0, 0, 0, 0, 297, 210, 0, 0, 0, 0, 330, 243, 0, 0, 0, 0, 348, 270, 0, 0, 0, 0, 355, 295, 0, 0, 0, 0, 356, 316)
+}
+point_count = 9
+
+[sub_resource type="Animation" id="ProjectionTrack"]
+resource_name = "track"
+length = 8.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ProjectionWorld/M01/FlightTrack/Traveler:progress_ratio")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ProjectionWorld/M02/FlightTrack/Traveler:progress_ratio")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("ProjectionWorld/M03/FlightTrack/Traveler:progress_ratio")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("ProjectionWorld/M04/FlightTrack/Traveler:progress_ratio")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="ProjectionLibrary"]
+_data = {&"track": SubResource("ProjectionTrack")}
+
+[node name="MissionProjection" type="Control"]
+custom_minimum_size = Vector2(590, 500)
+mouse_filter = 2
+clip_contents = true
+script = ExtResource("1")
+
+[node name="Field" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.019, 0.053, 0.094, 0.64)
+
+[node name="ProjectionWorld" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="M01" type="Node2D" parent="ProjectionWorld"]
+visible = true
+
+[node name="Earth" type="Sprite2D" parent="ProjectionWorld/M01"]
+position = Vector2(231, 479)
+scale = Vector2(1.18, 1.18)
+texture = ExtResource("2")
+
+[node name="FlightTrackTrace" type="Line2D" parent="ProjectionWorld/M01"]
+points = PackedVector2Array(244, 339, 243, 306, 245, 271, 253, 234, 270, 195, 292, 151, 322, 114, 361, 84, 410, 65, 457, 59)
+width = 2.5
+default_color = Color(0.41, 0.78, 0.91, 0.74)
+antialiased = true
+
+[node name="FlightTrack" type="Path2D" parent="ProjectionWorld/M01"]
+curve = SubResource("M01")
+
+[node name="Traveler" type="PathFollow2D" parent="ProjectionWorld/M01/FlightTrack"]
+rotates = false
+
+[node name="Probe" type="Sprite2D" parent="ProjectionWorld/M01/FlightTrack/Traveler"]
+position = Vector2(0, 0)
+scale = Vector2(0.71, 0.71)
+texture = ExtResource("4")
+
+[node name="M02" type="Node2D" parent="ProjectionWorld"]
+visible = false
+
+[node name="Earth" type="Sprite2D" parent="ProjectionWorld/M02"]
+position = Vector2(288, 247)
+scale = Vector2(0.79, 0.79)
+texture = ExtResource("2")
+
+[node name="FlightTrackTrace" type="Line2D" parent="ProjectionWorld/M02"]
+points = PackedVector2Array(465, 247, 456, 279, 431, 308, 392, 331, 343, 346, 288, 351, 233, 346, 184, 331, 145, 308, 120, 279, 111, 247, 120, 215, 145, 186, 184, 163, 233, 148, 288, 143, 343, 148, 392, 163, 431, 186, 456, 215, 465, 247)
+width = 2.5
+default_color = Color(0.41, 0.78, 0.91, 0.74)
+antialiased = true
+
+[node name="FlightTrack" type="Path2D" parent="ProjectionWorld/M02"]
+curve = SubResource("M02")
+
+[node name="Traveler" type="PathFollow2D" parent="ProjectionWorld/M02/FlightTrack"]
+rotates = false
+
+[node name="Probe" type="Sprite2D" parent="ProjectionWorld/M02/FlightTrack/Traveler"]
+position = Vector2(0, 0)
+scale = Vector2(0.71, 0.71)
+texture = ExtResource("4")
+
+[node name="M03" type="Node2D" parent="ProjectionWorld"]
+visible = false
+
+[node name="Moon" type="Sprite2D" parent="ProjectionWorld/M03"]
+position = Vector2(392, 244)
+scale = Vector2(1.18, 1.18)
+texture = ExtResource("3")
+
+[node name="FlightTrackTrace" type="Line2D" parent="ProjectionWorld/M03"]
+points = PackedVector2Array(91, 330, 139, 301, 188, 263, 241, 215, 294, 174, 348, 143, 401, 137, 450, 151, 485, 182, 509, 227, 525, 268)
+width = 2.5
+default_color = Color(0.41, 0.78, 0.91, 0.74)
+antialiased = true
+
+[node name="FlightTrack" type="Path2D" parent="ProjectionWorld/M03"]
+curve = SubResource("M03")
+
+[node name="Traveler" type="PathFollow2D" parent="ProjectionWorld/M03/FlightTrack"]
+rotates = false
+
+[node name="Probe" type="Sprite2D" parent="ProjectionWorld/M03/FlightTrack/Traveler"]
+position = Vector2(0, 0)
+scale = Vector2(0.71, 0.71)
+texture = ExtResource("4")
+
+[node name="M04" type="Node2D" parent="ProjectionWorld"]
+visible = false
+
+[node name="Moon" type="Sprite2D" parent="ProjectionWorld/M04"]
+position = Vector2(356, 435)
+scale = Vector2(1.18, 1.18)
+texture = ExtResource("3")
+
+[node name="FlightTrackTrace" type="Line2D" parent="ProjectionWorld/M04"]
+points = PackedVector2Array(103, 114, 150, 123, 204, 146, 253, 178, 297, 210, 330, 243, 348, 270, 355, 295, 356, 316)
+width = 2.5
+default_color = Color(0.41, 0.78, 0.91, 0.74)
+antialiased = true
+
+[node name="FlightTrack" type="Path2D" parent="ProjectionWorld/M04"]
+curve = SubResource("M04")
+
+[node name="Traveler" type="PathFollow2D" parent="ProjectionWorld/M04/FlightTrack"]
+rotates = false
+
+[node name="Probe" type="Sprite2D" parent="ProjectionWorld/M04/FlightTrack/Traveler"]
+position = Vector2(0, 0)
+scale = Vector2(0.71, 0.71)
+texture = ExtResource("4")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries = {&"": SubResource("ProjectionLibrary")}
+autoplay = "track"
+
+[node name="ProjectionLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 21.0
+theme_override_colors/font_color = Color(0.54, 0.84, 0.95, 1)
+theme_override_font_sizes/font_size = 16
+text = "FLIGHT PROJECTION"
+
+[node name="ProjectionMode" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 23.0
+offset_top = 49.0
+theme_override_colors/font_color = Color(0.72, 0.82, 0.89, 1)
+theme_override_font_sizes/font_size = 15
+text = "ASCENT  /  SCHEMATIC"
+
+[node name="Replay" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -144.0
+offset_top = -57.0
+offset_right = -17.0
+offset_bottom = -15.0
+text = "Replay track"

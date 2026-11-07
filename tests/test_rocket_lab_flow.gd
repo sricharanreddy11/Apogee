@@ -29,7 +29,10 @@ func _run() -> void:
 	_check(current_scene.get_instance_id() == menu_id, "A locked mission keeps the same menu instance.")
 	current_scene.get_node("%MissionList").get_node("M01").get_node("%SelectButton").pressed.emit()
 	await _settle()
-	_check(current_scene.name == "RocketBuilder", "M01 opens RocketLab directly.")
+	_check(current_scene.name == "MissionBriefing", "M01 opens the mission briefing.")
+	current_scene.get_node("%Primary").pressed.emit()
+	await _settle()
+	_check(current_scene.name == "RocketBuilder", "The briefing opens RocketLab.")
 	var builder := current_scene as BuilderController
 	if builder == null:
 		quit(1)

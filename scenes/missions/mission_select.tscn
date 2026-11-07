@@ -1,8 +1,54 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mission_select.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/mission_control/starfield.svg" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/missions/mission_projection.tscn" id="3"]
 
-[node name="MissionSelect" type="Control"]
+[sub_resource type="StyleBoxFlat" id="BriefingPanel"]
+content_margin_left = 34.0
+content_margin_right = 34.0
+content_margin_top = 30.0
+content_margin_bottom = 30.0
+bg_color = Color(0.055, 0.09, 0.15, 0.98)
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.48, 0.59, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_left = 12
+corner_radius_bottom_right = 12
+
+[sub_resource type="StyleBoxFlat" id="PrimaryButton"]
+bg_color = Color(0.08, 0.29, 0.37, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.349, 0.784, 0.91, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+[sub_resource type="Animation" id="BriefingReveal"]
+resource_name = "acquire_signal"
+length = 0.28
+tracks/0/type = "value"
+tracks/0/path = NodePath("Center/BriefingLayout:modulate")
+tracks/0/interp = 1
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.28),
+"transitions": PackedFloat32Array(0.55, 1),
+"update": 0,
+"values": [Color(0.72, 0.88, 1, 0.25), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="BriefingAnimations"]
+_data = {&"acquire_signal": SubResource("BriefingReveal")}
+
+[node name="MissionBriefing" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,51 +57,136 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2")
+expand_mode = 1
 
-[node name="Stack" type="VBoxContainer" parent="Center"]
-custom_minimum_size = Vector2(760, 0)
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="BriefingLayout" type="HBoxContainer" parent="Center"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 22
 
-[node name="Heading" type="Label" parent="Center/Stack"]
+[node name="Projection" parent="Center/BriefingLayout" instance=ExtResource("3")]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="Panel" type="PanelContainer" parent="Center/BriefingLayout"]
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("BriefingPanel")
+
+[node name="Stack" type="VBoxContainer" parent="Center/BriefingLayout/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Section" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
-theme_override_font_sizes/font_size = 40
-text = "Mission selection"
+text = "MISSION BRIEFING"
 
-[node name="Details" type="Label" parent="Center/Stack"]
+[node name="Heading" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
-text = "Open this screen from the main menu to load a mission."
-autowrap_mode = 3
+theme_override_font_sizes/font_size = 37
+theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
+text = "Mission briefing"
+autowrap_mode = 2
 
-[node name="SandboxNote" type="Label" parent="Center/Stack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.71, 0.8, 1)
-text = "M0: test changing flight values without a rocket simulator."
-
-[node name="Primary" type="Button" parent="Center/Stack"]
+[node name="Route" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "Select M01 · Open UI sandbox"
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.63, 0.74, 0.81, 1)
+text = ""
+autowrap_mode = 2
 
-[node name="BuilderPreview" type="Button" parent="Center/Stack"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+[node name="Divider" type="HSeparator" parent="Center/BriefingLayout/Panel/Stack"]
 layout_mode = 2
-text = "Builder preview (team integration)"
 
-[node name="Secondary" type="Button" parent="Center/Stack"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+[node name="ObjectiveTitle" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
 layout_mode = 2
-text = "Main menu"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
+text = "OBJECTIVE"
+
+[node name="Details" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
+text = "Choose a mission from the main menu."
+autowrap_mode = 2
+
+[node name="Credits" type="HBoxContainer" parent="Center/BriefingLayout/Panel/Stack"]
+layout_mode = 2
+theme_override_constants/separation = 38
+
+[node name="BudgetInfo" type="VBoxContainer" parent="Center/BriefingLayout/Panel/Stack/Credits"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/BudgetInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.63, 0.74, 0.81, 1)
+text = "BUILD BUDGET"
+
+[node name="Budget" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/BudgetInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
+text = ""
+
+[node name="RewardInfo" type="VBoxContainer" parent="Center/BriefingLayout/Panel/Stack/Credits"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/RewardInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.63, 0.74, 0.81, 1)
+text = "MISSION REWARD"
+
+[node name="Reward" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/RewardInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
+text = ""
+
+[node name="Actions" type="HBoxContainer" parent="Center/BriefingLayout/Panel/Stack"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Secondary" type="Button" parent="Center/BriefingLayout/Panel/Stack/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(152, 48)
+layout_mode = 2
+text = "Back to missions"
+
+[node name="Spacer" type="Control" parent="Center/BriefingLayout/Panel/Stack/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Primary" type="Button" parent="Center/BriefingLayout/Panel/Stack/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 48)
+layout_mode = 2
+theme_override_styles/normal = SubResource("PrimaryButton")
+text = "Build rocket  →"
+
+[node name="SignalAcquisition" type="AnimationPlayer" parent="."]
+libraries = {&"": SubResource("BriefingAnimations")}
+autoplay = "acquire_signal"

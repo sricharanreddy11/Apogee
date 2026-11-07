@@ -1,7 +1,6 @@
 extends Control
 
 signal build_requested
-signal sandbox_requested
 signal back_requested
 
 var _mission: MissionDefinition
@@ -13,12 +12,14 @@ func setup(mission: MissionDefinition) -> void:
 
 func _ready() -> void:
 	%Primary.disabled = _mission == null
-	%BuilderPreview.disabled = _mission == null
 	if _mission != null:
-		%Heading.text = "%s  /  %s" % [_mission.id, _mission.title]
-		%Details.text = "%s\nBudget %d credits  |  Reward %d credits" % [
-			_mission.objective_text, _mission.budget_credits, _mission.reward_credits,
-		]
-	%Primary.pressed.connect(func() -> void: sandbox_requested.emit())
-	%BuilderPreview.pressed.connect(func() -> void: build_requested.emit())
+		%Section.text = "MISSION BRIEFING  /  %s" % _mission.id
+		%Heading.text = _mission.title
+		%Details.text = _mission.objective_text
+		%Route.text = "%s  →  %s" % [_mission.starting_location, _mission.destination]
+		%Budget.text = "%d CR" % _mission.budget_credits
+		%Reward.text = "%d CR" % _mission.reward_credits
+		%Projection.show_mission(_mission.id)
+		%Primary.grab_focus()
+	%Primary.pressed.connect(func() -> void: build_requested.emit())
 	%Secondary.pressed.connect(func() -> void: back_requested.emit())

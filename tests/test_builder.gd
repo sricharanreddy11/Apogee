@@ -93,7 +93,7 @@ func _test_scene(mission: MissionDefinition) -> void:
 	name_edit.text = "Renamed Sparrow"
 	name_edit.text_changed.emit(name_edit.text)
 	_check(scene.build_config().rocket_name == "Renamed Sparrow", "Editable name becomes part of the configured rocket.")
-	_check(scene.get_node("%MissionBriefing").text.contains("2000 CR"), "Builder shows data-backed mission budget.")
+	_check(scene.get_node("%BudgetValue").text.contains("1600 / 2000 CR"), "Builder shows data-backed mission budget.")
 	_check(scene.get_node("%Primary").text == "Prepare Launch", "Builder distinguishes prepare from actual launch.")
 	scene.get_node("%Primary").pressed.emit()
 	_check(_confirmations == 1 and _confirmed_config.rocket_name == "Renamed Sparrow", "Valid prepare emits one configured rocket.")

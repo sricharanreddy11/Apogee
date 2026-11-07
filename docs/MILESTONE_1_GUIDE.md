@@ -1,9 +1,9 @@
 # Milestone 1: menus, builder handoff, and launchpad
 
 Open `project.godot` in Godot 4.7.2 and press **F5**. The main menu now contains
-the mission list directly. Choose **M01 / First Flight**, assemble a rocket in
-RocketLab, then choose **Prepare Launch**. You arrive at the launchpad
-with the selected rocket, mission briefing, calculated cost, mass, and fuel.
+the campaign star chart. Click the **M01 / First Flight** beacon to see the
+animated flight projection, objective, route, build budget, and reward. Choose **Build rocket** to open
+RocketLab, then **Prepare Launch** to review the assembled rocket at the launchpad.
 
 **Edit Rocket** brings the same design back to the builder. **Missions** returns
 to the main menu. **Launch** emits the agreed launch request once, in the same
@@ -26,7 +26,7 @@ and their construction rules need an expanded editor before they can be launched
    module blocks **Prepare Launch** and shows the reason in the readiness area.
 4. Edit the rocket name in its text field. **Clear rocket** removes the assembly;
    **Restore Sparrow I** restores the reference pod, large tank, and launch engine.
-5. Read the mission briefing and budget, then choose **Prepare Launch** when valid.
+5. Choose **Prepare Launch** when the build is valid. **Back to briefing** keeps the draft.
    **Edit Rocket** from preflight restores your selected parts and name.
 
 Sparrow I costs **1,600 CR** and has **3,600 kg wet mass**. Using the small tank
@@ -42,9 +42,11 @@ screen behaves. A `.json` file holds editable content and numbers.
 | --- | --- |
 | Mission title, objective, budget, reward | `data/missions/m01.json` (or m02–m04) |
 | Mission order, prerequisite, starting location, destination | `data/missions/index.json` |
-| Card labels, status colors, locked appearance | `scenes/menus/mission_card.tscn`, `scripts/ui/mission_card.gd` |
-| Main menu layout and buttons | `scenes/ui/main_menu.tscn`, `scripts/ui/main_menu.gd` |
-| Selected parts, reference assembly, validation, mission briefing | `scripts/builder/builder_controller.gd` |
+| Beacon labels, status colors, locked appearance | `scenes/menus/mission_card.tscn`, `scripts/ui/mission_card.gd` |
+| Star chart, campaign route, and mission marker anchors | `scenes/ui/main_menu.tscn`, `scripts/ui/main_menu.gd` |
+| Mission projection sprites, flight paths, and animations | `scenes/missions/mission_projection.tscn` |
+| Mission briefing layout and text | `scenes/missions/mission_select.tscn`, `scripts/ui/mission_select.gd` |
+| Selected parts, reference assembly, validation | `scripts/builder/builder_controller.gd` |
 | Part categories and clickable/draggable cards | `scripts/builder/part_carousel.gd`, `scripts/builder/part_card.gd` |
 | Builder mounts, drop targets, and detach action | `scripts/builder/rocket_preview.gd` |
 | Rocket artwork and preflight rendering | `assets/rockets/*.svg`, `scripts/ui/rocket_preview.gd` |
@@ -117,8 +119,8 @@ objectives; only their definitions and locked cards are prepared here.
 ## How the handoff works
 
 1. A reusable mission card asks `GameManager.select_mission(id)` to open a mission.
-2. GameManager checks that it exists, is released, and is unlocked, then opens the
-   builder with the validated definition.
+2. GameManager checks that it exists, is released, and is unlocked, then shows
+   the briefing. **Build rocket** opens the builder with that definition.
 3. The builder calculates cost from the parts catalog and validates the design.
    **Prepare Launch** emits `configuration_confirmed(config)` only for a valid build.
 4. GameManager validates again at the handoff, stores an independent copy, and opens
@@ -129,7 +131,7 @@ objectives; only their definitions and locked cards are prepared here.
 The real RocketLab editor uses the same adapter contract:
 `setup(mission)`, `load_config(config)`, `build_config()`, `validate(config, mission)`,
 and `configuration_confirmed(config)`. GameManager handles screen changes.
-`%MissionBriefing` displays the selected objective, start, budget, and reward;
+`%MissionBriefing` reminds the player of the objective while building;
 `%BuildStatus` displays validation errors and advice. Unsupported loaded designs
 are retained and rejected; loading a multi-stage or multi-tank design must not
 silently discard parts to make it fit the current three-mount editor.
