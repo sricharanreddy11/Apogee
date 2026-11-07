@@ -19,7 +19,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Stack" type="VBoxContainer" parent="Center"]
-custom_minimum_size = Vector2(490, 0)
+custom_minimum_size = Vector2(760, 0)
 layout_mode = 2
 theme_override_constants/separation = 14
 
@@ -35,12 +35,24 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "Open this screen from the main menu to load a mission."
+autowrap_mode = 3
+
+[node name="SandboxNote" type="Label" parent="Center/Stack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.71, 0.8, 1)
+text = "M0: test changing flight values without a rocket simulator."
 
 [node name="Primary" type="Button" parent="Center/Stack"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "Open builder"
+text = "Select M01 · Open UI sandbox"
+
+[node name="BuilderPreview" type="Button" parent="Center/Stack"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Builder preview (team integration)"
 
 [node name="Secondary" type="Button" parent="Center/Stack"]
 unique_name_in_owner = true

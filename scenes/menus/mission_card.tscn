@@ -1,0 +1,100 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/mission_card.gd" id="1"]
+
+[node name="MissionCard" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 144)
+script = ExtResource("1")
+
+[node name="Row" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="MissionID" type="Label" parent="Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "M01"
+vertical_alignment = 0
+
+[node name="Details" type="VBoxContainer" parent="Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 7
+
+[node name="TopRow" type="HBoxContainer" parent="Row/Details"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MissionName" type="Label" parent="Row/Details/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 22
+text = "Mission title"
+
+[node name="StatusLabel" type="Label" parent="Row/Details/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "AVAILABLE"
+vertical_alignment = 1
+
+[node name="MissionDescription" type="Label" parent="Row/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.76, 0.84, 0.9, 1)
+theme_override_font_sizes/font_size = 16
+text = "Mission objective"
+autowrap_mode = 3
+
+[node name="RouteLabel" type="Label" parent="Row/Details"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.66, 0.75, 1)
+theme_override_font_sizes/font_size = 13
+text = "Earth surface → Earth"
+
+[node name="BottomRow" type="HBoxContainer" parent="Row/Details"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Numbers" type="VBoxContainer" parent="Row/Details/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="BudgetLabel" type="Label" parent="Row/Details/BottomRow/Numbers"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.89, 0.94, 1)
+theme_override_font_sizes/font_size = 14
+text = "BUDGET  2,000 CR"
+
+[node name="RewardLabel" type="Label" parent="Row/Details/BottomRow/Numbers"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41, 0.84, 0.63, 1)
+theme_override_font_sizes/font_size = 14
+text = "REWARD  +1,000 CR"
+
+[node name="UnlockLabel" type="Label" parent="Row/Details/BottomRow"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.76, 0.36, 1)
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 3
+vertical_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Row/Details/BottomRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 42)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 15
+text = "Select mission"

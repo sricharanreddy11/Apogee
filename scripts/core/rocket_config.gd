@@ -14,7 +14,8 @@ func copy() -> RocketConfig:
 	result.rocket_name = rocket_name
 	result.command_pod_id = command_pod_id
 	for stage_config in stages:
-		result.stages.append(stage_config.copy())
+		# Preserve missing-stage entries so validation can explain an invalid design.
+		result.stages.append(stage_config.copy() if stage_config != null else null)
 	result.attachment_ids.assign(attachment_ids)
 	result.cosmetic_order.assign(cosmetic_order)
 	return result

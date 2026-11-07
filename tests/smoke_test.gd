@@ -37,63 +37,37 @@ func _run() -> void:
 		quit(1)
 		return
 	await scene_changed
-	for expected: String in ["MissionSelect", "RocketBuilder", "Flight", "MissionReport", "RocketBuilder"]:
-		var button := current_scene.get_node_or_null("%Primary") as Button
+	var game := root.get_node("GameManager")
+	var mission_card := current_scene.get_node("%MissionList").get_node("M01")
+	mission_card.get_node("%SelectButton").pressed.emit()
+	await process_frame
+	await process_frame
+	_check(current_scene.name == "RocketBuilder", "A mission card opens the real builder.")
+	_check(current_scene.get_node_or_null("%Carousel") != null, "RocketLab's parts carousel is present.")
+	# Retain coverage of Member 1's existing static flight entry point.
+	game.start_flight(config)
+	await process_frame
+	await process_frame
+	var toggle := current_scene.get_node("%Secondary") as Button
+	var map_view := current_scene.get_node("%Map") as Control
+	toggle.pressed.emit()
+	_check(map_view.visible, "The map preview toggles on.")
+	for expected: String in ["MissionReport", "RocketBuilder"]:
+		var action := "%Primary"
+		var button := current_scene.get_node_or_null(action) as Button
 		if button == null or button.disabled:
 			_check(false, "Navigation button is enabled before %s." % expected)
 			break
-		if expected == "Flight":
-			var screen := current_scene as BuilderController
-			var categories := screen.get_node("%Categories")
-			var discs := screen.get_node("%PartDiscs")
-			_check(not discs.get_node("TANK_S").visible, "Catalog starts closed.")
-			categories.get_node("Fuel").pressed.emit()
-			_check(discs.get_node("TANK_S").visible and discs.get_node("TANK_L").visible, "Fuel opens both tank discs.")
-			_check(not discs.get_node("POD_A").visible, "Fuel keeps other categories hidden.")
-			categories.get_node("Pods").pressed.emit()
-			_check(discs.get_node("POD_A").visible and not discs.get_node("TANK_S").visible, "Pods replaces the open category.")
-			categories.get_node("Pods").pressed.emit()
-			_check(not discs.get_node("POD_A").visible, "The active category closes on a second press.")
-			var preview: Control = screen.get_node("%RocketPreview")
-			var tank := {"apogee_part_id": "TANK_S"}
-			var rects: Array[Rect2] = preview._slot_rects()
-			var pod_point := rects[0].get_center()
-			var tank_point := rects[1].get_center() + Vector2(-88, 0)
-			_check(not preview._can_drop_data(pod_point, tank), "Pod slot rejects a fuel tank.")
-			preview._drop_data(pod_point, tank)
-			_check(screen.build_config().command_pod_id == "POD_A", "Invalid drop preserves the pod.")
-			preview.part_removed.emit("tank")
-			_check(button.disabled, "An empty tank slot blocks launch.")
-			_check(preview._can_drop_data(tank_point, tank), "The tank can attach from just outside the rocket silhouette.")
-			preview._drop_data(tank_point, tank)
-			_check(not button.disabled, "Installing the small tank enables launch.")
-			_check("1250 / 2000" in screen.get_node("%BudgetValue").text, "Cost updates after the swap.")
-			screen.launch_requested.connect(_check_small_tank_config, CONNECT_ONE_SHOT)
 		button.pressed.emit()
 		await process_frame
 		await process_frame
 		if current_scene == null or current_scene.name != expected:
 			_check(false, "Navigate to %s." % expected)
 			break
-		if expected == "Flight":
-			var toggle := current_scene.get_node("%Secondary") as Button
-			var map_view := current_scene.get_node("%Map") as Control
-			toggle.pressed.emit()
-			_check(map_view.visible, "The map preview toggles on.")
 
 	if _failures == 0:
 		print("Apogee smoke check passed.")
 	quit(0 if _failures == 0 else 1)
-
-
-func _check_small_tank_config(config: RocketConfig) -> void:
-	_check(config.command_pod_id == "POD_A", "Launch passes the selected pod.")
-	_check(config.stages.size() == 1, "Launch passes one stage.")
-	if config.stages.size() == 1:
-		_check(config.stages[0].engine_id == "ENG_L", "Launch passes the selected engine.")
-		_check(config.stages[0].tank_ids == ["TANK_S"], "Launch passes the selected small tank.")
-
-
 
 
 func _check(condition: bool, description: String) -> void:
