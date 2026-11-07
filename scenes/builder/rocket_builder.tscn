@@ -1,6 +1,116 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/builder/builder_controller.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/builder/rocket_preview.gd" id="2"]
+
+[ext_resource type="Script" path="res://scripts/builder/part_carousel.gd" id="3"]
+
+[sub_resource type="StyleBoxFlat" id="Button"]
+content_margin_left = 15.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+bg_color = Color(0.1059, 0.1725, 0.2549, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2039, 0.3059, 0.4078, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="StyleBoxFlat" id="Hover"]
+content_margin_left = 15.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+bg_color = Color(0.1569, 0.2784, 0.3608, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3843, 0.8353, 0.9412, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="StyleBoxFlat" id="Pressed"]
+content_margin_left = 15.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+bg_color = Color(0.0745, 0.1686, 0.2314, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3843, 0.8353, 0.9412, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="StyleBoxFlat" id="Disabled"]
+content_margin_left = 15.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+bg_color = Color(0.0706, 0.1137, 0.1686, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1490, 0.2196, 0.2902, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="StyleBoxFlat" id="Bar"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.0706, 0.1294, 0.1961, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1490, 0.2196, 0.2902, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+
+[sub_resource type="StyleBoxFlat" id="Fill"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.3804, 0.8275, 0.9333, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3804, 0.8275, 0.9333, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+
+[sub_resource type="Theme" id="BuilderTheme"]
+default_font_size = 17
+Button/colors/font_color = Color(0.8941, 0.9373, 0.9725, 1)
+Button/colors/font_disabled_color = Color(0.4431, 0.5255, 0.6118, 1)
+Button/styles/normal = SubResource("Button")
+Button/styles/hover = SubResource("Hover")
+Button/styles/pressed = SubResource("Pressed")
+Button/styles/disabled = SubResource("Disabled")
+ProgressBar/styles/background = SubResource("Bar")
+ProgressBar/styles/fill = SubResource("Fill")
 
 [node name="RocketBuilder" type="Control"]
 layout_mode = 3
@@ -9,41 +119,190 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("BuilderTheme")
 script = ExtResource("1")
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.032, 0.058, 0.095, 1)
+
+[node name="Insets" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 44
+theme_override_constants/margin_right = 44
+theme_override_constants/margin_top = 27
+theme_override_constants/margin_bottom = 27
+
+[node name="Page" type="VBoxContainer" parent="Insets"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="MissionTag" type="Label" parent="Insets/Page"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.41, 0.85, 0.96, 1)
+text = "ASSEMBLY BAY    /    M01 FIRST FLIGHT"
+unique_name_in_owner = true
+
+[node name="Heading" type="Label" parent="Insets/Page"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
+text = "Vehicle lab"
+
+[node name="Instruction" type="Label" parent="Insets/Page"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.59, 0.72, 0.81, 1)
+text = "Open a parts category. Drag a module near the rocket and feel it snap into place."
+
+[node name="Workbench" type="Control" parent="Insets/Page"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 400)
+
+[node name="RocketPreview" type="Control" parent="Insets/Page/Workbench"]
+unique_name_in_owner = true
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("2")
 
-[node name="Stack" type="VBoxContainer" parent="Center"]
-custom_minimum_size = Vector2(490, 0)
+[node name="Carousel" type="Control" parent="Insets/Page/Workbench"]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_bottom = 1.0
+offset_right = 390.0
+mouse_filter = 2
+script = ExtResource("3")
+
+[node name="Title" type="Label" parent="Insets/Page/Workbench/Carousel"]
+layout_mode = 0
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.41, 0.85, 0.96, 1)
+text = "PARTS ORBIT"
+offset_left = 14.0
+offset_top = 14.0
+mouse_filter = 2
+
+[node name="Categories" type="Control" parent="Insets/Page/Workbench/Carousel"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2
+
+[node name="PartDiscs" type="Control" parent="Insets/Page/Workbench/Carousel"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 2
+
+[node name="Engineering" type="VBoxContainer" parent="Insets/Page/Workbench"]
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -242.0
+offset_top = -145.0
+offset_right = -18.0
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Insets/Page/Workbench/Engineering"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.41, 0.85, 0.96, 1)
+text = "FLIGHT READINESS"
 
-[node name="Heading" type="Label" parent="Center/Stack"]
+[node name="CraftName" type="Label" parent="Insets/Page/Workbench/Engineering"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
+text = "Sparrow I"
+unique_name_in_owner = true
+
+[node name="BudgetLabel" type="Label" parent="Insets/Page/Workbench/Engineering"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.59, 0.72, 0.81, 1)
+text = "MISSION BUDGET"
+
+[node name="BudgetValue" type="Label" parent="Insets/Page/Workbench/Engineering"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
+text = "1600 / 2000 CR"
+unique_name_in_owner = true
+
+[node name="BudgetBar" type="ProgressBar" parent="Insets/Page/Workbench/Engineering"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
-theme_override_font_sizes/font_size = 40
-text = "Vehicle assembly"
+custom_minimum_size = Vector2(0, 7)
+show_percentage = false
 
-[node name="Details" type="Label" parent="Center/Stack"]
+[node name="Details" type="Label" parent="Insets/Page/Workbench/Engineering"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.59, 0.72, 0.81, 1)
+text = "Build totals"
+unique_name_in_owner = true
+theme_override_constants/line_spacing = 7
+autowrap_mode = 2
+
+[node name="BuildStatus" type="Label" parent="Insets/Page/Workbench/Engineering"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
+text = ""
+unique_name_in_owner = true
+autowrap_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="Insets/Page"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Secondary" type="Button" parent="Insets/Page/Actions"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
-text = "Reference craft preview"
-
-[node name="Primary" type="Button" parent="Center/Stack"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-text = "Launch preview"
-
-[node name="Secondary" type="Button" parent="Center/Stack"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
+custom_minimum_size = Vector2(138, 44)
 text = "Back to mission"
+
+[node name="RemovalHint" type="Label" parent="Insets/Page/Actions"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.59, 0.72, 0.81, 1)
+text = "  Right-click a module to detach."
+
+[node name="Spacer" type="Control" parent="Insets/Page/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Clear" type="Button" parent="Insets/Page/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(115, 44)
+text = "Clear rocket"
+
+[node name="Reset" type="Button" parent="Insets/Page/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(159, 44)
+text = "Restore Sparrow I"
+
+[node name="Primary" type="Button" parent="Insets/Page/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(178, 44)
+text = "Launch preview  →"
+theme_override_colors/font_color = Color(0.41, 0.85, 0.96, 1)

@@ -9,21 +9,16 @@ const REPORT := preload("res://scenes/missions/mission_report.tscn")
 var _mission: MissionDefinition
 
 
-func _ready() -> void:
-	get_tree().node_added.connect(_connect_initial_menu)
-
-
-func _connect_initial_menu(node: Node) -> void:
-	if node.scene_file_path == MENU.resource_path:
-		node.mission_requested.connect(_select_mission)
-
-
-func _select_mission(id: String) -> void:
+func select_mission(id: String, open_builder: bool = false) -> bool:
 	var manager := MissionManager.new()
 	if not manager.load_mission(id):
-		return
+		return false
 	_mission = manager.definition
-	_show_mission()
+	if open_builder:
+		_show_builder()
+	else:
+		_show_mission()
+	return true
 
 
 func _show_mission() -> void:

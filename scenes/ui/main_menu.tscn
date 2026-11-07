@@ -34,10 +34,17 @@ text = "APOGEE"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
-text = "Build Beyond Earth  /  Phase 1 starter"
+text = "Build Beyond Earth  /  M01 First Flight"
 
 [node name="Primary" type="Button" parent="Center/Stack"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Mission selection"
+
+[node name="BuildRocket" type="Button" parent="Center/Stack"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.84, 0.94, 1)
+text = "Build a rocket"
