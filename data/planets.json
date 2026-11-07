@@ -1,0 +1,19 @@
+{
+  "bodies": {
+    "earth": {
+      "radius_m": 600000,
+      "surface_gravity_mps2": 9.81,
+      "mu_m3_s2": 3531600000000
+    },
+    "moon": {
+      "radius_m": 100000,
+      "surface_gravity_mps2": 1.62,
+      "mu_m3_s2": 16200000000
+    },
+    "mars": {
+      "radius_m": 250000,
+      "surface_gravity_mps2": 3.71,
+      "mu_m3_s2": 231875000000
+    }
+  }
+}

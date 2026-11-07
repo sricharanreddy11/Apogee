@@ -1,0 +1,38 @@
+{
+  "parts": [
+    {
+      "id": "POD_A",
+      "name": "Command pod",
+      "type": "pod",
+      "dry_mass_kg": 600,
+      "fuel_capacity_kg": 0,
+      "cost_credits": 300
+    },
+    {
+      "id": "TANK_S",
+      "name": "Small tank",
+      "type": "tank",
+      "dry_mass_kg": 100,
+      "fuel_capacity_kg": 900,
+      "cost_credits": 250
+    },
+    {
+      "id": "TANK_L",
+      "name": "Large tank",
+      "type": "tank",
+      "dry_mass_kg": 200,
+      "fuel_capacity_kg": 2200,
+      "cost_credits": 600
+    },
+    {
+      "id": "ENG_L",
+      "name": "Launch engine",
+      "type": "engine",
+      "dry_mass_kg": 600,
+      "fuel_capacity_kg": 0,
+      "thrust_n": 100000,
+      "isp_s": 230,
+      "cost_credits": 700
+    }
+  ]
+}

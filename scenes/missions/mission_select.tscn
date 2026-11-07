@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/mission_select.gd" id="1"]
+
+[node name="MissionSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Stack" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(490, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Heading" type="Label" parent="Center/Stack"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
+theme_override_font_sizes/font_size = 40
+text = "Mission selection"
+
+[node name="Details" type="Label" parent="Center/Stack"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Open this screen from the main menu to load a mission."
+
+[node name="Primary" type="Button" parent="Center/Stack"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Open builder"
+
+[node name="Secondary" type="Button" parent="Center/Stack"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Main menu"
