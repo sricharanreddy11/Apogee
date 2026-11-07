@@ -42,8 +42,8 @@ func _render() -> void:
 	%CostLabel.text = "Cost: %d / %d CR" % [
 		int(_stats.get("cost_credits", 0)), _mission.budget_credits,
 	]
-	%MassLabel.text = "Wet mass: %.0f kg\nFuel: %.0f kg  |  Stages: %d" % [
-		float(_stats.get("wet_mass_kg", 0.0)), float(_stats.get("fuel_kg", 0.0)), _config.stages.size(),
+	%MassLabel.text = "Wet mass: %.0f kg\nFuel: %.0f kg  |  Stages: %d\nIdeal Δv: %.2f km/s" % [
+		float(_stats.get("wet_mass_kg", 0.0)), float(_stats.get("fuel_kg", 0.0)), _config.stages.size(), float(_stats.get("delta_v_mps", 0.0)) / 1000.0,
 	]
 	var notices: Array[String] = []
 	for message: String in _validation.get("errors", []):
@@ -53,11 +53,11 @@ func _render() -> void:
 	%ValidationMessage.text = "\n".join(notices)
 	if _launch_sent:
 		%ReadinessStatus.text = "LAUNCH REQUESTED"
-		%ReadinessStatus.modulate = Color("ffc35c")
+		%ReadinessStatus.theme_type_variation = &"WarningLabel"
 		%LaunchButton.text = "Launch requested"
 	else:
 		%ReadinessStatus.text = "GO / READY" if _validation.get("valid", false) else "HOLD / CHECK ROCKET"
-		%ReadinessStatus.modulate = Color("7de3b0") if _validation.get("valid", false) else Color("ffc35c")
+		%ReadinessStatus.theme_type_variation = &"SuccessLabel" if _validation.get("valid", false) else &"WarningLabel"
 		%LaunchButton.text = "LAUNCH"
 
 

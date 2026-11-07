@@ -51,7 +51,7 @@ All classes below are `RefCounted` objects in `scripts/core/`.
 `RocketConfig` does **not** cache cost or mass. `BuilderController.calculate(config)`
 returns `cost_credits`, `dry_mass_kg`, `fuel_kg`, `wet_mass_kg`, and `launch_twr`,
 derived from the parts catalog and scenario gravity. TWR is dimensionless and low
-TWR is advice, not a blocking error. Future delta-v calculations belong to the team.
+TWR and low ideal delta-v are advisory. Ideal delta-v sums the burns in stage order and discards first-stage dry mass and the separator before the upper burn.
 
 `FlightState.Status` values are `READY`, `FLYING`, `LANDED`, `CRASHED`.
 `MissionResult.Outcome` values are `IN_PROGRESS`, `SUCCESS`, `FAILURE`.
@@ -106,8 +106,7 @@ an empty `unlock_requirement` string in the typed definition. Supported schemas:
 Schema validation does not implement these objectives. `MissionManager.load_mission`
 delegates to the catalog; `evaluate(telemetry)` and scoring in `finalize_result()`
 remain later work. Future payload/landing parts and lunar simulation also remain
-team integration work. The real RocketLab builder currently supports only its
-three-mount, one-stage assembly.
+team integration work. The hangar can assemble two stages, a science payload, and landing legs.
 M03 declares a required science payload and a lunar-approach checkpoint; M04 uses
 a lunar-descent checkpoint. Their enforcement, verified start states, and missing
 science/landing parts are future M6 work with Members 1 and 2.
@@ -151,12 +150,7 @@ tank, and one engine. Clear/Restore actions and an editable name update the same
 exported config. `%MissionBriefing` shows objective/start/budget/reward and
 `%BuildStatus` shows validation errors/advice.
 
-Validation explicitly limits the current editor to **one stage and one tank**;
-unrecognized IDs, wrong part types, missing parts, unsupported attachments, and
-over-budget designs block the handoff. `load_config` preserves unsupported designs
-for validation instead of flattening away extra stages or tanks. Edit Rocket
-reloads the selected supported parts and name. Reference Sparrow I costs 1,600 CR
-and weighs 3,600 kg wet; swapping to the small tank yields 1,250 CR and 2,200 kg wet.
+The builder validates one or two propulsion stages with one engine and one to three tanks per stage. Stage index zero is the lower stage and fires first. Tank IDs are ordered from bottom to top. Exactly one DECOUPLER in attachment_ids is required with two stages and drops with stage zero. Optional PROBE and LEGS stay with the upper assembly. The validator enforces mission part rules and budget. RocketRig uses assets/rockets/manifest.json and consumes active_stage, throttle and legs_deployed as presentation inputs.
 
 `PreflightPanel.setup(mission, config, stats, validation)` receives copied display
 data and exposes `launch_requested` and `edit_requested`. The launchpad controller

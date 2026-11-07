@@ -1,42 +1,10 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/starfield.svg" id="2"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/earth.svg" id="3"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/moon.svg" id="4"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/probe.svg" id="5"]
-
-[sub_resource type="StyleBoxFlat" id="StyleButton"]
-bg_color = Color(0.055, 0.12, 0.19, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.19, 0.32, 0.41, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-content_margin_left = 18.0
-content_margin_right = 18.0
-content_margin_top = 9.0
-content_margin_bottom = 9.0
-
-[sub_resource type="StyleBoxFlat" id="StyleHover"]
-bg_color = Color(0.09, 0.2, 0.28, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.35, 0.78, 0.91, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-content_margin_left = 18.0
-content_margin_right = 18.0
-content_margin_top = 9.0
-content_margin_bottom = 9.0
 
 [sub_resource type="Curve2D" id="CampaignCurve"]
 _data = {
@@ -110,32 +78,33 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
 [node name="Heading" type="Label" parent="Margin/Layout/Header/Logo"]
+theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.88, 0.96, 1, 1)
 theme_override_font_sizes/font_size = 43
 text = "A P O G E E"
 
 [node name="Subtitle" type="Label" parent="Margin/Layout/Header/Logo"]
+theme_type_variation = &"EyebrowLabel"
 layout_mode = 2
-theme_override_colors/font_color = Color(0.35, 0.78, 0.91, 1)
 theme_override_font_sizes/font_size = 14
 text = "BUILD BEYOND EARTH"
 
 [node name="AgencyCredits" type="Label" parent="Margin/Layout/Header"]
+theme_type_variation = &"TelemetryLabel"
+theme_override_colors/font_color = Color(1, 0.7412, 0.4431, 1)
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.76, 0.36, 1)
 theme_override_font_sizes/font_size = 18
 text = "AGENCY CREDITS\n0 CR"
 horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="ErrorMessage" type="Label" parent="Margin/Layout"]
+theme_type_variation = &"ErrorLabel"
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.63, 0.4, 1)
 theme_override_font_sizes/font_size = 16
 autowrap_mode = 3
 
@@ -235,18 +204,18 @@ anchor_bottom = 1.0
 mouse_filter = 2
 
 [node name="ChartTitle" type="Label" parent="Margin/Layout/Chart"]
+theme_type_variation = &"EyebrowLabel"
 layout_mode = 0
 offset_left = 6.0
 offset_top = 20.0
-theme_override_colors/font_color = Color(0.52, 0.79, 0.91, 1)
 theme_override_font_sizes/font_size = 17
 text = "NAVIGATION ARRAY  /  CAMPAIGN MAP"
 
 [node name="ChartHint" type="Label" parent="Margin/Layout/Chart"]
+theme_type_variation = &"MutedLabel"
 layout_mode = 0
 offset_left = 6.0
 offset_top = 47.0
-theme_override_colors/font_color = Color(0.59, 0.70, 0.82, 1)
 theme_override_font_sizes/font_size = 15
 text = "Select an active beacon to open its briefing."
 
@@ -255,17 +224,17 @@ layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="SignalID" type="Label" parent="Margin/Layout/SignalStrip"]
+theme_type_variation = &"EyebrowLabel"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(123, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.86, 0.96, 1)
 text = "SIGNAL / —"
 
 [node name="SignalDetails" type="Label" parent="Margin/Layout/SignalStrip"]
+theme_type_variation = &"MutedLabel"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.7, 0.81, 0.9, 1)
 text = "Awaiting mission signal."
 autowrap_mode = 2
 
@@ -277,16 +246,12 @@ theme_override_constants/separation = 12
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleButton")
-theme_override_styles/hover = SubResource("StyleHover")
 text = "Settings"
 
 [node name="Credits" type="Button" parent="Margin/Layout/Footer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleButton")
-theme_override_styles/hover = SubResource("StyleHover")
 text = "Credits"
 
 [node name="Spacer" type="Control" parent="Margin/Layout/Footer"]
@@ -294,13 +259,18 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
+[node name="Workshop" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Workshop"
+tooltip_text = "Build and test-fire any part in the hangar."
+
 [node name="Sandbox" type="Button" parent="Margin/Layout/Footer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.52, 0.69, 0.78, 1)
-theme_override_styles/normal = SubResource("StyleButton")
-theme_override_styles/hover = SubResource("StyleHover")
 text = "UI sandbox"
 tooltip_text = "Development tool: scripted flight data for testing the interface."
 
@@ -308,13 +278,11 @@ tooltip_text = "Development tool: scripted flight data for testing the interface
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleButton")
-theme_override_styles/hover = SubResource("StyleHover")
 text = "Exit"
 
 [node name="FooterNote" type="Label" parent="Margin/Layout"]
+theme_type_variation = &"MutedLabel"
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.53, 0.63, 1)
 theme_override_font_sizes/font_size = 12
 text = "APOGEE / MISSION CONTROL                                      PROGRESS IS KEPT FOR THIS SESSION"
 
@@ -344,6 +312,7 @@ size_flags_horizontal = 3
 value = 100.0
 
 [node name="VolumeValue" type="Label" parent="SettingsDialog/SettingsLayout/VolumeRow"]
+theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 2

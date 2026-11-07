@@ -1,39 +1,35 @@
 extends Control
 
 const CARD := preload("res://scripts/builder/part_card.gd")
-const CATEGORIES := {"pod": "Pods", "tank": "Fuel", "engine": "Engines"}
+const CATEGORIES := {"pod": "Pods", "tank": "Fuel", "engine": "Engines", "kit": "Kit"}
 const ARC_RADIUS := 152.0
 const DIM_LINE := Color("#253f55")
 const ACTIVE_LINE := Color("#42718b")
 
 var _buttons: Dictionary = {}
-var _cards: Dictionary = {"pod": [], "tank": [], "engine": []}
+var _cards: Dictionary = {"pod": [], "tank": [], "engine": [], "kit": []}
 var _open := ""
 var _sweep: Tween
 
 
 func _ready() -> void:
 	for category: String in CATEGORIES:
-		var button := Button.new()
-		button.name = CATEGORIES[category]
-		button.text = CATEGORIES[category]
-		button.toggle_mode = true
-		button.size = Vector2(105, 44)
+		var button := %Categories.get_node(CATEGORIES[category]) as Button
 		button.pressed.connect(_toggle_category.bind(category))
-		%Categories.add_child(button)
 		_buttons[category] = button
+		button.hide()
 	resized.connect(_layout)
 
 
 func add_part(part: Dictionary, texture: Texture2D, spec: String) -> void:
-	var category: String = part.type
-	if not _cards.has(category):
-		return
+	var category: String = part.type if _cards.has(part.type) else "kit"
 	var card := CARD.new()
 	card.configure(part, texture, spec)
 	card.hide()
 	%PartDiscs.add_child(card)
 	_cards[category].append(card)
+	_buttons[category].show()
+	_layout()
 
 
 func _toggle_category(category: String) -> void:
@@ -64,11 +60,12 @@ func _layout() -> void:
 	var y := _hinge().y - 76.0
 	for key: String in CATEGORIES:
 		var button: Button = _buttons[key]
-		button.position = Vector2(12, y)
-		y += 54
+		button.position = Vector2(0, y)
+		if button.visible:
+			y += 55
 	if not _open.is_empty():
 		var cards: Array = _cards[_open]
-		var spread := minf(1.12, 0.48 * float(cards.size() - 1))
+		var spread := minf(1.12, 0.52 * float(cards.size() - 1))
 		for i in cards.size():
 			var fraction := float(i) / float(maxi(1, cards.size() - 1))
 			var angle := lerpf(-spread, spread, fraction)
@@ -80,18 +77,12 @@ func _layout() -> void:
 
 
 func _hinge() -> Vector2:
-	return Vector2(112, size.y * 0.49)
+	return Vector2(112, size.y * 0.44)
 
 
 func _draw() -> void:
-	var hinge := _hinge()
-	var arc_color := DIM_LINE if _open.is_empty() else ACTIVE_LINE
-	draw_arc(hinge, ARC_RADIUS, -1.19, 1.19, 42, arc_color, 1.4, true)
-	draw_arc(hinge, ARC_RADIUS + 12, -1.19, 1.19, 42, DIM_LINE, 1.0, true)
-	for angle: float in [-1.19, -0.79, -0.39, 0.0, 0.39, 0.79, 1.19]:
-		var direction := Vector2.from_angle(angle)
-		draw_line(hinge + direction * (ARC_RADIUS + 7), hinge + direction * (ARC_RADIUS + 13), arc_color)
 	if _open.is_empty():
-		var font := get_theme_default_font()
-		draw_string(font, hinge + Vector2(32, -9), "CHOOSE A", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, ACTIVE_LINE.lightened(0.35))
-		draw_string(font, hinge + Vector2(32, 11), "CATEGORY", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, ACTIVE_LINE.lightened(0.35))
+		return
+	var hinge := _hinge()
+	draw_arc(hinge, ARC_RADIUS, -1.19, 1.19, 42, ACTIVE_LINE, 1.4, true)
+	draw_arc(hinge, ARC_RADIUS + 12, -1.19, 1.19, 42, DIM_LINE, 1.0, true)

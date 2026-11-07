@@ -1,36 +1,8 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mission_select.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/starfield.svg" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/missions/mission_projection.tscn" id="3"]
-
-[sub_resource type="StyleBoxFlat" id="BriefingPanel"]
-content_margin_left = 34.0
-content_margin_right = 34.0
-content_margin_top = 30.0
-content_margin_bottom = 30.0
-bg_color = Color(0.055, 0.09, 0.15, 0.98)
-border_width_left = 3
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.18, 0.48, 0.59, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_left = 12
-corner_radius_bottom_right = 12
-
-[sub_resource type="StyleBoxFlat" id="PrimaryButton"]
-bg_color = Color(0.08, 0.29, 0.37, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.349, 0.784, 0.91, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
 
 [sub_resource type="Animation" id="BriefingReveal"]
 resource_name = "acquire_signal"
@@ -83,32 +55,31 @@ layout_mode = 2
 [node name="Panel" type="PanelContainer" parent="Center/BriefingLayout"]
 custom_minimum_size = Vector2(480, 0)
 layout_mode = 2
-theme_override_styles/panel = SubResource("BriefingPanel")
 
 [node name="Stack" type="VBoxContainer" parent="Center/BriefingLayout/Panel"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="Section" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+theme_type_variation = &"EyebrowLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
 text = "MISSION BRIEFING"
 
 [node name="Heading" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 37
-theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
 text = "Mission briefing"
 autowrap_mode = 2
 
 [node name="Route" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+theme_type_variation = &"MutedLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.63, 0.74, 0.81, 1)
 text = ""
 autowrap_mode = 2
 
@@ -116,9 +87,9 @@ autowrap_mode = 2
 layout_mode = 2
 
 [node name="ObjectiveTitle" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+theme_type_variation = &"EyebrowLabel"
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
 text = "OBJECTIVE"
 
 [node name="Details" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
@@ -137,32 +108,32 @@ theme_override_constants/separation = 38
 layout_mode = 2
 
 [node name="Title" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/BudgetInfo"]
+theme_type_variation = &"MutedLabel"
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.63, 0.74, 0.81, 1)
 text = "BUILD BUDGET"
 
 [node name="Budget" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/BudgetInfo"]
+theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
 text = ""
 
 [node name="RewardInfo" type="VBoxContainer" parent="Center/BriefingLayout/Panel/Stack/Credits"]
 layout_mode = 2
 
 [node name="Title" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/RewardInfo"]
+theme_type_variation = &"MutedLabel"
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.63, 0.74, 0.81, 1)
 text = "MISSION REWARD"
 
 [node name="Reward" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/RewardInfo"]
+theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
 text = ""
 
 [node name="Actions" type="HBoxContainer" parent="Center/BriefingLayout/Panel/Stack"]
@@ -181,10 +152,10 @@ size_flags_horizontal = 3
 mouse_filter = 2
 
 [node name="Primary" type="Button" parent="Center/BriefingLayout/Panel/Stack/Actions"]
+theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 48)
 layout_mode = 2
-theme_override_styles/normal = SubResource("PrimaryButton")
 text = "Build rocket  →"
 
 [node name="SignalAcquisition" type="AnimationPlayer" parent="."]

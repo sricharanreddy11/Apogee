@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/ui_sandbox.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/flight_hud.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/mocks/mock_telemetry.gd" id="3"]
+
+[ext_resource type="PackedScene" path="res://scenes/ui/mission_backdrop.tscn" id="Backdrop"]
 
 [node name="UISandbox" type="Control"]
 layout_mode = 3
@@ -17,6 +19,8 @@ script = ExtResource("1")
 unique_name_in_owner = true
 script = ExtResource("3")
 
+[node name="Backdrop" parent="." instance=ExtResource("Backdrop")]
+
 [node name="Center" type="CenterContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,83 +28,87 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Stack" type="VBoxContainer" parent="Center"]
-custom_minimum_size = Vector2(900, 0)
+[node name="Console" type="PanelContainer" parent="Center"]
+layout_mode = 2
+
+[node name="Stack" type="VBoxContainer" parent="Center/Console"]
+custom_minimum_size = Vector2(855, 0)
 layout_mode = 2
 theme_override_constants/separation = 18
 
-[node name="Mode" type="Label" parent="Center/Stack"]
+[node name="Mode" type="Label" parent="Center/Console/Stack"]
+theme_type_variation = &"WarningLabel"
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.76, 0.36, 1)
 theme_override_font_sizes/font_size = 18
 text = "MILESTONE 0 / SIMULATED DATA · NOT LIVE PHYSICS"
 
-[node name="Heading" type="Label" parent="Center/Stack"]
+[node name="Heading" type="Label" parent="Center/Console/Stack"]
+theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
 theme_override_font_sizes/font_size = 32
 text = "First Flight · UI sandbox"
 
-[node name="Details" type="Label" parent="Center/Stack"]
+[node name="Details" type="Label" parent="Center/Console/Stack"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Loading M01…"
 autowrap_mode = 3
 
-[node name="HUD" parent="Center/Stack" instance=ExtResource("2")]
+[node name="HUD" parent="Center/Console/Stack" instance=ExtResource("2")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="FuelBar" type="ProgressBar" parent="Center/Stack"]
+[node name="FuelBar" type="ProgressBar" parent="Center/Console/Stack"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 show_percentage = false
 
-[node name="Playback" type="Label" parent="Center/Stack"]
+[node name="Playback" type="Label" parent="Center/Console/Stack"]
+theme_type_variation = &"MutedLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.71, 0.8, 1)
 text = "Playing sample"
 
-[node name="PlaybackControls" type="HBoxContainer" parent="Center/Stack"]
+[node name="PlaybackControls" type="HBoxContainer" parent="Center/Console/Stack"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Pause" type="Button" parent="Center/Stack/PlaybackControls"]
+[node name="Pause" type="Button" parent="Center/Console/Stack/PlaybackControls"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Pause"
 
-[node name="Restart" type="Button" parent="Center/Stack/PlaybackControls"]
+[node name="Restart" type="Button" parent="Center/Console/Stack/PlaybackControls"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Restart sample"
 
-[node name="Primary" type="Button" parent="Center/Stack"]
+[node name="Primary" type="Button" parent="Center/Console/Stack"]
+theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Open sample report"
 
-[node name="Navigation" type="HBoxContainer" parent="Center/Stack"]
+[node name="Navigation" type="HBoxContainer" parent="Center/Console/Stack"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Secondary" type="Button" parent="Center/Stack/Navigation"]
+[node name="Secondary" type="Button" parent="Center/Console/Stack/Navigation"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Back to missions"
 
-[node name="MainMenu" type="Button" parent="Center/Stack/Navigation"]
+[node name="MainMenu" type="Button" parent="Center/Console/Stack/Navigation"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2

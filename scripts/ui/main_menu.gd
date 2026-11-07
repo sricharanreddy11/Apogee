@@ -15,6 +15,7 @@ func _ready() -> void:
 	%Credits.pressed.connect(func() -> void: %CreditsDialog.popup_centered(Vector2i(460, 230)))
 	%Exit.pressed.connect(func() -> void: get_tree().quit())
 	%Sandbox.pressed.connect(_open_sandbox)
+	%Workshop.pressed.connect(GameManager.show_workshop)
 	%MasterVolume.value = db_to_linear(AudioServer.get_bus_volume_db(0)) * 100.0
 	%VolumeValue.text = "%d%%" % roundi(%MasterVolume.value)
 	%MasterVolume.value_changed.connect(_set_master_volume)

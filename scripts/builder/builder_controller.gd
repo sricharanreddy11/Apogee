@@ -6,22 +6,27 @@ signal configuration_confirmed(config: RocketConfig)
 signal back_requested
 
 const PARTS_PATH := "res://data/parts.json"
-const DEFAULT_PARTS := {"pod": "POD_A", "tank": "TANK_L", "engine": "ENG_L"}
+const MAX_STAGES := 2
+const MAX_TANKS := 3
 
 var _mission: MissionDefinition
 var _parts: Dictionary = {}
 var _artwork: Dictionary = {}
-var _selected_parts := {"pod": "", "tank": "", "engine": ""}
+var _body: Dictionary = {}
+var _workshop := false
 var _config: RocketConfig
 var _catalog_error: String = ""
 
 
-func setup(mission: MissionDefinition) -> void:
+func setup(mission: MissionDefinition, workshop: bool = false) -> void:
 	_mission = mission
 	_parts.clear()
 	_artwork.clear()
 	_catalog_error = ""
-	_selected_parts = {"pod": "", "tank": "", "engine": ""}
+	_workshop = workshop
+	var bodies: Dictionary = JsonData.read_object("res://data/planets.json").get("bodies", {})
+	var body_id := String(mission.scenario.get("body_id", "earth")) if mission != null else "earth"
+	_body = bodies.get(body_id, {})
 	var data := JsonData.read_object(PARTS_PATH)
 	var rows: Variant = data.get("parts")
 	if not rows is Array:
@@ -46,7 +51,6 @@ func load_config(config: RocketConfig) -> void:
 	_config = config.copy() if config != null else null
 	if _config == null:
 		_reset_assembly()
-	_sync_selected_parts()
 	if is_node_ready():
 		%RocketName.text = _config.rocket_name
 		_refresh_build()
@@ -59,7 +63,7 @@ func build_config() -> RocketConfig:
 
 
 func calculate(config: RocketConfig) -> Dictionary:
-	var totals := {"cost_credits": 0, "dry_mass_kg": 0.0, "fuel_kg": 0.0, "wet_mass_kg": 0.0, "launch_twr": 0.0}
+	var totals := {"cost_credits": 0, "dry_mass_kg": 0.0, "fuel_kg": 0.0, "wet_mass_kg": 0.0, "launch_twr": 0.0, "delta_v_mps": 0.0}
 	if config == null:
 		return totals
 	for part_id in _part_ids(config):
@@ -67,16 +71,44 @@ func calculate(config: RocketConfig) -> Dictionary:
 		totals.cost_credits += int(part.get("cost_credits", 0))
 		totals.dry_mass_kg += float(part.get("dry_mass_kg", 0.0))
 		totals.fuel_kg += float(part.get("fuel_capacity_kg", 0.0))
-	totals["wet_mass_kg"] = totals.dry_mass_kg + totals.fuel_kg
-	if not config.stages.is_empty() and config.stages[0] != null and totals.wet_mass_kg > 0.0:
+	totals.wet_mass_kg = totals.dry_mass_kg + totals.fuel_kg
+	var gravity := float(_body.get("surface_gravity_mps2", 9.81))
+	if not config.stages.is_empty() and config.stages[0] != null and totals.wet_mass_kg > 0.0 and gravity > 0.0:
 		var engine: Dictionary = _parts.get(config.stages[0].engine_id, {})
-		var body_id := String(_mission.scenario.get("body_id", "earth")) if _mission != null else "earth"
-		var bodies: Dictionary = JsonData.read_object("res://data/planets.json").get("bodies", {})
-		var body: Dictionary = bodies.get(body_id, {})
-		var gravity := float(body.get("surface_gravity_mps2", 9.81))
-		if gravity > 0.0:
-			totals.launch_twr = float(engine.get("thrust_n", 0.0)) / (float(totals.wet_mass_kg) * gravity)
+		totals.launch_twr = float(engine.get("thrust_n", 0.0)) / (float(totals.wet_mass_kg) * gravity)
+	var remaining_mass := float(totals.wet_mass_kg)
+	for index in config.stages.size():
+		var stage_config := config.stages[index]
+		if stage_config == null:
+			continue
+		var engine: Dictionary = _parts.get(stage_config.engine_id, {})
+		var dry := float(engine.get("dry_mass_kg", 0.0))
+		var propellant := 0.0
+		for tank_id in stage_config.tank_ids:
+			var tank: Dictionary = _parts.get(tank_id, {})
+			dry += float(tank.get("dry_mass_kg", 0.0))
+			propellant += float(tank.get("fuel_capacity_kg", 0.0))
+		var burnout_mass := remaining_mass - propellant
+		if burnout_mass > 0.0:
+			totals.delta_v_mps += float(engine.get("isp_s", 0.0)) * 9.80665 * log(remaining_mass / burnout_mass)
+		remaining_mass = burnout_mass - dry
+		if index == 0 and config.attachment_ids.has("DECOUPLER"):
+			var separator: Dictionary = _parts.get("DECOUPLER", {})
+			remaining_mass -= float(separator.get("dry_mass_kg", 0.0))
 	return totals
+
+
+func _minimum_delta_v(mission: MissionDefinition) -> float:
+	if mission.scenario.get("spawn_profile") != "surface_north":
+		return 0.0
+	var radius := float(_body.get("radius_m", 0.0))
+	var mu := float(_body.get("mu_m3_s2", 0.0))
+	if radius <= 0.0:
+		return 0.0
+	var is_orbit := mission.objective_type == "stable_orbit"
+	var target := radius + float(mission.win_conditions.get("min_periapsis_m" if is_orbit else "min_altitude_m", 0.0))
+	var target_speed_sq := mu / target if is_orbit else 0.0
+	return sqrt(maxf(0.0, target_speed_sq + 2.0 * mu * (1.0 / radius - 1.0 / target)))
 
 
 func validate(config: RocketConfig, mission: MissionDefinition) -> Dictionary:
@@ -93,28 +125,34 @@ func validate(config: RocketConfig, mission: MissionDefinition) -> Dictionary:
 	if _parts.is_empty():
 		errors.append("The parts catalog is unavailable.")
 	_check_part_type(config.command_pod_id, "pod", "command pod", errors)
-	if config.stages.is_empty():
-		errors.append("Add one propulsion stage with an engine and fuel tank.")
-	elif config.stages.size() > 1:
-		errors.append("Vehicle lab supports one stage. Restore Sparrow I to replace this unsupported arrangement.")
+	if config.stages.is_empty() or config.stages.size() > MAX_STAGES:
+		errors.append("Fit one or two propulsion stages.")
 	for index in config.stages.size():
 		var stage_config := config.stages[index]
 		if stage_config == null:
-			errors.append("Stage %d is missing. Install an engine and fuel tank, or restore Sparrow I." % (index + 1))
+			errors.append("Stage %d is missing." % (index + 1))
 			continue
 		_check_part_type(stage_config.engine_id, "engine", "stage %d engine" % (index + 1), errors)
-		if stage_config.tank_ids.is_empty():
-			errors.append("Stage %d needs a fuel tank." % (index + 1))
-		elif stage_config.tank_ids.size() > 1:
-			errors.append("Vehicle lab has one fuel-tank mount. Choose one tank or restore Sparrow I to replace this unsupported stack.")
+		if stage_config.tank_ids.is_empty() or stage_config.tank_ids.size() > MAX_TANKS:
+			errors.append("Stage %d needs 1–3 tanks." % (index + 1))
 		for tank_id in stage_config.tank_ids:
 			_check_part_type(tank_id, "tank", "stage %d fuel tank" % (index + 1), errors)
+	var fitted := {}
 	for attachment_id in config.attachment_ids:
 		if attachment_id.is_empty():
 			errors.append("Attachment IDs cannot be empty.")
+			continue
 		var attachment: Dictionary = _parts.get(attachment_id, {})
-		if not attachment.is_empty() and String(attachment.get("type", "")) not in ["attachment", "legs", "payload", "decoupler"]:
-			errors.append("%s cannot be placed in an attachment slot." % attachment_id)
+		if attachment.is_empty():
+			continue
+		var kind: String = attachment.type
+		if kind not in ["legs", "payload", "decoupler"] or fitted.has(kind):
+			errors.append("Invalid or duplicate attachment: %s." % attachment_id)
+		fitted[kind] = true
+	if config.stages.size() == 2 and not fitted.has("decoupler"):
+		errors.append("Fit a separator between stages.")
+	elif config.stages.size() == 1 and fitted.has("decoupler"):
+		errors.append("A separator needs two stages.")
 	var part_ids := _part_ids(config)
 	for part_id in part_ids:
 		if part_id.is_empty():
@@ -129,8 +167,11 @@ func validate(config: RocketConfig, mission: MissionDefinition) -> Dictionary:
 	var totals := calculate(config)
 	if int(totals.cost_credits) > mission.budget_credits:
 		errors.append("The build costs %d CR and exceeds the %d CR mission budget." % [totals.cost_credits, mission.budget_credits])
-	if float(totals.launch_twr) > 0.0 and float(totals.launch_twr) <= 1.0:
-		warnings.append("Launch thrust-to-weight is %.2f. The rocket may not lift off; use a lighter tank or a stronger engine." % totals.launch_twr)
+	if errors.is_empty():
+		if mission.scenario.get("spawn_profile") == "surface_north" and float(totals.launch_twr) <= 1.0:
+			warnings.append("Low thrust: %.2f TWR." % totals.launch_twr)
+		if float(totals.delta_v_mps) < _minimum_delta_v(mission):
+			warnings.append("Low Δv for this trajectory.")
 	return {"valid": errors.is_empty(), "errors": errors, "warnings": warnings}
 
 
@@ -140,7 +181,7 @@ func show_validation_errors(errors: Array[String], warnings: Array[String] = [])
 	%BuildStatus.text = "BUILD NEEDS ATTENTION\n" + "\n".join(errors)
 	if not warnings.is_empty():
 		%BuildStatus.text += "\nWARNING: " + "\n".join(warnings)
-	%BuildStatus.modulate = Color("#ffb454")
+	%BuildStatus.theme_type_variation = &"WarningLabel"
 	%Primary.disabled = true
 
 
@@ -166,9 +207,16 @@ func _ready() -> void:
 	%RocketName.text = build_config().rocket_name
 	%RocketName.text_changed.connect(_on_name_changed)
 	%RocketPreview.accepts_part = _accepts_part
-	%RocketPreview.part_dropped.connect(_install_part)
-	%RocketPreview.part_removed.connect(_remove_part)
+	%RocketPreview.part_dropped.connect(install_part)
+	%RocketPreview.part_removed.connect(remove_part)
 	%Reset.pressed.connect(_reset_assembly)
+	%AddStage.pressed.connect(add_stage)
+	%RemoveStage.pressed.connect(_remove_stage)
+	%Pioneer.pressed.connect(_load_pioneer)
+	%TestFire.pressed.connect(func() -> void: %RocketPreview.fire_test(build_config()))
+	%Primary.visible = not _workshop
+	if _workshop:
+		%Secondary.text = "↶ Chart"
 	%Clear.pressed.connect(_clear_assembly)
 	%Primary.pressed.connect(_prepare_launch)
 	%Secondary.pressed.connect(func() -> void: back_requested.emit())
@@ -193,72 +241,110 @@ func _part_spec(part: Dictionary) -> String:
 			return "%d kg dry" % int(part.dry_mass_kg)
 
 
+func _mounts() -> Array[Dictionary]:
+	var mounts: Array[Dictionary] = [{"key": "pod", "kind": "pod", "id": _config.command_pod_id}]
+	if _is_allowed("PROBE") or _config.attachment_ids.has("PROBE"):
+		mounts.append({"key": "payload", "kind": "payload", "id": _attachment("payload")})
+	for index in range(clampi(_config.stages.size(), 1, MAX_STAGES) - 1, -1, -1):
+		var stage_config := _config.stages[index] if index < _config.stages.size() else null
+		var tanks: Array[String] = [] if stage_config == null else stage_config.tank_ids
+		for tank_index in range(mini(tanks.size() + 1, MAX_TANKS) - 1, -1, -1):
+			var key := "tank" if index == 0 and tank_index == 0 else "tank_%d_%d" % [index, tank_index]
+			var part_id := tanks[tank_index] if tank_index < tanks.size() else ""
+			mounts.append({"key": key, "kind": "tank", "id": part_id, "stage": index, "tank": tank_index, "spare": tank_index > 0 and part_id.is_empty()})
+		mounts.append({"key": "engine" if index == 0 else "engine_1", "kind": "engine", "id": "" if stage_config == null else stage_config.engine_id, "stage": index})
+		if index == 1:
+			mounts.append({"key": "decoupler", "kind": "decoupler", "id": _attachment("decoupler")})
+	return mounts
+
+
+func _mount(slot: String) -> Dictionary:
+	if slot == "legs":
+		return {"kind": "legs", "id": _attachment("legs")}
+	for mount in _mounts():
+		if mount.key == slot:
+			return mount
+	return {}
+
+
+func _attachment(kind: String) -> String:
+	for part_id in _config.attachment_ids:
+		var part: Dictionary = _parts.get(part_id, {})
+		if part.get("type") == kind:
+			return part_id
+	return ""
+
+
 func _accepts_part(slot: String, part_id: String) -> bool:
 	var part: Dictionary = _parts.get(part_id, {})
-	return _selected_parts.has(slot) and part.get("type") == slot and _is_allowed(part_id)
-
-
-func _install_part(slot: String, part_id: String) -> void:
-	install_part(slot, part_id)
+	return _config != null and not part.is_empty() and _is_allowed(part_id) and _mount(slot).get("kind") == part.type
 
 
 func install_part(slot: String, part_id: String) -> bool:
 	if not _accepts_part(slot, part_id):
 		return false
-	if _config == null:
-		_reset_assembly()
-	if slot == "pod":
-		_config.command_pod_id = part_id
-	else:
-		var stage_config := _editable_stage()
-		if slot == "engine":
-			stage_config.engine_id = part_id
-		elif slot == "tank":
-			# Replacing this mount is an explicit user edit, not a load-time flatten.
-			stage_config.tank_ids.assign([part_id])
-	_sync_selected_parts()
-	if is_node_ready():
-		_refresh_build()
+	var mount := _mount(slot)
+	match mount.kind:
+		"pod":
+			_config.command_pod_id = part_id
+		"engine":
+			_editable_stage(mount.stage).engine_id = part_id
+		"tank":
+			var tanks := _editable_stage(mount.stage).tank_ids
+			if mount.tank == tanks.size():
+				tanks.append(part_id)
+			else:
+				tanks[mount.tank] = part_id
+		_:
+			_config.attachment_ids.erase(String(mount.id))
+			_config.attachment_ids.append(part_id)
+	_refresh_build()
 	return true
 
 
-func _remove_part(slot: String) -> void:
-	remove_part(slot)
-
-
 func remove_part(slot: String) -> void:
-	if not _selected_parts.has(slot) or _config == null:
-		return
-	if slot == "pod":
-		_config.command_pod_id = ""
-	else:
-		var stage_config := _editable_stage()
-		if slot == "engine":
-			stage_config.engine_id = ""
-		elif slot == "tank":
-			stage_config.tank_ids.clear()
-	_sync_selected_parts()
-	if is_node_ready():
-		_refresh_build()
-
-
-func _editable_stage() -> StageConfig:
-	if _config.stages.is_empty():
-		_config.stages.append(StageConfig.new())
-	elif _config.stages[0] == null:
-		_config.stages[0] = StageConfig.new()
-	return _config.stages[0]
-
-
-func _sync_selected_parts() -> void:
-	_selected_parts = {"pod": "", "tank": "", "engine": ""}
 	if _config == null:
 		return
-	_selected_parts.pod = _config.command_pod_id
-	if not _config.stages.is_empty() and _config.stages[0] != null:
-		_selected_parts.engine = _config.stages[0].engine_id
-		if not _config.stages[0].tank_ids.is_empty():
-			_selected_parts.tank = _config.stages[0].tank_ids[0]
+	var mount := _mount(slot)
+	if mount.is_empty() or String(mount.id).is_empty():
+		return
+	match mount.kind:
+		"pod":
+			_config.command_pod_id = ""
+		"engine":
+			_editable_stage(mount.stage).engine_id = ""
+		"tank":
+			_editable_stage(mount.stage).tank_ids.remove_at(mount.tank)
+		_:
+			_config.attachment_ids.erase(String(mount.id))
+	_refresh_build()
+
+
+func _editable_stage(index: int) -> StageConfig:
+	if _config.stages.is_empty():
+		_config.stages.append(StageConfig.new())
+	if _config.stages[index] == null:
+		_config.stages[index] = StageConfig.new()
+	return _config.stages[index]
+
+
+func add_stage() -> bool:
+	if _config.stages.size() >= MAX_STAGES or not _is_allowed("DECOUPLER"):
+		return false
+	if _config.stages.is_empty():
+		_config.stages.append(StageConfig.new())
+	_config.stages.append(StageConfig.new())
+	_refresh_build()
+	return true
+
+
+func _remove_stage() -> void:
+	if _config.stages.size() <= 1:
+		return
+	_config.stages.pop_back()
+	if _config.stages.size() == 1:
+		_config.attachment_ids.erase("DECOUPLER")
+	_refresh_build()
 
 
 func _clear_assembly() -> void:
@@ -266,31 +352,33 @@ func _clear_assembly() -> void:
 	_config = RocketConfig.new()
 	_config.rocket_name = rocket_name
 	_config.stages.append(StageConfig.new())
-	_sync_selected_parts()
-	if is_node_ready():
-		_refresh_build()
+	_refresh_build()
 
 
 func _reset_assembly() -> void:
 	_config = RocketConfig.new()
 	_config.rocket_name = "Sparrow I"
+	_config.command_pod_id = "POD_A" if _is_allowed("POD_A") else ""
 	var stage_config := StageConfig.new()
-	for slot: String in DEFAULT_PARTS:
-		var part_id: String = DEFAULT_PARTS[slot]
-		var accepted_id := part_id if _accepts_part(slot, part_id) else ""
-		match slot:
-			"pod":
-				_config.command_pod_id = accepted_id
-			"engine":
-				stage_config.engine_id = accepted_id
-			"tank":
-				if not accepted_id.is_empty():
-					stage_config.tank_ids.append(accepted_id)
+	stage_config.engine_id = "ENG_L" if _is_allowed("ENG_L") else ""
+	if _is_allowed("TANK_L"):
+		stage_config.tank_ids.append("TANK_L")
 	_config.stages.append(stage_config)
-	_sync_selected_parts()
 	if is_node_ready():
 		%RocketName.text = _config.rocket_name
 		_refresh_build()
+
+
+func _load_pioneer() -> void:
+	_reset_assembly()
+	if not add_stage():
+		return
+	install_part("engine_1", "ENG_V")
+	install_part("tank_1_0", "TANK_L")
+	install_part("decoupler", "DECOUPLER")
+	_config.rocket_name = "Pioneer II"
+	%RocketName.text = _config.rocket_name
+	_refresh_build()
 
 
 func _is_allowed(part_id: String) -> bool:
@@ -301,47 +389,36 @@ func _refresh_build() -> void:
 	if not is_node_ready():
 		return
 	var config := build_config()
-	_sync_selected_parts()
-	var stats := calculate(config)
-	var parts_by_slot := {}
-	var art_by_slot := {}
-	var installed := 0
-	for slot: String in _selected_parts:
-		var part_id: String = _selected_parts[slot]
-		if not part_id.is_empty() and _parts.has(part_id) and _parts[part_id].get("type") == slot:
-			installed += 1
-			parts_by_slot[slot] = _parts[part_id]
-			art_by_slot[slot] = _artwork.get(part_id)
-	%CraftName.text = "%d of 3 modules installed" % installed
-	%RocketPreview.show_parts(parts_by_slot, art_by_slot)
+	%RocketPreview.show_assembly(_mounts(), _artwork, _is_allowed("LEGS"), _attachment("legs"))
 	if _mission == null:
-		%MissionTag.text = "ASSEMBLY BAY / NO MISSION SELECTED"
-		%MissionBriefing.text = "Use F5 and select a mission from the main menu to start designing."
-		%Details.text = "No mission loaded."
-		%BuildStatus.text = "SELECT A MISSION FIRST"
+		%MissionTag.text = "OFFLINE"
+		%MissionBriefing.text = "Select a mission from the star chart."
+		%BuildStatus.text = "NO MISSION"
 		%Primary.disabled = true
-		%Clear.disabled = true
-		%Reset.disabled = true
 		return
-	%Clear.disabled = false
-	%Reset.disabled = false
-
+	var stats := calculate(config)
 	var cost := int(stats.cost_credits)
-	%MissionTag.text = "ASSEMBLY BAY    /    %s  %s" % [_mission.id, _mission.title.to_upper()]
+	%MissionTag.text = _mission.id
 	%MissionBriefing.text = _mission.objective_text
 	%BudgetValue.text = "%d / %d CR" % [cost, _mission.budget_credits]
 	%BudgetBar.max_value = maxi(1, _mission.budget_credits)
 	%BudgetBar.value = cost
-	%BudgetBar.modulate = Color("#ff767e") if cost > _mission.budget_credits else Color.WHITE
-	%Details.text = "%d CR remaining\n%.0f kg dry mass\n%.0f kg wet mass\n%.0f kg fuel\n%.2f launch TWR" % [
-		_mission.budget_credits - cost, stats.dry_mass_kg, stats.wet_mass_kg, stats.fuel_kg, stats.launch_twr,
+	%BudgetBar.theme_type_variation = &"OverBudget" if cost > _mission.budget_credits else &""
+	%Details.text = "WET   %.0f kg\nFUEL  %.0f kg\nTWR   %.2f\nΔv    %.2f km/s" % [
+		stats.wet_mass_kg, stats.fuel_kg, stats.launch_twr, float(stats.delta_v_mps) / 1000.0,
 	]
 	var validation := validate(config, _mission)
-	%Primary.disabled = not validation.valid
-	%BuildStatus.text = "READY FOR PREFLIGHT" if validation.valid else "\n".join(validation.errors)
-	if not validation.warnings.is_empty():
-		%BuildStatus.text += "\nWARNING: " + "\n".join(validation.warnings)
-	%BuildStatus.modulate = Color("#72e6af") if validation.valid else Color("#ffb454")
+	%Primary.disabled = not validation.valid or _workshop
+	%BuildStatus.text = "GO" if validation.valid else validation.errors[0]
+	if validation.valid and not validation.warnings.is_empty():
+		%BuildStatus.text = validation.warnings[0]
+	%BuildStatus.tooltip_text = "\n".join(validation.errors + validation.warnings)
+	%BuildStatus.theme_type_variation = &"SuccessLabel" if validation.valid and validation.warnings.is_empty() else &"WarningLabel"
+	%AddStage.visible = _is_allowed("DECOUPLER")
+	%AddStage.disabled = config.stages.size() >= MAX_STAGES
+	%RemoveStage.visible = config.stages.size() > 1
+	%Pioneer.visible = _is_allowed("DECOUPLER") and _is_allowed("ENG_V")
+	%TestFire.disabled = not validation.valid
 
 
 func _on_name_changed(value: String) -> void:
@@ -350,6 +427,8 @@ func _on_name_changed(value: String) -> void:
 
 
 func _prepare_launch() -> void:
+	if _workshop:
+		return
 	# Synchronize the shown name and revalidate at the transition boundary.
 	_config.rocket_name = %RocketName.text.strip_edges()
 	if _config.rocket_name.is_empty():

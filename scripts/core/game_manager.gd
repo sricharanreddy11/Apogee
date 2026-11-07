@@ -105,6 +105,18 @@ func _return_to_briefing(builder: BuilderController) -> void:
 	_show_mission_briefing()
 
 
+func show_workshop() -> void:
+	var workshop := MissionDefinition.new()
+	workshop.id = "WORKSHOP"
+	workshop.title = "Workshop"
+	workshop.budget_credits = 10000
+	workshop.scenario = {"body_id": "earth"}
+	var screen := BUILDER.instantiate() as BuilderController
+	screen.setup(workshop, true)
+	screen.back_requested.connect(show_main_menu)
+	_switch_screen(screen)
+
+
 func show_builder() -> void:
 	if _mission == null:
 		show_main_menu()

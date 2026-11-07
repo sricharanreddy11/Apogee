@@ -1,0 +1,133 @@
+{
+  "parts": {
+    "POD_A": {
+      "sprite": "res://assets/rockets/pod_a.svg",
+      "width_px": 64,
+      "height_px": 64,
+      "attachment_top_px": [
+        32,
+        0
+      ],
+      "attachment_bottom_px": [
+        32,
+        64
+      ]
+    },
+    "TANK_S": {
+      "sprite": "res://assets/rockets/tank_s.svg",
+      "width_px": 64,
+      "height_px": 76,
+      "attachment_top_px": [
+        32,
+        0
+      ],
+      "attachment_bottom_px": [
+        32,
+        76
+      ]
+    },
+    "TANK_L": {
+      "sprite": "res://assets/rockets/tank_l.svg",
+      "width_px": 64,
+      "height_px": 102,
+      "attachment_top_px": [
+        32,
+        0
+      ],
+      "attachment_bottom_px": [
+        32,
+        102
+      ]
+    },
+    "ENG_L": {
+      "sprite": "res://assets/rockets/eng_l.svg",
+      "width_px": 64,
+      "height_px": 52,
+      "attachment_top_px": [
+        32,
+        0
+      ],
+      "attachment_bottom_px": [
+        32,
+        52
+      ],
+      "exhaust_origin_px": [
+        32,
+        52
+      ]
+    },
+    "ENG_S": {
+      "sprite": "res://assets/rockets/eng_s.svg",
+      "width_px": 64,
+      "height_px": 48,
+      "attachment_top_px": [
+        32,
+        0
+      ],
+      "attachment_bottom_px": [
+        32,
+        48
+      ],
+      "exhaust_origin_px": [
+        32,
+        48
+      ]
+    },
+    "ENG_V": {
+      "sprite": "res://assets/rockets/eng_v.svg",
+      "width_px": 64,
+      "height_px": 64,
+      "attachment_top_px": [
+        32,
+        0
+      ],
+      "attachment_bottom_px": [
+        32,
+        64
+      ],
+      "exhaust_origin_px": [
+        32,
+        64
+      ]
+    },
+    "DECOUPLER": {
+      "sprite": "res://assets/rockets/decoupler.svg",
+      "width_px": 64,
+      "height_px": 22,
+      "attachment_top_px": [
+        32,
+        0
+      ],
+      "attachment_bottom_px": [
+        32,
+        22
+      ]
+    },
+    "LEGS": {
+      "sprite": "res://assets/rockets/legs.svg",
+      "width_px": 114,
+      "height_px": 70,
+      "attachment_top_px": [
+        57,
+        0
+      ],
+      "attachment_bottom_px": [
+        57,
+        70
+      ]
+    },
+    "PROBE": {
+      "sprite": "res://assets/rockets/probe.svg",
+      "width_px": 64,
+      "height_px": 32,
+      "attachment_top_px": [
+        32,
+        0
+      ],
+      "attachment_bottom_px": [
+        32,
+        32
+      ]
+    }
+  }
+}

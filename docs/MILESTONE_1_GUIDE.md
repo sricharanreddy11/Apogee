@@ -10,22 +10,18 @@ to the main menu. **Launch** emits the agreed launch request once, in the same
 preview scene. Actual rocket flight is connected in M4; this milestone has no
 physics, win detection, rewards, or save-file writes.
 
-RocketLab is the real parts-selection builder pulled from `main`, connected to the
-M1 navigation contract. It starts with Sparrow I and has three mounts: command
-pod at the top, one fuel tank in the middle, and engine at the bottom. The current
-editor supports **one stage and one tank**. More stages, extra tanks, attachments,
-and their construction rules need an expanded editor before they can be launched.
+The hangar starts with Sparrow I. Add up to two stages and three tanks per stage. Click a category to reveal the parts arc. Drag parts onto the glowing mount or right-click a mounted part to detach it. The **Kit** category includes the stage separator, science payload, and landing legs when the mission allows them. **Workshop** on the star chart gives access to the entire catalog and both reference designs.
 
 ## Build and change your rocket
 
 1. Open **Pods**, **Fuel**, or **Engines** to reveal that category's part cards.
-2. Click a part card to install it in its matching mount, or drag it onto that
+2. Drag a part from the category arc onto its matching
    mount. Wrong-category drops are rejected. Replacing a part updates the picture,
    cost, mass, and fuel immediately.
 3. Right-click an installed module on the rocket to detach it. A missing required
    module blocks **Prepare Launch** and shows the reason in the readiness area.
-4. Edit the rocket name in its text field. **Clear rocket** removes the assembly;
-   **Restore Sparrow I** restores the reference pod, large tank, and launch engine.
+4. Edit the rocket name in its text field. **Clear** removes the assembly;
+   **Sparrow I** restores the reference pod, large tank, and launch engine.
 5. Choose **Prepare Launch** when the build is valid. **Back to briefing** keeps the draft.
    **Edit Rocket** from preflight restores your selected parts and name.
 
@@ -74,13 +70,13 @@ and `true`/`false` do not. Keep field names, commas, and value types intact.
 Choose **Fuel**, then click **Small tank** or drag its card to the middle mount.
 The rocket becomes shorter and the totals change to 1,250 CR and 2,200 kg wet mass.
 Choose **Prepare Launch**, then **Edit Rocket**: the smaller tank stays selected.
-Use **Restore Sparrow I** whenever you want the original reference assembly back.
+Use **Sparrow I** whenever you want the original reference assembly back.
 
 To change the default for future assemblies, open
-`scripts/builder/builder_controller.gd` and edit `DEFAULT_PARTS`, for example its
+`scripts/builder/builder_controller.gd` and edit `_reset_assembly()`, for example its
 `"tank": "TANK_L"` entry to `"tank": "TANK_S"`. `_reset_assembly()` reads those
 defaults; `build_config()` exports your current choices. Stop and select M01 again
-to start fresh. The **Restore Sparrow I** action also uses the edited defaults.
+to start fresh. The **Sparrow I** action also uses the edited defaults.
 
 To tune a part's price, dry mass, or fuel capacity, edit that part's entry in
 `data/parts.json` and rerun. Keep stable IDs such as `TANK_S` intact: these connect
@@ -126,7 +122,7 @@ objectives; only their definitions and locked cards are prepared here.
 4. GameManager validates again at the handoff, stores an independent copy, and opens
    the preflight preview.
 5. The preview draws that config. **Edit Rocket** reloads the stored design into the
-   builder. **Launch** revalidates, marks the session as requested, and emits a copy.
+   builder. **Launch** revalidates, marks the session as requested, and emits a copy. **Test fire** in the hangar previews exhaust and stage separation without running the flight simulation.
 
 The real RocketLab editor uses the same adapter contract:
 `setup(mission)`, `load_config(config)`, `build_config()`, `validate(config, mission)`,

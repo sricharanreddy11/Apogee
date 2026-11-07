@@ -55,8 +55,8 @@ func _run() -> void:
 	_check(not discs.get_node("POD_A").visible, "Pressing the active category closes it.")
 
 	var small_tank := {"apogee_part_id": "TANK_S"}
-	var pod_point := _slot_point(preview, 0)
-	var tank_point := _slot_point(preview, 1)
+	var pod_point := _slot_point(preview, "pod")
+	var tank_point := _slot_point(preview, "tank")
 	_check(not preview._can_drop_data(pod_point, small_tank), "A tank cannot attach to the command-pod mount.")
 	preview._drop_data(pod_point, small_tank)
 	_check(builder.build_config().command_pod_id == "POD_A", "A rejected drop preserves the installed pod.")
@@ -73,7 +73,7 @@ func _run() -> void:
 	_check(builder.get_node("%Primary").disabled, "A missing tank disables Prepare Launch.")
 	builder.get_node("%Primary").pressed.emit()
 	_check(_confirmations == 0 and current_scene.get_instance_id() == builder_id, "A forced press cannot confirm an incomplete rocket.")
-	var near_tank_point := _slot_point(preview, 1) + Vector2(-88.0, 0.0)
+	var near_tank_point := _slot_point(preview, "tank") + Vector2(-88.0, 0.0)
 	_check(preview._can_drop_data(near_tank_point, small_tank), "A tank can attach near its mount outside the silhouette.")
 	preview._drop_data(near_tank_point, small_tank)
 	_check(builder.build_config().stages[0].tank_ids == ["TANK_S"], "A valid drop installs the selected small tank.")
@@ -90,7 +90,7 @@ func _run() -> void:
 	var reference := builder.build_config()
 	_check(reference.command_pod_id == "POD_A" and reference.stages[0].engine_id == "ENG_L" and reference.stages[0].tank_ids == ["TANK_L"], "Restore Sparrow I restores the complete reference assembly.")
 	_check(not builder.get_node("%Primary").disabled, "The restored reference is ready to prepare.")
-	preview._drop_data(_slot_point(preview, 1), small_tank)
+	preview._drop_data(_slot_point(preview, "tank"), small_tank)
 	var mission: MissionDefinition = game.get_selected_mission()
 	mission.budget_credits = 1249
 	builder.get_node("%Primary").pressed.emit()
@@ -142,9 +142,9 @@ func _run() -> void:
 	quit(0 if _failures == 0 else 1)
 
 
-func _slot_point(preview: Control, index: int) -> Vector2:
-	var rects: Array[Rect2] = preview._slot_rects()
-	return rects[index].get_center()
+func _slot_point(preview: Control, key: String) -> Vector2:
+	var rect: Rect2 = preview._rects[key]
+	return rect.get_center()
 
 
 func _on_confirmation(_config: RocketConfig) -> void:

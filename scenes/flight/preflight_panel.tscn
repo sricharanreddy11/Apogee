@@ -1,26 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/preflight_panel.gd" id="1"]
 
-[sub_resource type="StyleBoxFlat" id="Panel"]
-bg_color = Color(0.055, 0.09, 0.15, 0.98)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.13, 0.3, 0.39, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_left = 12
-corner_radius_bottom_right = 12
-content_margin_left = 28.0
-content_margin_top = 24.0
-content_margin_right = 28.0
-content_margin_bottom = 24.0
-
 [node name="PreflightPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(430, 0)
-theme_override_styles/panel = SubResource("Panel")
 script = ExtResource("1")
 
 [node name="Stack" type="VBoxContainer" parent="."]
@@ -28,12 +11,13 @@ layout_mode = 2
 theme_override_constants/separation = 14
 
 [node name="Section" type="Label" parent="Stack"]
+theme_type_variation = &"EyebrowLabel"
 layout_mode = 2
-theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
 theme_override_font_sizes/font_size = 16
 text = "PREFLIGHT CHECK"
 
 [node name="MissionName" type="Label" parent="Stack"]
+theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 25
@@ -41,6 +25,7 @@ autowrap_mode = 3
 text = "Mission"
 
 [node name="ReadinessStatus" type="Label" parent="Stack"]
+theme_type_variation = &"SuccessLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
@@ -53,31 +38,34 @@ theme_override_font_sizes/font_size = 18
 autowrap_mode = 3
 
 [node name="LocationLabel" type="Label" parent="Stack"]
+theme_type_variation = &"MutedLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.73, 0.82, 1)
 autowrap_mode = 3
 
 [node name="RocketName" type="Label" parent="Stack"]
+theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 autowrap_mode = 3
 
 [node name="CostLabel" type="Label" parent="Stack"]
+theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 
 [node name="MassLabel" type="Label" parent="Stack"]
+theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 
 [node name="ValidationMessage" type="Label" parent="Stack"]
+theme_type_variation = &"WarningLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.76, 0.36, 1)
 autowrap_mode = 3
 
 [node name="Space" type="Control" parent="Stack"]
@@ -91,8 +79,8 @@ layout_mode = 2
 text = "Edit Rocket"
 
 [node name="LaunchButton" type="Button" parent="Stack"]
+theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.49, 0.89, 0.69, 1)
 text = "LAUNCH"

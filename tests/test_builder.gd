@@ -43,7 +43,7 @@ func _run() -> void:
 	_check(not builder.validate(broken, mission.definition).valid, "Missing tank is blocked.")
 	broken = reference.copy()
 	broken.stages.append(reference.stages[0].copy())
-	_check(not builder.validate(broken, mission.definition).valid, "Unsupported multiple stages are blocked.")
+	_check(not builder.validate(broken, mission.definition).valid, "Two stages without a separator are blocked.")
 	broken = reference.copy()
 	broken.stages[0] = null
 	_check(not builder.validate(broken, mission.definition).valid, "Missing stage object is blocked without a crash.")
@@ -61,7 +61,7 @@ func _run() -> void:
 		heavy.stages[0].tank_ids.append("TANK_L")
 	mission.definition.budget_credits = 100000
 	var heavy_validation := builder.validate(heavy, mission.definition)
-	_check(not heavy_validation.valid and "fuel-tank mount" in "\n".join(heavy_validation.errors), "Multiple tanks are explicitly blocked by the one-mount vehicle lab.")
+	_check(not heavy_validation.valid and "1–3 tanks" in "\n".join(heavy_validation.errors), "The builder rejects more than three tanks per stage.")
 	builder.load_config(heavy)
 	_check(builder.build_config().stages[0].tank_ids.size() == 11, "Unsupported loaded stack is preserved for validation, not flattened.")
 	mission.definition.budget_credits = 2000
@@ -78,6 +78,8 @@ func _run() -> void:
 	builder.free()
 	await _test_scene(mission.definition)
 	_test_preview(reference)
+	_test_advanced()
+	await _test_workshop()
 	if _failures == 0:
 		print("Builder handoff tests passed.")
 	quit(0 if _failures == 0 else 1)
@@ -131,6 +133,70 @@ func _test_preview(config: RocketConfig) -> void:
 	detached.stages[0].tank_ids.clear()
 	_check(preview.get_config().stages[0].tank_ids == ["TANK_L"], "Rocket visual owns a detached copy of actual part IDs.")
 	preview.free()
+
+
+func _test_advanced() -> void:
+	var catalog := MissionCatalog.new()
+	var orbital := catalog.load_mission("M02")
+	var builder := BuilderController.new()
+	builder.setup(orbital)
+	_check(is_equal_approx(builder.calculate(builder.build_config()).delta_v_mps, 230.0 * 9.80665 * log(3600.0 / 1400.0)), "Sparrow I Δv matches the rocket equation.")
+	_check(builder.add_stage() and not builder.add_stage(), "The editor supports a maximum of two stages.")
+	_check(builder.install_part("tank_1_0", "TANK_L") and builder.install_part("engine_1", "ENG_V"), "The upper stage accepts its own tank and engine.")
+	_check(not builder.validate(builder.build_config(), orbital).valid, "Two stages require a separator.")
+	_check(builder.install_part("decoupler", "DECOUPLER"), "The separator fits between stages.")
+	var pioneer := builder.build_config()
+	var stats := builder.calculate(pioneer)
+	_check(builder.validate(pioneer, orbital).valid, "Pioneer II passes the orbital builder rules.")
+	_check(stats.cost_credits == 2900 and stats.wet_mass_kg == 6330.0, "Pioneer II has the specified cost and wet mass.")
+	var delta_v := 230.0 * 9.80665 * log(6330.0 / 4130.0) + 340.0 * 9.80665 * log(3250.0 / 1050.0)
+	_check(is_equal_approx(stats.delta_v_mps, delta_v), "Staged Δv discards the first stage structure and separator before the upper burn.")
+	_check(builder.install_part("tank_0_1", "TANK_S") and builder.install_part("tank_0_2", "TANK_S"), "A stage accepts three tanks.")
+	_check(not builder.install_part("tank_0_3", "TANK_S"), "A fourth tank cannot be installed.")
+	builder.remove_part("tank_0_1")
+	_check(builder.build_config().stages[0].tank_ids == ["TANK_L", "TANK_S"], "Detaching a tank compacts the remaining stack.")
+	var flyby := catalog.load_mission("M03")
+	builder.setup(flyby)
+	_check(not builder.validate(builder.build_config(), flyby).valid, "Lunar Encounter requires a science payload.")
+	_check(builder.install_part("payload", "PROBE") and builder.validate(builder.build_config(), flyby).valid, "Fitting PROBE meets the flyby build requirement.")
+	var landing := catalog.load_mission("M04")
+	builder.setup(landing)
+	_check(not builder.validate(builder.build_config(), landing).valid, "One Small Step requires landing legs.")
+	_check(builder.install_part("legs", "LEGS") and builder.validate(builder.build_config(), landing).valid, "Fitting LEGS meets the lunar landing build requirement.")
+	builder.free()
+	var rig := RocketRig.new()
+	rig.setup(pioneer)
+	_check(rig.get_node("Stage1").get_child_count() == 4, "The native rocket rig includes the first stage engine, tank, exhaust and separator.")
+	rig.apply_flight(0, 0.75, false)
+	_check(rig.get_node("Stage1").get_child(0).visible, "Throttle lights the active engine.")
+	rig.apply_flight(1, 0.75, true)
+	_check(not rig.get_node("Stage1").visible and rig.get_node("Stage2").get_child(0).visible, "Stage changes discard the lower visual and light the upper engine.")
+	rig.free()
+
+
+func _test_workshop() -> void:
+	var game := root.get_node("GameManager")
+	game.show_main_menu()
+	await scene_changed
+	current_scene.get_node("%Workshop").pressed.emit()
+	await scene_changed
+	var hangar := current_scene as BuilderController
+	_check(hangar != null and not hangar.get_node("%Primary").visible, "Workshop opens the hangar without a campaign launch.")
+	_check(hangar.get_node("%PartDiscs").get_child_count() == 9, "Workshop exposes the full nine-part catalog.")
+	hangar.get_node("%Pioneer").pressed.emit()
+	var preview: Control = hangar.get_node("%RocketPreview")
+	var mount: Rect2 = preview._rects["legs"]
+	var legs := {"apogee_part_id": "LEGS"}
+	_check(preview._can_drop_data(mount.get_center(), legs), "Landing legs have a dedicated mount in the hangar.")
+	preview._drop_data(mount.get_center(), legs)
+	var config := hangar.build_config()
+	_check(config.stages.size() == 2 and config.attachment_ids.has("LEGS"), "The Workshop assembles both stages and landing legs.")
+	hangar.get_node("%TestFire").pressed.emit()
+	_check(preview.get_node("%TestRig").visible, "Test fire switches to the animated native rig.")
+	_check(hangar.build_config().attachment_ids == config.attachment_ids, "Test fire preserves the design.")
+	hangar.get_node("%Secondary").pressed.emit()
+	await scene_changed
+	_check(current_scene.name == "MainMenu", "Workshop returns to the star chart.")
 
 
 func _on_confirmed(config: RocketConfig) -> void:

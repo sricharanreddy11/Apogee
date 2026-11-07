@@ -9,8 +9,21 @@
     "body_id": "moon",
     "spawn_profile": "lunar_descent"
   },
-  "allowed_part_ids": ["POD_A", "TANK_S", "TANK_L", "ENG_L"],
-  "required_part_ids": ["POD_A"],
+  "allowed_part_ids": [
+    "POD_A",
+    "TANK_S",
+    "TANK_L",
+    "ENG_L",
+    "ENG_S",
+    "ENG_V",
+    "DECOUPLER",
+    "PROBE",
+    "LEGS"
+  ],
+  "required_part_ids": [
+    "POD_A",
+    "LEGS"
+  ],
   "win_conditions": {
     "max_vertical_speed_mps": 8,
     "max_horizontal_speed_mps": 5,

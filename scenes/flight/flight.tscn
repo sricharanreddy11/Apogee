@@ -1,47 +1,70 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/physics/flight_screen.gd" id="1"]
 
 [ext_resource type="Script" path="res://scripts/ui/flight_hud.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/ui/orbit_map.gd" id="3"]
 
+[ext_resource type="Script" path="res://scripts/ui/rocket_preview.gd" id="4"]
+
+[ext_resource type="PackedScene" path="res://scenes/ui/mission_backdrop.tscn" id="Backdrop"]
+
 [node name="Flight" type="Node2D"]
 script = ExtResource("1")
 
 [node name="Interface" type="CanvasLayer" parent="."]
 
+[node name="Backdrop" parent="Interface" instance=ExtResource("Backdrop")]
+
+[node name="FlightArtwork" type="Control" parent="Interface"]
+unique_name_in_owner = true
+anchor_bottom = 1.0
+offset_right = 325.0
+offset_top = 44.0
+offset_bottom = -44.0
+mouse_filter = 2
+script = ExtResource("4")
+show_launchpad = false
+show_background = false
+
 [node name="Center" type="CenterContainer" parent="Interface"]
-anchors_preset = 15
+anchor_left = 0.20
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Stack" type="VBoxContainer" parent="Interface/Center"]
-custom_minimum_size = Vector2(490, 0)
+[node name="Console" type="PanelContainer" parent="Interface/Center"]
+layout_mode = 2
+
+[node name="Stack" type="VBoxContainer" parent="Interface/Center/Console"]
+custom_minimum_size = Vector2(510, 0)
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="Heading" type="Label" parent="Interface/Center/Stack"]
+[node name="Heading" type="Label" parent="Interface/Center/Console/Stack"]
+theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.349, 0.784, 0.91, 1)
 theme_override_font_sizes/font_size = 40
 text = "Flight preview"
 
-[node name="Details" type="Label" parent="Interface/Center/Stack"]
+[node name="Details" type="Label" parent="Interface/Center/Console/Stack"]
+theme_type_variation = &"MutedLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
-text = "Flight is paused at the launch site while the simulator is under development."
+text = "Launch-site preview"
+autowrap_mode = 2
 
-[node name="HUD" type="Label" parent="Interface/Center/Stack"]
+[node name="HUD" type="Label" parent="Interface/Center/Console/Stack"]
+theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
 text = "Open a flight from the builder to load telemetry."
 script = ExtResource("2")
 
-[node name="Map" type="Control" parent="Interface/Center/Stack"]
+[node name="Map" type="Control" parent="Interface/Center/Console/Stack"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 210)
@@ -49,13 +72,14 @@ layout_mode = 2
 mouse_filter = 2
 script = ExtResource("3")
 
-[node name="Primary" type="Button" parent="Interface/Center/Stack"]
+[node name="Primary" type="Button" parent="Interface/Center/Console/Stack"]
+theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Open report preview"
 
-[node name="Secondary" type="Button" parent="Interface/Center/Stack"]
+[node name="Secondary" type="Button" parent="Interface/Center/Console/Stack"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2

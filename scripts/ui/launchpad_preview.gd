@@ -65,6 +65,7 @@ func _check_configuration() -> bool:
 
 func _render() -> void:
 	%RocketPreview.setup(_config)
+	%RocketPreview.set_body(String(_mission.scenario.get("body_id", "earth")))
 	%PreflightPanel.setup(_mission, _config, _stats, _validation)
 	%SessionNote.text = "Preflight preview · Your rocket stays on the pad until Launch."
 

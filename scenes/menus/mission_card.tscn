@@ -81,22 +81,23 @@ mouse_filter = 2
 theme_override_constants/separation = 1
 
 [node name="MissionID" type="Label" parent="Captions"]
+theme_type_variation = &"EyebrowLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.58, 0.77, 0.88, 1)
 text = "M01"
 horizontal_alignment = 1
 
 [node name="MissionName" type="Label" parent="Captions"]
+theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
-theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
 text = "First Flight"
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Captions"]
+theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12

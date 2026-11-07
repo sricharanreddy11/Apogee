@@ -4,9 +4,6 @@ extends Control
 signal mission_selected(mission_id: String)
 signal signal_focused(mission_id: String)
 
-const CYAN := Color("#8ae4f7")
-const GREEN := Color("#86e6b4")
-const MUTED := Color("#a3adbb")
 
 var mission_id: String = ""
 var is_selectable: bool = false
@@ -58,8 +55,8 @@ func _refresh() -> void:
 		%StatusLabel.text = "AVAILABLE"
 	else:
 		%StatusLabel.text = "LOCKED"
-	%StatusLabel.modulate = GREEN if _completed else (CYAN if is_selectable else MUTED)
-	%Beacon.self_modulate = GREEN if _completed else (Color.WHITE if is_selectable else Color("#8292a8"))
+	%StatusLabel.add_theme_color_override("font_color", get_theme_color("font_color", &"SuccessLabel" if _completed else (&"EyebrowLabel" if is_selectable else &"MutedLabel")))
+	%Beacon.self_modulate = get_theme_color("font_color", &"SuccessLabel") if _completed else (Color.WHITE if is_selectable else Color("#8292a8"))
 	%Lock.visible = not is_selectable
 
 

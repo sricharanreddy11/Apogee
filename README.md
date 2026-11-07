@@ -6,9 +6,11 @@ The integrated flow is **Campaign star chart → Mission briefing → Rocket Lab
 
 **Start here:** [Milestone 1 beginner guide](docs/MILESTONE_1_GUIDE.md) explains how to build a rocket and where to change missions, prerequisites, budgets, cards, and preflight labels. [Shared interfaces](docs/INTERFACES.md) records field names, units, ownership, and integration APIs for team review.
 
-Rocket Lab comes from `main` (`0bf817f`, "added rocket lab v1"). Open **Pods**, **Fuel**, or **Engines**, then drag a part onto the matching mount. Right-click an installed module to detach it, use **Clear rocket** to start over, or **Restore Sparrow I** to reset. Change the rocket name before **Prepare Launch**. **Back to briefing** keeps your in-progress design. **Edit Rocket** reloads the design you prepared for launch. This version supports one pod, one tank, and one engine in one stage.
+Open **Workshop** from the star chart to build with the full parts catalog. Choose **Pioneer II** for a two-stage reference rocket, then **Test fire** to see ignition and separation. In the mission flow, **Back to briefing** keeps your draft and **Edit Rocket** reloads the confirmed build. Mission builds retain their own parts rules and budgets. M02 introduces upper stages and the separator, M03 requires the science payload, and M04 requires landing legs.
 
 Progress is held in memory; mission evaluation, rewards, and save files are later milestones. The **UI sandbox** button preserves M0's changing mock HUD and sample report, with pause/restart and 5× playback. It can also run directly with **F6** from `scenes/ui/ui_sandbox.tscn`. See the [M0 editing guide](docs/MILESTONE_0_GUIDE.md) for sample data changes.
+
+The shared interface theme lives in `assets/ui/apogee_theme.tres`. Edit its type variations in Godot to update headings, controls, or readouts across scenes. Oxanium and IBM Plex Mono are bundled with their licenses under `assets/ui/fonts/`.
 
 ## Team ownership
 
