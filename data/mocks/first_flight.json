@@ -1,0 +1,9 @@
+{
+  "description": "UI demonstration samples, not real rocket physics. Values between frames are interpolated. The final frame is held until Restart.",
+  "frames": [
+    { "time_s": 0, "altitude_m": 0, "speed_mps": 0, "fuel_fraction": 1.0 },
+    { "time_s": 10, "altitude_m": 5000, "speed_mps": 250, "fuel_fraction": 0.85 },
+    { "time_s": 30, "altitude_m": 35000, "speed_mps": 900, "fuel_fraction": 0.55 },
+    { "time_s": 60, "altitude_m": 100000, "speed_mps": 1400, "fuel_fraction": 0.2 }
+  ]
+}

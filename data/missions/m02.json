@@ -1,0 +1,20 @@
+{
+  "id": "M02",
+  "title": "Orbital Challenge",
+  "objective_text": "Hold an Earth orbit with periapsis at least 100 km and apoapsis no higher than 350 km for 2 seconds.",
+  "objective_type": "stable_orbit",
+  "budget_credits": 4500,
+  "reward_credits": 2000,
+  "scenario": {
+    "body_id": "earth",
+    "spawn_profile": "surface_north"
+  },
+  "allowed_part_ids": ["POD_A", "TANK_S", "TANK_L", "ENG_L"],
+  "required_part_ids": ["POD_A"],
+  "win_conditions": {
+    "min_periapsis_m": 100000,
+    "max_apoapsis_m": 350000,
+    "hold_duration_s": 2
+  },
+  "discovery_ids": []
+}

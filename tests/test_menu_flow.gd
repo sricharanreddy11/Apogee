@@ -1,0 +1,139 @@
+extends SceneTree
+
+var _failures: int = 0
+var _launch_requests: int = 0
+
+
+func _initialize() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
+	var game := root.get_node("GameManager")
+	game.completed_missions.clear()
+	game.best_scores.clear()
+	game.agency_credits = 0
+	game.show_main_menu()
+	await _settle()
+	_check(current_scene.name == "MainMenu", "T01: Game opens on the mission-selecting main menu.")
+	_check(current_scene.get_node("%MissionList").get_child_count() == 4, "M01 through M04 have data-backed cards.")
+	for id: String in ["M01", "M02", "M03", "M04"]:
+		var card := _card(id)
+		_check(card != null, "%s is visible." % id)
+		_check(not card.get_node("%SelectButton").disabled if id == "M01" else card.get_node("%SelectButton").disabled,
+			"Initial unlock state for %s." % id)
+	_card("M02").get_node("%SelectButton").pressed.emit()
+	await _settle()
+	_check(current_scene.name == "MainMenu", "T03: A locked card cannot navigate even if pressed is emitted.")
+	game.agency_credits = 100000
+	_check(not game.is_mission_unlocked("M02"), "Agency credits cannot unlock a mission.")
+	_check(not game.select_mission("M02"), "Navigation API also rejects locked missions.")
+	_check(current_scene.name == "MainMenu", "Direct locked selection stays in the menu.")
+	_check(not game.select_mission("not_a_mission"), "Unknown mission is rejected.")
+	_check(not current_scene.get_node("%ErrorMessage").text.is_empty(), "Menu shows readable navigation errors.")
+	game.agency_credits = 0
+	_card("M01").get_node("%SelectButton").pressed.emit()
+	await _settle()
+	_check(current_scene.name == "RocketBuilder", "T02: M01 opens the builder directly.")
+	_check(game.selected_mission_id == "M01", "Selected mission survives navigation.")
+	_check(current_scene.get_node("%MissionBriefing").text.contains("2000"), "T04: Builder shows the mission's 2000 CR budget.")
+	var builder := current_scene as BuilderController
+	var config := builder.build_config()
+	var missing_engine := config.copy()
+	missing_engine.stages[0].engine_id = ""
+	_check(not game.prepare_launch(missing_engine), "T05: Missing engine blocks preparation.")
+	_check(current_scene.name == "RocketBuilder", "Invalid rocket stays in builder.")
+	var expensive := config.copy()
+	expensive.stages[0].tank_ids.append("TANK_L")
+	_check(not game.prepare_launch(expensive), "T06: Over-budget build cannot reach the pad.")
+	_check(not game.prepare_launch(null), "Null handoff cannot reach the pad.")
+	var wrong_type := config.copy()
+	wrong_type.command_pod_id = "ENG_L"
+	_check(not game.prepare_launch(wrong_type), "Wrong part type cannot bypass validation.")
+	var missing_stage := config.copy()
+	missing_stage.stages[0] = null
+	_check(not game.prepare_launch(missing_stage), "Missing stage is rejected without a copy error.")
+	var malformed_pad: Node = load("res://scenes/flight/launchpad_preview.tscn").instantiate()
+	_check(not malformed_pad.setup(game.get_selected_mission(), missing_stage), "Preflight setup also rejects a missing stage safely.")
+	malformed_pad.free()
+	# Reconfirm the valid current design through the real builder signal handler.
+	current_scene.get_node("%RocketName").text = "My Sparrow"
+	current_scene.get_node("%Primary").pressed.emit()
+	await _settle()
+	_check(current_scene.name == "LaunchpadPreview", "T07/T08: Prepare Launch opens preflight.")
+	_check(game.current_rocket_config.rocket_name == "My Sparrow", "Confirmed config is stored before scene change.")
+	var pad := current_scene
+	var pad_id := pad.get_instance_id()
+	var rocket: Node = pad.get_node("%RocketPreview")
+	var rocket_id := rocket.get_instance_id()
+	_check(rocket.get_config().command_pod_id == "POD_A", "T09: Preview uses the configured pod.")
+	_check(rocket.get_config().stages[0].tank_ids[0] == "TANK_L", "Preview uses the actual configured tank.")
+	var panel := pad.get_node("%PreflightPanel")
+	_check(panel.get_node("%MissionName").text.contains("First Flight"), "Preflight shows selected mission.")
+	_check(panel.get_node("%RocketName").text == "My Sparrow", "Preflight shows chosen rocket name.")
+	_check(panel.get_node("%CostLabel").text.contains("1600 / 2000"), "Preflight uses calculated cost and mission budget.")
+	_check(not panel.get_node("%LaunchButton").disabled, "Valid rocket is ready to launch.")
+	_check(pad.session_phase == 0, "Rocket starts in preflight, with no automatic launch.")
+	panel.get_node("%EditRocketButton").pressed.emit()
+	await _settle()
+	_check(current_scene.name == "RocketBuilder", "T10: Edit Rocket returns to builder.")
+	_check(current_scene.build_config().rocket_name == "My Sparrow", "Edit preserves the chosen rocket name.")
+	_check(current_scene.build_config().stages[0].tank_ids[0] == "TANK_L", "Edit preserves the assembled parts.")
+	# A caller cannot mutate the stored design through a detached builder result.
+	var detached: RocketConfig = current_scene.build_config()
+	detached.stages[0].tank_ids.clear()
+	_check(current_scene.build_config().stages[0].tank_ids.size() == 1, "Builder returns a detached config.")
+	current_scene.get_node("%Primary").pressed.emit()
+	await _settle()
+	pad = current_scene
+	pad_id = pad.get_instance_id()
+	rocket_id = pad.get_node("%RocketPreview").get_instance_id()
+	game.flight_launch_requested.connect(_on_launch)
+	pad.get_node("%PreflightPanel").get_node("%LaunchButton").pressed.emit()
+	await _settle()
+	_check(_launch_requests == 1, "Launch reaches the agreed integration signal once.")
+	_check(pad.session_phase == 1, "Launch advances the same preview session.")
+	_check(current_scene.get_instance_id() == pad_id, "Launch does not replace the scene.")
+	_check(pad.get_node("%RocketPreview").get_instance_id() == rocket_id, "Launch does not recreate the rocket.")
+	pad.get_node("%PreflightPanel").get_node("%LaunchButton").pressed.emit()
+	_check(_launch_requests == 1, "Repeated Launch cannot emit twice.")
+	pad.get_node("%MainMenu").pressed.emit()
+	await _settle()
+	_check(current_scene.name == "MainMenu", "T11: Missions returns to the menu safely.")
+	_check(game.selected_mission_id == "M01", "Returning to menu retains selected mission.")
+	game.completed_missions.assign(["M01"])
+	game.best_scores["M01"] = 84
+	game.show_main_menu()
+	await _settle()
+	_check(_card("M01").get_node("%StatusLabel").text.contains("COMPLETED"), "T12: Completed card shows completion.")
+	_check(not _card("M01").get_node("%SelectButton").disabled, "Completed missions remain replayable.")
+	_check(not _card("M02").get_node("%SelectButton").disabled, "Completing M01 unlocks M02.")
+	_check(_card("M03").get_node("%SelectButton").disabled, "Lunar missions still require M02.")
+	game.completed_missions.append("M02")
+	_check(game.is_mission_unlocked("M03") and game.is_mission_unlocked("M04"), "M02 unlocks both lunar missions.")
+	game.completed_missions.assign(["M02"])
+	_check(game.is_mission_unlocked("M02"), "An already completed mission stays replayable.")
+	# The UI milestone must not actually award campaign progress.
+	_check(game.agency_credits == 0, "Preview flights never award agency credits.")
+	if _failures == 0:
+		print("Milestone 1 menu flow tests passed.")
+	quit(0 if _failures == 0 else 1)
+
+
+func _card(id: String) -> Node:
+	return current_scene.get_node("%MissionList").get_node_or_null(id)
+
+
+func _on_launch(_config: RocketConfig, _mission_id: String) -> void:
+	_launch_requests += 1
+
+
+func _settle() -> void:
+	await process_frame
+	await process_frame
+
+
+func _check(condition: bool, message: String) -> void:
+	if not condition:
+		_failures += 1
+		push_error(message)

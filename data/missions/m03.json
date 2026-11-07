@@ -1,0 +1,24 @@
+{
+  "id": "M03",
+  "title": "Lunar Encounter",
+  "objective_text": "Perform a Moon flyby between 15 km and 30 km above the surface with an intact command pod.",
+  "objective_type": "lunar_flyby",
+  "budget_credits": 7500,
+  "reward_credits": 2500,
+  "scenario": {
+    "body_id": "moon",
+    "spawn_profile": "lunar_approach"
+  },
+  "allowed_part_ids": ["POD_A", "TANK_S", "TANK_L", "ENG_L"],
+  "required_part_ids": ["POD_A"],
+  "payload": {
+    "name": "Lunar survey instrument",
+    "required": true
+  },
+  "win_conditions": {
+    "min_altitude_m": 15000,
+    "max_altitude_m": 30000,
+    "require_intact_pod": true
+  },
+  "discovery_ids": []
+}

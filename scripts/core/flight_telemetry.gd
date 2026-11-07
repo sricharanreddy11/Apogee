@@ -16,6 +16,7 @@ var altitude_m: float = 0.0
 var speed_mps: float = 0.0
 var radial_speed_mps: float = 0.0
 var tangential_speed_mps: float = 0.0
+## Read apoapsis/periapsis only when this is true; zero otherwise is a placeholder.
 var has_bound_orbit: bool = false
 var apoapsis_altitude_m: float = 0.0
 var periapsis_altitude_m: float = 0.0

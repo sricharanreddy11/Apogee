@@ -1,0 +1,22 @@
+{
+  "id": "M04",
+  "title": "One Small Step",
+  "objective_text": "Land safely on the Moon: vertical speed at most 8 m/s, horizontal speed at most 5 m/s, tilt at most 20 degrees, with deployed landing legs and an intact pod.",
+  "objective_type": "safe_landing",
+  "budget_credits": 10000,
+  "reward_credits": 4000,
+  "scenario": {
+    "body_id": "moon",
+    "spawn_profile": "lunar_descent"
+  },
+  "allowed_part_ids": ["POD_A", "TANK_S", "TANK_L", "ENG_L"],
+  "required_part_ids": ["POD_A"],
+  "win_conditions": {
+    "max_vertical_speed_mps": 8,
+    "max_horizontal_speed_mps": 5,
+    "max_orientation_deg": 20,
+    "require_landing_legs": true,
+    "require_intact_pod": true
+  },
+  "discovery_ids": []
+}

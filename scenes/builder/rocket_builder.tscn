@@ -137,8 +137,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_constants/margin_left = 44
 theme_override_constants/margin_right = 44
-theme_override_constants/margin_top = 27
-theme_override_constants/margin_bottom = 27
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_bottom = 20
 
 [node name="Page" type="VBoxContainer" parent="Insets"]
 layout_mode = 2
@@ -153,7 +153,7 @@ unique_name_in_owner = true
 
 [node name="Heading" type="Label" parent="Insets/Page"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 46
+theme_override_font_sizes/font_size = 38
 theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
 text = "Vehicle lab"
 
@@ -163,10 +163,18 @@ theme_override_font_sizes/font_size = 18
 theme_override_colors/font_color = Color(0.59, 0.72, 0.81, 1)
 text = "Open a parts category. Drag a module near the rocket and feel it snap into place."
 
+[node name="MissionBriefing" type="Label" parent="Insets/Page"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.7, 0.81, 0.87, 1)
+text = "Select a mission from the main menu to load the briefing."
+autowrap_mode = 2
+
 [node name="Workbench" type="Control" parent="Insets/Page"]
 layout_mode = 2
 size_flags_vertical = 3
-custom_minimum_size = Vector2(0, 400)
+custom_minimum_size = Vector2(0, 360)
 
 [node name="RocketPreview" type="Control" parent="Insets/Page/Workbench"]
 unique_name_in_owner = true
@@ -205,61 +213,74 @@ unique_name_in_owner = true
 layout_mode = 0
 mouse_filter = 2
 
-[node name="Engineering" type="VBoxContainer" parent="Insets/Page/Workbench"]
+[node name="Engineering" type="ScrollContainer" parent="Insets/Page/Workbench"]
 layout_mode = 1
 anchor_left = 1.0
-anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -242.0
-offset_top = -145.0
-offset_right = -18.0
+anchor_bottom = 1.0
+offset_left = -264.0
+offset_top = 16.0
+offset_right = -12.0
+offset_bottom = -16.0
 grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 10
+horizontal_scroll_mode = 0
 
-[node name="Title" type="Label" parent="Insets/Page/Workbench/Engineering"]
+[node name="Stack" type="VBoxContainer" parent="Insets/Page/Workbench/Engineering"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Insets/Page/Workbench/Engineering/Stack"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.41, 0.85, 0.96, 1)
 text = "FLIGHT READINESS"
 
-[node name="CraftName" type="Label" parent="Insets/Page/Workbench/Engineering"]
+[node name="RocketName" type="LineEdit" parent="Insets/Page/Workbench/Engineering/Stack"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+custom_minimum_size = Vector2(0, 34)
+theme_override_font_sizes/font_size = 18
+text = "Sparrow I"
+max_length = 60
+tooltip_text = "Give this configured rocket a name."
+
+[node name="CraftName" type="Label" parent="Insets/Page/Workbench/Engineering/Stack"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
 text = "Sparrow I"
 unique_name_in_owner = true
 
-[node name="BudgetLabel" type="Label" parent="Insets/Page/Workbench/Engineering"]
+[node name="BudgetLabel" type="Label" parent="Insets/Page/Workbench/Engineering/Stack"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.59, 0.72, 0.81, 1)
 text = "MISSION BUDGET"
 
-[node name="BudgetValue" type="Label" parent="Insets/Page/Workbench/Engineering"]
+[node name="BudgetValue" type="Label" parent="Insets/Page/Workbench/Engineering/Stack"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
 theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
 text = "1600 / 2000 CR"
 unique_name_in_owner = true
 
-[node name="BudgetBar" type="ProgressBar" parent="Insets/Page/Workbench/Engineering"]
+[node name="BudgetBar" type="ProgressBar" parent="Insets/Page/Workbench/Engineering/Stack"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 7)
 show_percentage = false
 
-[node name="Details" type="Label" parent="Insets/Page/Workbench/Engineering"]
+[node name="Details" type="Label" parent="Insets/Page/Workbench/Engineering/Stack"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.59, 0.72, 0.81, 1)
 text = "Build totals"
 unique_name_in_owner = true
-theme_override_constants/line_spacing = 7
+theme_override_constants/line_spacing = 3
 autowrap_mode = 2
 
-[node name="BuildStatus" type="Label" parent="Insets/Page/Workbench/Engineering"]
+[node name="BuildStatus" type="Label" parent="Insets/Page/Workbench/Engineering/Stack"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
@@ -275,13 +296,13 @@ theme_override_constants/separation = 10
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(138, 44)
-text = "Back to mission"
+text = "Back to missions"
 
 [node name="RemovalHint" type="Label" parent="Insets/Page/Actions"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.59, 0.72, 0.81, 1)
-text = "  Right-click a module to detach."
+text = "  Right-click to detach."
 
 [node name="Spacer" type="Control" parent="Insets/Page/Actions"]
 layout_mode = 2
@@ -304,5 +325,5 @@ text = "Restore Sparrow I"
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(178, 44)
-text = "Launch preview  →"
+text = "Prepare Launch"
 theme_override_colors/font_color = Color(0.41, 0.85, 0.96, 1)

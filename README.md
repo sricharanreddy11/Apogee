@@ -1,15 +1,21 @@
 # Apogee
 
-Phase 1 starter for the 2D rocket-building game. Import `project.godot` in the standard Godot 4.6 or newer editor and press **F5**. The project uses typed GDScript and the Compatibility renderer.
+Milestones 0–1 for Member 3 (missions, map, and UI) of the 2D rocket-building game. Import `project.godot` in the standard Godot 4.7.2 editor and press **F5**. The project uses typed GDScript and the Compatibility renderer.
 
-The preview follows **Main menu → M01 First Flight → Builder → Flight → Report → Retry or Main menu**. The builder opens with Sparrow I, the reference craft. Choose **Build a rocket** on the title screen to go straight to the assembly bay. Open Pods, Fuel, or Engines to reveal that category's parts on the arc. Drag a part near its mount to preview the attachment in green. The wrong mount turns red while you hover. Right-click an installed module to detach it. Use **Restore Sparrow I** to reset the stack. The flight scene shows the launch position and a map preview. Its report shows an attempt in progress. Implement flight, advanced construction, and mission evaluation in the entry points below.
+The integrated flow is **Mission-selecting main menu → M01 → Rocket Lab → Prepare Launch → Launchpad/preflight → Edit Rocket or Missions**. M01 is available initially; M02–M04 are visible and locked. Cards are generated from JSON. The launchpad shows your selected parts with the same artwork, mission briefing, calculated cost, mass, and fuel. Launch emits a single integration request while retaining the same preview scene and rocket; real flight is connected later.
+
+**Start here:** [Milestone 1 beginner guide](docs/MILESTONE_1_GUIDE.md) explains how to build a rocket and where to change missions, prerequisites, budgets, cards, and preflight labels. [Shared interfaces](docs/INTERFACES.md) records field names, units, ownership, and integration APIs for team review.
+
+Rocket Lab comes from `main` (`0bf817f`, "added rocket lab v1"). Open **Pods**, **Fuel**, or **Engines**, then drag a part onto the matching mount. Right-click an installed module to detach it, use **Clear rocket** to start over, or **Restore Sparrow I** to reset. Change the rocket name before **Prepare Launch**. **Edit Rocket** reloads your selected parts and name. This version supports one pod, one tank, and one engine in one stage.
+
+Progress is held in memory; mission evaluation, rewards, and save files are later milestones. The **UI sandbox** button preserves M0's changing mock HUD and sample report, with pause/restart and 5× playback. It can also run directly with **F6** from `scenes/ui/ui_sandbox.tscn`. See the [M0 editing guide](docs/MILESTONE_0_GUIDE.md) for sample data changes.
 
 ## Team ownership
 
 | Owner | Start here | First implementation |
 | --- | --- | --- |
 | Member 1 · Physics and integration | `scripts/physics/flight_simulator.gd`, `scripts/physics/flight_screen.gd`, `scenes/flight/` | Initialize mass and fuel, then implement fixed-step motion and wire the reserved flight controls. |
-| Member 2 · Builder and visuals | `scripts/builder/builder_controller.gd`, `scenes/builder/`, `data/parts.json`, `assets/rockets/` | Extend the one-stage builder with stack rules, engineering estimates, and part sprites. |
+| Member 2 · Builder and visuals | `scripts/builder/builder_controller.gd`, `scenes/builder/`, `data/parts.json`, `assets/rockets/` | Extend Rocket Lab's mounts, parts catalog, and staging rules while retaining validated config handoffs. |
 | Member 3 · Missions, map and UI | `scripts/missions/mission_manager.gd`, `scripts/ui/`, `scenes/missions/`, `scenes/ui/`, `data/missions/` | Evaluate M01 from telemetry, add a live report transition, and develop the HUD and map. |
 
 Member 1 is the proposed integrator for `scripts/core/`, `project.godot`, and shared scene changes. Confirm the contract with all three teammates before changing it. Suggested branches are `feature/physics`, `feature/builder`, and `feature/missions-ui`. Keep the root folder together when putting the project on GitHub.
@@ -35,4 +41,17 @@ godot --headless --editor --path . --import
 godot --headless --path . --script res://tests/smoke_test.gd
 ```
 
-The check drives the preview from the main menu to the report, retries the builder, and checks the reference budget, valid and invalid drops, the small-tank swap at launch, launch telemetry, and the reserved map input.
+Also run:
+
+```text
+godot --headless --path . --script res://tests/test_mission_catalog.gd
+godot --headless --path . --script res://tests/test_builder.gd
+godot --headless --path . --script res://tests/test_menu_flow.gd
+godot --headless --path . --script res://tests/test_rocket_lab_flow.gd
+godot --headless --path . --script res://tests/test_mock_telemetry.gd
+godot --headless --path . --script res://tests/test_m0_flow.gd
+```
+
+These check valid and malformed mission data, detached mock snapshots and playback, the M0 screen flow, retry resets, direct scene startup, and invalid sample recovery. The original smoke check still covers the builder/flight preview, reference budget, launch telemetry, and reserved map input. The beginner guide includes the full PowerShell command for the Godot executable on this computer.
+
+Implemented locally on `codex/m1-launchpad-ui`, carrying forward M0. Team agreement on shared interfaces, pushing the branch, and opening a PR remain team handoff steps; no remote changes were made.
