@@ -32,8 +32,8 @@ var _engine_audio_fade: Tween
 var _ignition_blast_played := false
 
 
-func setup(config: RocketConfig, mission_id: String) -> void:
-	_configured = _mission.load_mission(mission_id)
+func setup(config: RocketConfig, mission_id: String, definition_override: MissionDefinition = null) -> void:
+	_configured = _mission.use_definition(definition_override) if definition_override != null else _mission.load_mission(mission_id)
 	if _configured:
 		_mission_id = mission_id
 		_rocket_config = config.copy()
@@ -126,7 +126,7 @@ func _physics_process(delta: float) -> void:
 		telemetry = _simulator.get_telemetry()
 		if not _showcase_mode:
 			MissionVoiceManager.observe(telemetry)
-		if not _showcase_mode and _mission.evaluate(telemetry):
+		if not _showcase_mode and _mission_id != "TUTORIAL" and _mission.evaluate(telemetry):
 			_finished = true
 			break
 		if _time_warp > 1.0 and not _can_warp(telemetry):

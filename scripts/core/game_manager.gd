@@ -228,6 +228,46 @@ func show_workshop() -> void:
 	_switch_screen(screen)
 
 
+func start_tutorial() -> void:
+	_mission = _tutorial_mission()
+	selected_mission_id = _mission.id
+	current_rocket_config = null
+	_builder_draft = null
+	last_result = null
+	last_navigation_error = ""
+	var screen := BUILDER.instantiate() as BuilderController
+	screen.setup(_mission)
+	screen.configuration_confirmed.connect(prepare_launch)
+	screen.back_requested.connect(show_main_menu)
+	_switch_screen(screen)
+
+
+func close_tutorial_to_menu() -> void:
+	selected_mission_id = ""
+	current_rocket_config = null
+	_builder_draft = null
+	last_result = null
+	_mission = null
+	_switch_screen(MENU.instantiate())
+
+
+func _tutorial_mission() -> MissionDefinition:
+	var mission := MissionDefinition.new()
+	mission.id = "TUTORIAL"
+	mission.title = "Guided Orbit"
+	mission.objective_text = "Build a simple rocket, learn the flight instruments, and explore a safe Earth orbit."
+	mission.objective_type = "stable_orbit"
+	mission.budget_credits = 2500
+	mission.reward_credits = 0
+	mission.scenario = {"body_id": "earth", "spawn_profile": "tutorial_orbit"}
+	mission.allowed_part_ids.assign(["POD_A", "TANK_L", "ENG_L"])
+	mission.required_part_ids.assign(["POD_A"])
+	mission.win_conditions = {"min_periapsis_m": 100000.0, "max_apoapsis_m": 350000.0, "hold_duration_s": 86400.0}
+	mission.starting_location = "Rocket Lab"
+	mission.destination = "Guided Earth orbit"
+	return mission
+
+
 func show_moon_flyby_showcase() -> void:
 	var screen := FLIGHT.instantiate()
 	screen.setup_showcase()
@@ -315,7 +355,7 @@ func start_flight(config: RocketConfig) -> void:
 	_builder_draft = null
 	last_result = null
 	var screen := FLIGHT.instantiate()
-	screen.setup(current_rocket_config.copy(), selected_mission_id)
+	screen.setup(current_rocket_config.copy(), selected_mission_id, _mission)
 	screen.report_requested.connect(show_report)
 	_switch_screen(screen)
 
@@ -326,6 +366,9 @@ func _show_sandbox_report(result: MissionResult) -> void:
 
 func show_report(result: MissionResult, retry_in_sandbox: bool = false) -> void:
 	if result == null:
+		return
+	if selected_mission_id == "TUTORIAL":
+		TutorialManager.exit_tutorial()
 		return
 	# Running the sandbox with F6 has not selected a mission through the menu.
 	if _mission == null or selected_mission_id != result.mission_id:
@@ -351,6 +394,9 @@ func show_report(result: MissionResult, retry_in_sandbox: bool = false) -> void:
 
 
 func show_main_menu() -> void:
+	if TutorialManager.active:
+		TutorialManager.exit_tutorial()
+		return
 	_switch_screen(MENU.instantiate())
 
 
