@@ -4,6 +4,10 @@ signal report_requested(result: MissionResult)
 signal showcase_exit_requested
 
 const SIM_RATES := [1.0, 5.0, 25.0, 50.0]
+const ROCKET_DRONE_LOOP_BEGIN := 728383
+const ROCKET_DRONE_LOOP_END := 1697734
+const ROCKET_DRONE_MAX_VOLUME_DB := -6.0
+const ROCKET_DRONE_SILENT_DB := -60.0
 
 var _simulator := FlightSimulator.new()
 var _mission := MissionManager.new()
@@ -27,6 +31,9 @@ var _comms: Dictionary
 var _mission_comms: Dictionary
 var _liftoff_announced := false
 var _comms_remaining := 0.0
+var _engine_audio_active := false
+var _engine_audio_fade: Tween
+var _ignition_blast_played := false
 
 
 func setup(config: RocketConfig, mission_id: String) -> void:
@@ -57,6 +64,7 @@ func setup_showcase() -> void:
 
 
 func _ready() -> void:
+	_configure_engine_audio()
 	%EndFlight.pressed.connect(_request_report)
 	%PauseFlight.pressed.connect(_toggle_pause)
 	%HelpButton.pressed.connect(_open_manual)
@@ -341,6 +349,53 @@ func _set_throttle(value: float) -> void:
 	if _commanded_throttle > 0.0:
 		_last_nonzero_throttle = _commanded_throttle
 	_simulator.set_throttle(_commanded_throttle)
+	_sync_engine_audio(_simulator.get_telemetry().throttle)
+
+
+func _configure_engine_audio() -> void:
+	var drone := %RocketDrone.stream.duplicate() as AudioStreamWAV
+	drone.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	drone.loop_begin = ROCKET_DRONE_LOOP_BEGIN
+	drone.loop_end = ROCKET_DRONE_LOOP_END
+	%RocketDrone.stream = drone
+
+
+func _sync_engine_audio(throttle: float) -> void:
+	var firing := throttle > 0.001
+	if firing:
+		var target_volume := _rocket_drone_volume_db(throttle)
+		if not _engine_audio_active:
+			_engine_audio_active = true
+			if _engine_audio_fade != null:
+				_engine_audio_fade.kill()
+				_engine_audio_fade = null
+			%RocketDrone.volume_db = target_volume
+			if not _ignition_blast_played:
+				_ignition_blast_played = true
+				%IgnitionBlast.play()
+			%RocketDrone.play()
+		else:
+			%RocketDrone.volume_db = target_volume
+		return
+	if not _engine_audio_active:
+		return
+	_engine_audio_active = false
+	if _engine_audio_fade != null:
+		_engine_audio_fade.kill()
+	_engine_audio_fade = create_tween()
+	_engine_audio_fade.tween_property(%RocketDrone, "volume_db", ROCKET_DRONE_SILENT_DB, 0.18)
+	_engine_audio_fade.tween_callback(_finish_engine_audio_fade)
+
+
+func _finish_engine_audio_fade() -> void:
+	%RocketDrone.stop()
+	_engine_audio_fade = null
+
+
+func _rocket_drone_volume_db(throttle: float) -> float:
+	var shaped_throttle := pow(clampf(throttle, 0.0, 1.0), 0.65)
+	var gain := lerpf(0.18, 1.0, shaped_throttle)
+	return ROCKET_DRONE_MAX_VOLUME_DB + linear_to_db(gain)
 
 
 func _set_time_warp(multiplier: float) -> void:
@@ -364,6 +419,8 @@ func _update_warp_controls() -> void:
 
 
 func _update_control_state(telemetry: FlightTelemetry) -> void:
+	var terminal := telemetry.status in [FlightState.Status.LANDED, FlightState.Status.CRASHED]
+	_sync_engine_audio(0.0 if terminal else telemetry.throttle)
 	_updating_controls = true
 	%Throttle.set_value_no_signal(telemetry.throttle * 100.0)
 	_updating_controls = false
@@ -371,7 +428,7 @@ func _update_control_state(telemetry: FlightTelemetry) -> void:
 		button.disabled = not _can_warp(telemetry)
 	%ThrottleValue.text = ("%.1f%%" if _mission_id == "M04" else "%.0f%%") % (telemetry.throttle * 100.0)
 	%EngineButton.text = "CUTOFF" if telemetry.throttle > 0.0 else "IGNITE"
-	var controls_locked: bool = _paused or _finished or %Manual.visible or telemetry.status in [FlightState.Status.LANDED, FlightState.Status.CRASHED]
+	var controls_locked: bool = _paused or _finished or %Manual.visible or terminal
 	%Throttle.editable = not controls_locked
 	%EngineButton.disabled = controls_locked
 	%StageButton.disabled = controls_locked or _rocket_config == null or telemetry.active_stage + 1 >= _rocket_config.stages.size()

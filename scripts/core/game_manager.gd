@@ -11,6 +11,12 @@ const BUILDER := preload("res://scenes/builder/rocket_builder.tscn")
 const PREFLIGHT := preload("res://scenes/flight/launchpad_preview.tscn")
 const FLIGHT := preload("res://scenes/flight/flight.tscn")
 const REPORT := preload("res://scenes/missions/mission_report.tscn")
+const BGM := preload("res://assets/audio/apogee_theme_loop.wav")
+const UI_BUTTON_SWIPE := preload("res://assets/audio/ui_button_swipe.wav")
+const BGM_VOLUME_DB := -12.0
+const UI_CLICK_VOLUME_DB := 12.0
+const UI_CLICK_EXCLUDED_META := &"skip_ui_click_sound"
+const UI_CLICK_REGISTERED_META := &"_ui_click_sound_registered"
 
 ## Session data survives scene changes. The simulator stays inside the Flight scene.
 var selected_mission_id: String = ""
@@ -25,9 +31,13 @@ var _campaign_save := CampaignSave.new()
 var last_navigation_error: String = ""
 var _mission: MissionDefinition
 var _builder_draft: RocketConfig
+var _bgm_player: AudioStreamPlayer
+var _ui_click_player: AudioStreamPlayer
 
 
 func _ready() -> void:
+	_start_bgm()
+	_start_ui_clicks()
 	var progress := _campaign_save.load_progress()
 	if progress.is_empty():
 		return
@@ -35,6 +45,54 @@ func _ready() -> void:
 	completed_missions.assign(progress.completed_missions)
 	best_scores = progress.best_scores
 	discovered_ids.assign(progress.discovered_ids)
+
+
+func _start_bgm() -> void:
+	var music := BGM.duplicate() as AudioStreamWAV
+	music.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	music.loop_begin = 0
+	music.loop_end = maxi(roundi(music.get_length() * float(music.mix_rate)) - 1, 0)
+	_bgm_player = AudioStreamPlayer.new()
+	_bgm_player.name = "BackgroundMusic"
+	_bgm_player.stream = music
+	_bgm_player.volume_db = BGM_VOLUME_DB
+	_bgm_player.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_bgm_player)
+	_bgm_player.play()
+
+
+func _start_ui_clicks() -> void:
+	_ui_click_player = AudioStreamPlayer.new()
+	_ui_click_player.name = "UIButtonSwipe"
+	_ui_click_player.stream = UI_BUTTON_SWIPE
+	_ui_click_player.volume_db = UI_CLICK_VOLUME_DB
+	_ui_click_player.max_polyphony = 8
+	_ui_click_player.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_ui_click_player)
+	get_tree().node_added.connect(_register_ui_button)
+	_register_ui_buttons(get_tree().root)
+
+
+func _register_ui_buttons(node: Node) -> void:
+	_register_ui_button(node)
+	for child in node.get_children():
+		_register_ui_buttons(child)
+
+
+func _register_ui_button(node: Node) -> void:
+	if not node is BaseButton:
+		return
+	var button := node as BaseButton
+	if button.has_meta(UI_CLICK_REGISTERED_META):
+		return
+	button.set_meta(UI_CLICK_REGISTERED_META, true)
+	button.pressed.connect(_play_ui_click.bind(button))
+
+
+func _play_ui_click(button: BaseButton) -> void:
+	if button.get_meta(UI_CLICK_EXCLUDED_META, false):
+		return
+	_ui_click_player.play()
 
 
 func _record_success(result: MissionResult) -> String:

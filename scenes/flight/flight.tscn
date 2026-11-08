@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://scripts/ui/cockpit_instruments.gd" id="2"]
 [ext_resource type="Script" uid="uid://g1bipiynsfhm" path="res://scripts/ui/orbit_map.gd" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/flight/flight_view.tscn" id="4"]
+[ext_resource type="AudioStream" path="res://assets/audio/rocket_ignition_blast.wav" id="IgnitionBlast"]
+[ext_resource type="AudioStream" path="res://assets/audio/rocket_engine_drone.wav" id="EngineDrone"]
 
 [ext_resource type="SpriteFrames" path="res://assets/mission_control/astronaut_wave.tres" id="Astronaut"]
 
@@ -97,6 +99,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
+
+[node name="IgnitionBlast" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("IgnitionBlast")
+volume_db = -8.0
+max_polyphony = 2
+
+[node name="RocketDrone" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("EngineDrone")
+volume_db = -60.0
 
 [node name="Cabin" type="Panel" parent="."]
 layout_mode = 1
@@ -418,6 +431,7 @@ text = "IGNITE"
 tooltip_text = "Ignite the active engine or cut thrust [X]"
 script = ExtResource("Switch")
 kind = 0
+metadata/skip_ui_click_sound = true
 
 [node name="StageButton" type="Button" parent="Margin/Layout/Main/Deck/Console/Controls/Switches"]
 unique_name_in_owner = true
