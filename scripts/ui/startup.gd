@@ -33,5 +33,18 @@ func _ready() -> void:
 
 	_title_card.hide()
 	_godot_card.show()
+	_flicker_logo(%GodotLogo, 0.04)
+	_flicker_logo(%ElevenLabsLogo, 0.19)
 	await get_tree().create_timer(GODOT_DURATION).timeout
 	get_tree().change_scene_to_file(MAIN_MENU)
+
+
+func _flicker_logo(logo: Control, delay: float) -> void:
+	logo.modulate.a = 0.45
+	var flicker := create_tween()
+	flicker.tween_property(logo, "modulate:a", 0.94, 0.09).set_delay(delay)
+	flicker.tween_property(logo, "modulate:a", 0.55, 0.06)
+	flicker.tween_property(logo, "modulate:a", 1.0, 0.14)
+	flicker.tween_interval(0.43)
+	flicker.tween_property(logo, "modulate:a", 0.68, 0.06)
+	flicker.tween_property(logo, "modulate:a", 1.0, 0.14)

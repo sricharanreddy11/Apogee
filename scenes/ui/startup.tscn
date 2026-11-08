@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/startup.gd" id="Startup"]
 [ext_resource type="Texture2D" path="res://assets/ui/apogee_wordmark.svg" id="Wordmark"]
@@ -14,6 +14,16 @@ variation_opentype = {
 2003265652: 580
 }
 variation_transform = Transform2D(1, 0.22, 0, 1, 0, 0)
+
+[sub_resource type="AtlasTexture" id="GodotIcon"]
+atlas = ExtResource("GodotSplash")
+region = Rect2(326, 155, 148, 141)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="GodotWordmark"]
+atlas = ExtResource("GodotSplash")
+region = Rect2(263, 328, 274, 67)
+filter_clip = true
 
 [sub_resource type="ShaderMaterial" id="TitleMaterial"]
 shader = ExtResource("TitleCRT")
@@ -110,42 +120,78 @@ theme_override_fonts/font = SubResource("CreditItalic")
 theme_override_font_sizes/font_size = 34
 text = "Varun"
 
-[node name="GodotCard" type="TextureRect" parent="."]
+[node name="GodotCard" type="CenterContainer" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
-accessibility_name = "Godot Game Engine"
-texture = ExtResource("GodotSplash")
+
+[node name="Logos" type="HBoxContainer" parent="GodotCard"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 44
+
+[node name="GodotCredit" type="VBoxContainer" parent="GodotCard/Logos"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="GodotLogo" type="HBoxContainer" parent="GodotCard/Logos/GodotCredit"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 11
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="GodotCard/Logos/GodotCredit/GodotLogo"]
+custom_minimum_size = Vector2(50, 52)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("GodotIcon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="ElevenLabsCredit" type="VBoxContainer" parent="GodotCard"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 565.0
-offset_bottom = 650.0
-mouse_filter = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Caption" type="Label" parent="GodotCard/ElevenLabsCredit"]
+[node name="Wordmark" type="TextureRect" parent="GodotCard/Logos/GodotCredit/GodotLogo"]
+custom_minimum_size = Vector2(148, 52)
 layout_mode = 2
+mouse_filter = 2
+accessibility_name = "Godot"
+texture = SubResource("GodotWordmark")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="Label" parent="GodotCard/Logos/GodotCredit"]
 theme_type_variation = &"EyebrowLabel"
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.72, 0.76, 1)
+theme_override_font_sizes/font_size = 12
+text = "GAME ENGINE"
+horizontal_alignment = 1
+
+[node name="ElevenLabsCredit" type="VBoxContainer" parent="GodotCard/Logos"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="ElevenLabsLogo" type="TextureRect" parent="GodotCard/Logos/ElevenLabsCredit"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 52)
+layout_mode = 2
+mouse_filter = 2
+accessibility_name = "ElevenLabs"
+texture = ExtResource("ElevenLabsLogo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Caption" type="Label" parent="GodotCard/Logos/ElevenLabsCredit"]
+theme_type_variation = &"EyebrowLabel"
+layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.72, 0.76, 1)
 theme_override_font_sizes/font_size = 12
 text = "VOICE TECHNOLOGY BY"
 horizontal_alignment = 1
-
-[node name="Logo" type="TextureRect" parent="GodotCard/ElevenLabsCredit"]
-custom_minimum_size = Vector2(220, 29)
-layout_mode = 2
-size_flags_horizontal = 4
-mouse_filter = 2
-accessibility_name = "ElevenLabs"
-texture = ExtResource("ElevenLabsLogo")
-expand_mode = 3
-stretch_mode = 5
