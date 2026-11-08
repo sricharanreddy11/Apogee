@@ -11,6 +11,7 @@ func _run() -> void:
 	_test_orbit_hold()
 	_test_flyby()
 	_test_touchdown()
+	await _test_crash_sequence()
 	await _test_campaign_flight()
 	if _failures == 0:
 		print("Mission results, orbit hold, lunar flyby, touchdown and campaign saves passed.")
@@ -107,6 +108,31 @@ func _impact(simulator: FlightSimulator, config: RocketConfig, scenario: Diction
 	return simulator.get_telemetry()
 
 
+func _test_crash_sequence() -> void:
+	var builder := BuilderController.new()
+	builder.setup(MissionCatalog.new().load_mission("M01"))
+	var flight: Control = load("res://scenes/flight/flight.tscn").instantiate()
+	flight.setup(builder.build_config(), "M01")
+	builder.free()
+	var results: Array[MissionResult] = []
+	flight.report_requested.connect(func(result: MissionResult) -> void: results.append(result))
+	root.add_child(flight)
+	flight.set_physics_process(false)
+	var simulator: FlightSimulator = flight.get("_simulator")
+	var state: FlightState = simulator.get("_state")
+	state.status = FlightState.Status.FLYING
+	state.position_m = Vector2.UP * (simulator.get_telemetry().earth_radius_m + 1.0)
+	state.velocity_mps = Vector2.DOWN * 40.0
+	flight.call("_physics_process", 0.10)
+	await process_frame
+	var view := flight.get_node("%FlightArtwork")
+	_check(view.get_node("%CrashEffect").visible and not view.get_node("%Craft").visible, "Ground impact replaces the rocket with the crash effect.")
+	_check(results.is_empty(), "The crash animation runs before the mission debrief.")
+	await create_timer(2.28).timeout
+	_check(results.size() == 1 and results[0].outcome == MissionResult.Outcome.FAILURE, "A completed crash sequence sends one failed result.")
+	flight.free()
+
+
 func _test_campaign_flight() -> void:
 	var game := root.get_node("GameManager")
 	var save: CampaignSave = game.get("_campaign_save")
@@ -155,6 +181,22 @@ func _test_campaign_flight() -> void:
 	_check(result.outcome == MissionResult.Outcome.SUCCESS and result.max_altitude_m >= 100000, "M01 reports a real success and altitude.")
 	_check(result.fuel_used_kg > 0 and result.awarded_credits == 1000 and game.is_mission_unlocked("M02"), "First completion records stats, pays once, and unlocks M02.")
 	_check(current_scene.get_node("%Next").visible and current_scene.get_node("%Stats").text.contains("1600 CR"), "Report shows launch cost and the next mission.")
+	_check(current_scene.get_node("%FactSlot").visible and current_scene.get_node("%FactTitle").text == "Where space begins", "First Flight reveals its own sourced space fact.")
+	_check(not current_scene.get_node("%Log").visible, "The debrief starts with detailed telemetry tucked away.")
+	current_scene.get_node("%LogButton").button_pressed = true
+	_check(current_scene.get_node("%Log").visible and current_scene.get_node("%Stats").is_visible_in_tree(), "The flight log still exposes detailed telemetry.")
+	var failed_landing := MissionResult.new()
+	failed_landing.mission_id = "M04"
+	failed_landing.outcome = MissionResult.Outcome.FAILURE
+	var failed_report: Control = load("res://scenes/missions/mission_report.tscn").instantiate()
+	failed_report.setup(failed_landing)
+	root.add_child(failed_report)
+	_check(failed_report.get_node("%Heading").text == "Mission failed" and failed_report.get_node("%FactTitle").text == "Finding a clear landing spot", "Failed attempts retain their mission's archive fact.")
+	var exhibit := failed_report.get_node("%Display")
+	exhibit.progress = 1.0
+	failed_report.get_node("%ReplayFact").pressed.emit()
+	_check(is_zero_approx(exhibit.progress), "Replaying a fact restarts its schematic without restarting the mission.")
+	failed_report.free()
 	_check(save.load_progress().get("agency_credits") == 1000, "Progress can be loaded from disk.")
 	current_scene.get_node("%Primary").pressed.emit()
 	await scene_changed

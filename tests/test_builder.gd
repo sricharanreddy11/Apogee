@@ -213,6 +213,30 @@ func _test_flight_pivot(config: RocketConfig) -> void:
 	preview.update_visuals(telemetry)
 	_check(is_zero_approx(craft.position.y + rig.get_contact_depth_px(craft.rotation) * rig.scale.y), "Touchdown aligns the lowest point with the surface.")
 	_check(ground_at_five.y > preview.get_touchdown_screen_position().y, "The landing surface visibly rises as altitude decreases.")
+	preview.setup(config)
+	telemetry.body_id = "earth"
+	telemetry.earth_radius_m = 600000.0
+	telemetry.altitude_m = 10.0
+	telemetry.position_m = Vector2.UP * 600010.0
+	telemetry.status = FlightState.Status.FLYING
+	preview.update_visuals(telemetry, 1.0)
+	var sky := preview.get_node("%Sky").material as ShaderMaterial
+	var jets := preview.get_node("%WorldJets")
+	_check(jets.get_node("Left").emitting and not jets.get_node("Right").emitting, "Steering right vents from the left shoulder.")
+	_check(is_equal_approx(float(sky.get_shader_parameter("atmosphere")), 1.0), "Flight begins in the blue Earth atmosphere.")
+	telemetry.altitude_m = 120000.0
+	telemetry.position_m = Vector2.UP * 720000.0
+	preview.update_visuals(telemetry, -1.0)
+	preview.call("_process", 0.2)
+	var fade := float(sky.get_shader_parameter("atmosphere"))
+	_check(jets.get_node("Right").emitting and not jets.get_node("Left").emitting, "Steering left vents from the right shoulder.")
+	_check(fade > 0.0 and fade < 1.0, "The sky fades through intermediate colors on ascent.")
+	telemetry.altitude_m = 10.0
+	telemetry.position_m = Vector2.UP * 600010.0
+	preview.update_visuals(telemetry)
+	preview.call("_process", 0.2)
+	_check(not jets.get_node("Left").emitting and not jets.get_node("Right").emitting, "Coasting stops the steering jets.")
+	_check(float(sky.get_shader_parameter("atmosphere")) > fade, "Descending reverses the sky fade.")
 	preview.free()
 
 
@@ -225,12 +249,14 @@ func _test_vehicle_cam(config: RocketConfig) -> void:
 	flight.set_physics_process(false)
 	await process_frame
 	var view: Control = flight.get_node("%FlightArtwork")
-	var camera: PanelContainer = view.get_node("%VehicleCam")
+	var bridge: Control = flight.get_node("%CameraBridge")
+	var camera: PanelContainer = bridge.get_node("VehicleCam")
 	var simulator: FlightSimulator = flight.get("_simulator")
-	var stage: Button = view.get_node("%VehicleStage")
-	var legs: Button = view.get_node("%VehicleLegs")
+	var stage: Button = camera.get_node("Layout/Controls/VehicleStage")
+	var legs: Button = camera.get_node("Layout/Controls/VehicleLegs")
 	await create_timer(0.25).timeout
-	_check(view.get_node("%FarMarker").visible and camera.visible and is_equal_approx(camera.modulate.a, 1.0), "The vehicle camera fades in at long range.")
+	_check(view.get_node("%FarMarker").visible and camera.visible and camera.scale.is_equal_approx(Vector2.ONE), "The vehicle camera powers on to its full dimensions at long range.")
+	_check(camera.get_rect().get_center().is_equal_approx(bridge.size * 0.5), "The vehicle camera centers over both cockpit windows.")
 	var panel_size := camera.size
 	_check(not stage.disabled and not legs.disabled, "The vehicle camera exposes available stage and landing-leg controls.")
 	stage.pressed.emit()
@@ -238,7 +264,7 @@ func _test_vehicle_cam(config: RocketConfig) -> void:
 	var telemetry := simulator.get_telemetry()
 	view.update_visuals(telemetry)
 	flight.call("_update_control_state", telemetry)
-	var rig: RocketRig = view.get_node("%VehicleRig")
+	var rig: RocketRig = camera.get_node("Layout/Preview/Pivot/VehicleMount/VehicleRig")
 	_check(telemetry.active_stage == 1 and rig.get_node("Stage2").visible and stage.disabled, "The camera stages the real vehicle and updates its rig and controls.")
 	_check(telemetry.legs_deployed and legs.text == "RETRACT", "The camera shows deployed gear and offers retraction.")
 	legs.pressed.emit()
@@ -248,8 +274,10 @@ func _test_vehicle_cam(config: RocketConfig) -> void:
 	telemetry.position_m = telemetry.central_body_position_m + Vector2.UP * (telemetry.moon_radius_m + 5.0)
 	view.update_visuals(telemetry)
 	_check(not view.get_node("%FarMarker").visible and camera.visible, "The full rocket returns while the inset begins to fade.")
-	await create_timer(0.25).timeout
-	_check(not camera.visible, "The vehicle camera hides after the close-range fade.")
+	await create_timer(0.10).timeout
+	_check(camera.scale.y < camera.scale.x, "The vehicle screen collapses into a horizontal line during power-off.")
+	await create_timer(0.15).timeout
+	_check(not camera.visible, "The vehicle camera hides after the close-range power-off.")
 	flight.free()
 
 

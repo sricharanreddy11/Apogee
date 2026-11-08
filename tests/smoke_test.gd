@@ -52,10 +52,26 @@ func _run() -> void:
 	game.start_flight(config)
 	await process_frame
 	await process_frame
-	var toggle := current_scene.get_node("%ViewButton") as Button
+	var forward_view := current_scene.get_node("%FlightArtwork") as Control
 	var map_view := current_scene.get_node("%Map") as Control
-	toggle.pressed.emit()
-	_check(map_view.visible, "The map preview toggles on.")
+	_check(forward_view.visible and map_view.visible, "Forward view and orbit map are both live.")
+	current_scene.get_node("%HelpButton").pressed.emit()
+	_check(current_scene.get_node("%Manual").visible and not current_scene.get_node("%Throttle").editable, "The field manual opens and holds the cockpit controls.")
+	current_scene.get_node("%Manual").close_requested.emit()
+	_check(not current_scene.get_node("%Manual").visible and current_scene.get_node("%Throttle").editable, "Closing the manual restores the flight controls.")
+	current_scene.get_node("%PauseFlight").pressed.emit()
+	current_scene.get_node("%HelpButton").pressed.emit()
+	current_scene.get_node("%Manual").close_requested.emit()
+	_check(not current_scene.get_node("%Throttle").editable, "Closing the manual preserves an existing flight hold.")
+	current_scene.get_node("%PauseFlight").pressed.emit()
+	var dial_click := InputEventMouseButton.new()
+	var rate_dial := current_scene.get_node("%RateDial")
+	var knob_center: Vector2 = rate_dial.call("_knob_center")
+	dial_click.position = knob_center + Vector2(15, 0)
+	dial_click.button_index = MOUSE_BUTTON_LEFT
+	dial_click.pressed = true
+	rate_dial.call("_gui_input", dial_click)
+	_check(is_equal_approx(current_scene.get_time_warp(), 5.0), "Clicking the rotary dial advances the simulation rate.")
 	for expected: String in ["MissionReport", "RocketBuilder"]:
 		var action := "%EndFlight" if expected == "MissionReport" else "%Primary"
 		var button := current_scene.get_node_or_null(action) as Button

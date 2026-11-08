@@ -3,6 +3,8 @@ extends Control
 signal report_requested(result: MissionResult)
 signal showcase_exit_requested
 
+const SIM_RATES := [1.0, 5.0, 25.0, 50.0]
+
 var _simulator := FlightSimulator.new()
 var _mission := MissionManager.new()
 var _configured: bool = false
@@ -11,7 +13,6 @@ var _mission_id := ""
 var _commanded_throttle := 0.0
 var _last_nonzero_throttle := 1.0
 var _prediction_cooldown := 0.0
-var _showing_orbit := false
 var _updating_controls := false
 var _report_sent := false
 var _time_warp := 1.0
@@ -58,7 +59,8 @@ func setup_showcase() -> void:
 func _ready() -> void:
 	%EndFlight.pressed.connect(_request_report)
 	%PauseFlight.pressed.connect(_toggle_pause)
-	%ViewButton.pressed.connect(_toggle_map)
+	%HelpButton.pressed.connect(_open_manual)
+	%Manual.close_requested.connect(_close_manual)
 	%EngineButton.pressed.connect(_toggle_engine)
 	%StageButton.pressed.connect(_request_stage)
 	%LegsButton.pressed.connect(_toggle_legs)
@@ -66,10 +68,12 @@ func _ready() -> void:
 	%Warp5.pressed.connect(_set_time_warp.bind(5.0))
 	%Warp25.pressed.connect(_set_time_warp.bind(25.0))
 	%Warp50.pressed.connect(_set_time_warp.bind(50.0))
+	%RateDial.detent_requested.connect(func(index: int) -> void: _set_time_warp(SIM_RATES[index]))
 	%Throttle.value_changed.connect(_on_throttle_changed)
 	%FlightArtwork.engine_pressed.connect(_toggle_engine)
 	%FlightArtwork.stage_pressed.connect(_request_stage)
 	%FlightArtwork.legs_pressed.connect(_toggle_legs)
+	%FlightArtwork.mount_vehicle_cam(%CameraBridge)
 	if not _configured:
 		_configure_direct_preview()
 	%EndFlight.disabled = not _configured
@@ -93,7 +97,7 @@ func _ready() -> void:
 		_update_control_state(_simulator.get_telemetry())
 	_update_warp_controls()
 	if _showcase_mode:
-		%EndFlight.text = "BACK"
+		%EndFlight.tooltip_text = "Return to the star chart"
 		%ControlStatus.text = "25× AUTO-FORWARD · ENGINE OFF\nGOLD = PROJECTED LUNAR FLYBY"
 		_set_time_warp(25.0)
 		call_deferred("_start_showcase")
@@ -103,7 +107,7 @@ func _physics_process(delta: float) -> void:
 	if not _configured or _finished:
 		return
 	_collect_prediction()
-	if _paused:
+	if _paused or %Manual.visible:
 		return
 	var throttle_axis := Input.get_axis("throttle_down", "throttle_up")
 	var steering := Input.get_axis("steer_left", "steer_right")
@@ -124,14 +128,14 @@ func _physics_process(delta: float) -> void:
 			_set_time_warp(1.0)
 			break
 	_commanded_throttle = telemetry.throttle
-	_update_views(telemetry)
+	_update_views(telemetry, 0.0 if _finished else steering)
 	_update_control_state(telemetry)
 	_update_comms(telemetry, delta)
 	if _finished:
 		_finish_attempt.call_deferred()
 		return
 	_prediction_cooldown -= delta
-	if _showing_orbit and _prediction_cooldown <= 0.0:
+	if _prediction_cooldown <= 0.0:
 		_request_prediction()
 
 
@@ -151,7 +155,7 @@ func _collect_prediction() -> void:
 		return
 	var prediction := _prediction_worker.wait_to_finish() as TrajectoryPrediction
 	_prediction_worker = null
-	if _showing_orbit and prediction != null:
+	if prediction != null:
 		%Map.set_prediction(prediction)
 
 
@@ -173,7 +177,10 @@ func _toggle_pause() -> void:
 	if _finished or not _configured:
 		return
 	_paused = not _paused
-	%PauseFlight.text = "RESUME" if _paused else "PAUSE"
+	if _paused:
+		%FlightArtwork.stop_steering_effects()
+	%PauseFlight.tooltip_text = "Resume simulation [Esc]" if _paused else "Hold simulation [Esc]"
+	%PauseFlight.active = _paused
 	%ControlStatus.text = "FLIGHT PAUSED" if _paused else "FLIGHT RESUMED"
 	_update_control_state(_simulator.get_telemetry())
 
@@ -198,13 +205,21 @@ func _update_comms(telemetry: FlightTelemetry, delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if %Manual.visible:
+		if event.is_action_pressed("pause_flight"):
+			_close_manual()
+			get_viewport().set_input_as_handled()
+		elif event is InputEventKey and not event.is_action("ui_accept"):
+			get_viewport().set_input_as_handled()
+		return
 	if _finished:
 		return
 	if event.is_action_pressed("pause_flight"):
 		_toggle_pause()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("toggle_map"):
-		_toggle_map()
+		%Map.set_auto_frame_enabled(true)
+		_request_prediction()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("cut_throttle"):
 		_set_throttle(0.0)
@@ -229,39 +244,36 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _toggle_map() -> void:
-	_set_orbit_view(not _showing_orbit)
+func _open_manual() -> void:
+	%Manual.open()
+	%FlightArtwork.stop_steering_effects()
+	_update_control_state(_simulator.get_telemetry())
 
 
-func _set_orbit_view(enabled: bool) -> void:
-	_showing_orbit = enabled
-	%Map.visible = _showing_orbit
-	%FlightArtwork.visible = not _showing_orbit
-	%ViewTitle.visible = not _showing_orbit
-	%ViewButton.text = "FLIGHT  [Tab]" if _showing_orbit else "ORBIT  [Tab]"
-	%ViewTitle.text = "01  /  FORWARD WINDOW"
-	_update_landing_guidance(_simulator.get_telemetry())
-	if _showing_orbit:
-		_request_prediction()
-	elif _prediction_worker != null:
-		_prediction_cancel.post()
+func _close_manual() -> void:
+	%Manual.dismiss()
+	%HelpButton.grab_focus()
+	_update_control_state(_simulator.get_telemetry())
 
 
 func _start_showcase() -> void:
-	_set_orbit_view(true)
 	%Map.set_auto_frame_enabled(true)
 	_request_prediction()
 
 
-func _update_views(telemetry: FlightTelemetry) -> void:
+func _update_views(telemetry: FlightTelemetry, steering := 0.0) -> void:
 	%HUD.update_from_telemetry(telemetry)
+	%OrbitGauge.update_from_telemetry(telemetry)
 	_update_landing_guidance(telemetry)
-	%FlightArtwork.update_visuals(telemetry)
+	%FlightArtwork.update_visuals(telemetry, steering)
 	%Map.update_from_telemetry(telemetry)
 
 
 func _update_landing_guidance(telemetry: FlightTelemetry) -> void:
-	var visible := not _showing_orbit and _mission_id == "M04" and telemetry.body_id == "moon" and telemetry.altitude_m < 1000.0
+	var visible := (
+		_mission_id == "M04" and telemetry.body_id == "moon"
+		and telemetry.altitude_m < 1000.0 and telemetry.status != FlightState.Status.CRASHED
+	)
 	%LandingPanel.visible = visible
 	if not visible:
 		return
@@ -332,8 +344,7 @@ func _set_throttle(value: float) -> void:
 
 
 func _set_time_warp(multiplier: float) -> void:
-	var allowed := [1.0, 5.0, 25.0, 50.0]
-	if not allowed.has(multiplier) or (multiplier > 1.0 and not _can_warp(_simulator.get_telemetry())):
+	if not SIM_RATES.has(multiplier) or (multiplier > 1.0 and not _can_warp(_simulator.get_telemetry())):
 		return
 	_time_warp = multiplier
 	_update_warp_controls()
@@ -345,11 +356,11 @@ func get_time_warp() -> float:
 
 func _update_warp_controls() -> void:
 	var buttons: Array[Button] = [%Warp1, %Warp5, %Warp25, %Warp50]
-	var values := [1.0, 5.0, 25.0, 50.0]
 	var can_warp := _can_warp(_simulator.get_telemetry())
 	for index in buttons.size():
-		buttons[index].set_pressed_no_signal(is_equal_approx(_time_warp, values[index]))
+		buttons[index].set_pressed_no_signal(is_equal_approx(_time_warp, SIM_RATES[index]))
 		buttons[index].disabled = index > 0 and not can_warp
+	%RateDial.set_detent(SIM_RATES.find(_time_warp))
 
 
 func _update_control_state(telemetry: FlightTelemetry) -> void:
@@ -359,16 +370,20 @@ func _update_control_state(telemetry: FlightTelemetry) -> void:
 	for button: Button in [%Warp5, %Warp25, %Warp50]:
 		button.disabled = not _can_warp(telemetry)
 	%ThrottleValue.text = ("%.1f%%" if _mission_id == "M04" else "%.0f%%") % (telemetry.throttle * 100.0)
-	%EngineButton.text = "CUTOFF  [X]" if telemetry.throttle > 0.0 else "IGNITE"
-	var controls_locked := _paused or _finished or telemetry.status in [FlightState.Status.LANDED, FlightState.Status.CRASHED]
+	%EngineButton.text = "CUTOFF" if telemetry.throttle > 0.0 else "IGNITE"
+	var controls_locked: bool = _paused or _finished or %Manual.visible or telemetry.status in [FlightState.Status.LANDED, FlightState.Status.CRASHED]
 	%Throttle.editable = not controls_locked
 	%EngineButton.disabled = controls_locked
 	%StageButton.disabled = controls_locked or _rocket_config == null or telemetry.active_stage + 1 >= _rocket_config.stages.size()
 	%LegsButton.disabled = controls_locked or _rocket_config == null or not _rocket_config.attachment_ids.has("LEGS")
-	%LegsButton.text = "RETRACT  [L]" if telemetry.legs_deployed else "LEGS  [L]"
+	%LegsButton.text = "RETRACT" if telemetry.legs_deployed else "GEAR DOWN"
+	%EngineButton.active = telemetry.throttle > 0.0
+	%LegsButton.active = telemetry.legs_deployed
 	%FlightArtwork.set_vehicle_controls(not %StageButton.disabled, not %LegsButton.disabled)
 	if telemetry.status == FlightState.Status.CRASHED:
 		%ControlStatus.text = "POD LOST"
+		%DisplayStatus.text = "●   SIGNAL LOST"
+		%DisplayStatus.modulate = Color("#ff8c77")
 	elif telemetry.status == FlightState.Status.LANDED:
 		%ControlStatus.text = "SAFE TOUCHDOWN"
 
@@ -376,14 +391,18 @@ func _update_control_state(telemetry: FlightTelemetry) -> void:
 func _finish_attempt() -> void:
 	if _report_sent:
 		return
+	if _simulator.get_telemetry().status == FlightState.Status.CRASHED:
+		%PauseFlight.disabled = true
+		%EndFlight.tooltip_text = "Skip to mission debrief"
+		_say("Impact detected. Signal lost.")
+		%FlightArtwork.crash_sequence_finished.connect(_request_report, CONNECT_ONE_SHOT)
+		return
 	var result := _mission.finalize_result()
 	if _mission_id != "M04" or result.contact_body_id != "moon":
 		_request_report()
 		return
-	_set_orbit_view(false)
-	%ViewButton.disabled = true
 	%PauseFlight.disabled = true
-	%EndFlight.text = "REPORT"
+	%EndFlight.tooltip_text = "Open mission debrief"
 	if not result.discovery_ids.has("APOLLO_TRIBUTE") or GameManager.discovered_ids.has("APOLLO_TRIBUTE"):
 		var reveal := create_tween()
 		reveal.tween_interval(1.2)

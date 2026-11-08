@@ -1,79 +1,269 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mission_report.gd" id="1"]
-
 [ext_resource type="PackedScene" path="res://scenes/ui/mission_backdrop.tscn" id="Backdrop"]
-
 [ext_resource type="SpriteFrames" path="res://assets/mission_control/astronaut_wave.tres" id="Astronaut"]
+[ext_resource type="Script" path="res://scripts/ui/debrief_display.gd" id="Display"]
+
+[sub_resource type="StyleBoxFlat" id="FactSlot"]
+content_margin_left = 15.0
+content_margin_top = 7.0
+content_margin_right = 15.0
+content_margin_bottom = 9.0
+bg_color = Color(0.016, 0.043, 0.061, 0.84)
+border_width_left = 2
+border_color = Color(0.32, 0.68, 0.67, 1)
+
+[sub_resource type="StyleBoxFlat" id="LogSurface"]
+content_margin_left = 21.0
+content_margin_top = 17.0
+content_margin_right = 21.0
+content_margin_bottom = 17.0
+bg_color = Color(0.041, 0.078, 0.107, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.30, 0.47, 0.52, 1)
+shadow_color = Color(0.0, 0.0, 0.0, 0.75)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="ScoreTrack"]
+bg_color = Color(0.11, 0.18, 0.22, 1)
+
+[sub_resource type="StyleBoxFlat" id="ScoreFill"]
+bg_color = Color(0.9, 0.95, 0.94, 1)
 
 [node name="MissionReport" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 script = ExtResource("1")
 
 [node name="Backdrop" parent="." instance=ExtResource("Backdrop")]
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Display" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_top = 145.0
+offset_bottom = -173.0
+mouse_filter = 2
+script = ExtResource("Display")
 
-[node name="Console" type="PanelContainer" parent="Center"]
+[node name="Foreground" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_bottom = 22
+mouse_filter = 2
+
+[node name="Layout" type="VBoxContainer" parent="Foreground"]
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 7
 
-[node name="Stack" type="VBoxContainer" parent="Center/Console"]
-custom_minimum_size = Vector2(800, 0)
+[node name="Eyebrow" type="Label" parent="Foreground/Layout"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 11
+theme_type_variation = &"EyebrowLabel"
+horizontal_alignment = 1
+text = "APOGEE   /   FLIGHT RECORDER"
 
-[node name="Heading" type="Label" parent="Center/Console/Stack"]
+[node name="Heading" type="Label" parent="Foreground/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
 theme_type_variation = &"DisplayLabel"
+theme_override_font_sizes/font_size = 65
+horizontal_alignment = 1
+text = "Mission debrief"
+
+[node name="Details" type="Label" parent="Foreground/Layout"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "Mission report"
+theme_override_font_sizes/font_size = 17
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "Waiting for flight data"
 
-[node name="Details" type="Label" parent="Center/Console/Stack"]
+[node name="Stamp" type="Label" parent="Foreground/Layout"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
-text = "Report preview"
-autowrap_mode = 3
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
 
-[node name="Stats" type="Label" parent="Center/Console/Stack"]
+[node name="Clearance" type="Control" parent="Foreground/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="FactSlot" type="PanelContainer" parent="Foreground/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("FactSlot")
+
+[node name="Packet" type="VBoxContainer" parent="Foreground/Layout/FactSlot"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="FactLabel" type="Label" parent="Foreground/Layout/FactSlot/Packet"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+theme_override_font_sizes/font_size = 13
+text = "ARCHIVE TRANSMISSION"
+
+[node name="FactTitle" type="Label" parent="Foreground/Layout/FactSlot/Packet"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DisplayLabel"
+theme_override_font_sizes/font_size = 23
+
+[node name="FactText" type="Label" parent="Foreground/Layout/FactSlot/Packet"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_constants/line_spacing = 2
+autowrap_mode = 2
+
+[node name="FactLinks" type="HBoxContainer" parent="Foreground/Layout/FactSlot/Packet"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FactSource" type="LinkButton" parent="Foreground/Layout/FactSlot/Packet/FactLinks"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+
+[node name="ReplayFact" type="Button" parent="Foreground/Layout/FactSlot/Packet/FactLinks"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 28)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Replay scan"
+
+[node name="Actions" type="HBoxContainer" parent="Foreground/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+[node name="Primary" type="Button" parent="Foreground/Layout/Actions"]
+theme_type_variation = &"PrimaryAction"
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 44)
+layout_mode = 2
+text = "↻  Retry build"
+
+[node name="Secondary" type="Button" parent="Foreground/Layout/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(148, 44)
+layout_mode = 2
+text = "Main menu"
+
+
+[node name="Next" type="Button" parent="Foreground/Layout/Actions"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(148, 44)
+theme_type_variation = &"PrimaryAction"
+text = "Next mission"
+
+[node name="Fill" type="Control" parent="Foreground/Layout/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="LogButton" type="Button" parent="Foreground/Layout/Actions"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(134, 44)
+layout_mode = 2
+toggle_mode = true
+text = "Flight log"
+
+[node name="Log" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -556.0
+offset_top = 144.0
+offset_right = -48.0
+offset_bottom = 456.0
+theme_override_styles/panel = SubResource("LogSurface")
+
+[node name="Readout" type="VBoxContainer" parent="Log"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="LogTitle" type="Label" parent="Log/Readout"]
+layout_mode = 2
+theme_type_variation = &"DisplayLabel"
+theme_override_font_sizes/font_size = 24
+text = "Flight recorder"
+
+[node name="Stats" type="Label" parent="Log/Readout"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_type_variation = &"TelemetryLabel"
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
+theme_override_constants/line_spacing = 3
 
-[node name="Advice" type="Label" parent="Center/Console/Stack"]
+[node name="Advice" type="Label" parent="Log/Readout"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_type_variation = &"EyebrowLabel"
+theme_type_variation = &"WarningLabel"
+theme_override_font_sizes/font_size = 14
+theme_override_constants/line_spacing = 2
 autowrap_mode = 2
 
-[node name="Discovery" type="HBoxContainer" parent="Center/Console/Stack"]
+[node name="Score" type="VBoxContainer" parent="Log/Readout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ScoreLabel" type="Label" parent="Log/Readout/Score"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 13
+
+[node name="ScoreMeter" type="ProgressBar" parent="Log/Readout/Score"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("ScoreTrack")
+theme_override_styles/fill = SubResource("ScoreFill")
+show_percentage = false
+
+[node name="Discovery" type="HBoxContainer" parent="Log/Readout"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="AstronautFrame" type="Control" parent="Center/Console/Stack/Discovery"]
+[node name="AstronautFrame" type="Control" parent="Log/Readout/Discovery"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(76, 74)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Astronaut" type="AnimatedSprite2D" parent="Center/Console/Stack/Discovery/AstronautFrame"]
+[node name="Astronaut" type="AnimatedSprite2D" parent="Log/Readout/Discovery/AstronautFrame"]
 unique_name_in_owner = true
 position = Vector2(36, 36)
 texture_filter = 1
@@ -81,42 +271,18 @@ scale = Vector2(2.0, 2.0)
 sprite_frames = ExtResource("Astronaut")
 animation = &"wave"
 
-[node name="Caption" type="VBoxContainer" parent="Center/Console/Stack/Discovery"]
+[node name="Caption" type="VBoxContainer" parent="Log/Readout/Discovery"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="DiscoveryText" type="Label" parent="Center/Console/Stack/Discovery/Caption"]
+[node name="DiscoveryText" type="Label" parent="Log/Readout/Discovery/Caption"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_constants/line_spacing = 3
 autowrap_mode = 2
 
-[node name="Source" type="LinkButton" parent="Center/Console/Stack/Discovery/Caption"]
+[node name="Source" type="LinkButton" parent="Log/Readout/Discovery/Caption"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "NASA mission history"
-
-[node name="Actions" type="HBoxContainer" parent="Center/Console/Stack"]
-layout_mode = 2
-theme_override_constants/separation = 12
-[node name="Primary" type="Button" parent="Center/Console/Stack/Actions"]
-theme_type_variation = &"PrimaryAction"
-unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 44)
-layout_mode = 2
-text = "Retry build"
-
-[node name="Secondary" type="Button" parent="Center/Console/Stack/Actions"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-text = "Main menu"
-
-
-[node name="Next" type="Button" parent="Center/Console/Stack/Actions"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-custom_minimum_size = Vector2(0, 44)
-theme_type_variation = &"PrimaryAction"
-text = "Next mission"

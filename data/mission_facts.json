@@ -1,0 +1,26 @@
+{
+  "M01": {
+    "title": "Where space begins",
+    "fact": "The World Air Sports Federation uses the 100 km Kármán line as its boundary of space. First Flight aims for that same height.",
+    "source": "FAI · Kármán line",
+    "url": "https://www.fai.org/news/statement-about-karman-line"
+  },
+  "M02": {
+    "title": "Falling around Earth",
+    "fact": "An orbit is a continuous fall. With enough sideways speed, a spacecraft keeps missing the ground as Earth curves away beneath it.",
+    "source": "NASA · Gravity & mechanics",
+    "url": "https://science.nasa.gov/learn/basics-of-space-flight/chapter3-4/"
+  },
+  "M03": {
+    "title": "The Moon as a way home",
+    "fact": "After an explosion forced Apollo 13 to abandon its landing, the crew used the lunar module's engine to set a course around the Moon and back toward Earth.",
+    "source": "NASA · Apollo 13 history",
+    "url": "https://www.nasa.gov/history/houston-weve-had-a-problem/"
+  },
+  "M04": {
+    "title": "Finding a clear landing spot",
+    "fact": "As Apollo 11 approached the Moon, Neil Armstrong took manual control of Eagle to fly past a boulder field and find a clearer place to land.",
+    "source": "NASA · Apollo 11 landing",
+    "url": "https://www.nasa.gov/history/50-years-ago-one-small-step-one-giant-leap/"
+  }
+}

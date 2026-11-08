@@ -157,7 +157,7 @@ func _draw() -> void:
 	_draw_rocket_marker(_world_to_screen(_telemetry.position_m, focus, scale))
 	var font := get_theme_default_font()
 	var framing := " AUTO" if _auto_frame_enabled else ""
-	draw_string(font, Vector2(16.0, 25.0), "ORBIT%s  ×%.2f" % [framing, _zoom], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 15, Color("#b9d5e5"))
+	draw_string(font, Vector2(49.0, 29.0), "02  /  ORBIT%s  ×%.2f" % [framing, _zoom], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 15, Color("#b9d5e5"))
 
 
 func _draw_mission_markers(focus: Vector2, scale: float) -> void:
