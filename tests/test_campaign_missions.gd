@@ -45,6 +45,7 @@ func _test_flyby() -> void:
 	_check(manager.load_mission("M03"), "Load M03.")
 	var builder := BuilderController.new()
 	builder.setup(manager.definition)
+	builder.call("_reset_assembly")
 	builder.install_part("payload", "PROBE")
 	var config := builder.build_config()
 	manager.begin_attempt(config, builder.calculate(config))
@@ -78,6 +79,7 @@ func _test_touchdown() -> void:
 	_check(manager.load_mission("M04"), "Load M04.")
 	var builder := BuilderController.new()
 	builder.setup(manager.definition)
+	builder.call("_reset_assembly")
 	builder.install_part("legs", "LEGS")
 	var config := builder.build_config()
 	var stats := builder.calculate(config)
@@ -111,6 +113,7 @@ func _impact(simulator: FlightSimulator, config: RocketConfig, scenario: Diction
 func _test_crash_sequence() -> void:
 	var builder := BuilderController.new()
 	builder.setup(MissionCatalog.new().load_mission("M01"))
+	builder.call("_reset_assembly")
 	var flight: Control = load("res://scenes/flight/flight.tscn").instantiate()
 	flight.setup(builder.build_config(), "M01")
 	builder.free()
@@ -145,6 +148,7 @@ func _test_campaign_flight() -> void:
 	await scene_changed
 	current_scene.get_node("%Primary").pressed.emit()
 	await scene_changed
+	current_scene.get_node("%Reset").pressed.emit()
 	current_scene.get_node("%Primary").pressed.emit()
 	await scene_changed
 	current_scene.get_node("%PreflightPanel").get_node("%LaunchButton").pressed.emit()

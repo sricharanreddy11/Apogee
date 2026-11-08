@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/builder/builder_controller.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/builder/rocket_preview.gd" id="2"]
@@ -11,18 +11,19 @@
 [ext_resource type="Texture2D" path="res://assets/rockets/decoupler.svg" id="9"]
 [ext_resource type="Script" path="res://scripts/builder/metric_card.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/builder/lab_atmosphere.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/builder/storage_hatch.gd" id="12"]
 
 [sub_resource type="StyleBoxFlat" id="TelemetryPanel"]
-bg_color = Color(0.035, 0.067, 0.106, 0.96)
+bg_color = Color(0.064, 0.098, 0.129, 0.97)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.2, 0.31, 0.39, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_left = 12
-corner_radius_bottom_right = 12
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
 content_margin_left = 16.0
 content_margin_right = 16.0
 content_margin_top = 14.0
@@ -121,7 +122,7 @@ script = ExtResource("2")
 
 [node name="Pad" type="Node2D" parent="RocketPreview"]
 unique_name_in_owner = true
-position = Vector2(640, 541)
+position = Vector2(640, 497)
 
 [node name="Deck" type="Polygon2D" parent="RocketPreview/Pad"]
 color = Color(0.16, 0.24, 0.28, 1)
@@ -161,7 +162,7 @@ unique_name_in_owner = true
 layout_mode = 1
 anchor_bottom = 1.0
 offset_left = 28.0
-offset_right = 378.0
+offset_right = 328.0
 mouse_filter = 2
 script = ExtResource("3")
 
@@ -172,6 +173,7 @@ mouse_filter = 2
 [node name="PartDiscs" type="Control" parent="Carousel"]
 unique_name_in_owner = true
 mouse_filter = 2
+clip_contents = true
 
 [node name="Pods" type="Button" parent="Carousel/Categories"]
 offset_right = 118.0
@@ -179,9 +181,7 @@ offset_bottom = 46.0
 toggle_mode = true
 text = "Pods"
 icon = ExtResource("6")
-expand_icon = true
-theme_override_constants/icon_max_width = 23
-alignment = 0
+script = ExtResource("12")
 
 [node name="Fuel" type="Button" parent="Carousel/Categories"]
 offset_right = 118.0
@@ -189,9 +189,7 @@ offset_bottom = 46.0
 toggle_mode = true
 text = "Fuel"
 icon = ExtResource("7")
-expand_icon = true
-theme_override_constants/icon_max_width = 23
-alignment = 0
+script = ExtResource("12")
 
 [node name="Engines" type="Button" parent="Carousel/Categories"]
 offset_right = 118.0
@@ -199,9 +197,7 @@ offset_bottom = 46.0
 toggle_mode = true
 text = "Engines"
 icon = ExtResource("8")
-expand_icon = true
-theme_override_constants/icon_max_width = 23
-alignment = 0
+script = ExtResource("12")
 
 [node name="Kit" type="Button" parent="Carousel/Categories"]
 offset_right = 118.0
@@ -209,9 +205,7 @@ offset_bottom = 46.0
 toggle_mode = true
 text = "Kit"
 icon = ExtResource("9")
-expand_icon = true
-theme_override_constants/icon_max_width = 23
-alignment = 0
+script = ExtResource("12")
 
 [node name="HangarTitle" type="Label" parent="."]
 theme_type_variation = &"DisplayLabel"
@@ -235,29 +229,18 @@ visible = false
 layout_mode = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -378.0
+offset_left = -348.0
 offset_top = 92.0
 offset_right = -28.0
-offset_bottom = 620.0
+offset_bottom = 605.0
 theme_override_styles/panel = SubResource("TelemetryPanel")
 
 [node name="StorageTitle" type="Label" parent="."]
 offset_left = 44.0
 offset_top = 106.0
-theme_override_font_sizes/font_size = 11
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 14
 text = "PARTS / STORAGE"
-
-[node name="EmptyHint" type="Label" parent="."]
-unique_name_in_owner = true
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -200.0
-offset_right = 200.0
-offset_top = 291.0
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 15
-text = "BUILD YOUR ROCKET\nDrag parts from storage onto the mounts"
-mouse_filter = 2
 
 [node name="Scroll" type="ScrollContainer" parent="Telemetry"]
 layout_mode = 2
@@ -272,7 +255,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_type_variation = &"EyebrowLabel"
 theme_override_font_sizes/font_size = 11
-text = "VEHICLE / LIVE ANALYSIS"
+text = "LIVE BUILD"
 
 [node name="RocketName" type="LineEdit" parent="Telemetry/Scroll/Readouts"]
 unique_name_in_owner = true
@@ -316,12 +299,6 @@ script = ExtResource("10")
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("10")
-
-[node name="MarkerLegend" type="Label" parent="Telemetry/Scroll/Readouts"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.77, 0.84, 1)
-theme_override_font_sizes/font_size = 11
-text = "│ before    ◆ mission min    ↑↓ change"
 
 [node name="BudgetHeading" type="HBoxContainer" parent="Telemetry/Scroll/Readouts"]
 layout_mode = 2
@@ -399,7 +376,7 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(110, 44)
-text = "↶ Briefing"
+text = "‹ Briefing"
 
 [node name="Clear" type="Button" parent="Actions"]
 unique_name_in_owner = true
@@ -428,5 +405,5 @@ mouse_filter = 2
 theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(220, 54)
+custom_minimum_size = Vector2(184, 46)
 text = "Prepare Launch"

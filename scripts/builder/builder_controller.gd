@@ -232,7 +232,7 @@ func _ready() -> void:
 	%Pioneer.pressed.connect(_load_pioneer)
 	%Primary.visible = not _workshop
 	if _workshop:
-		%Secondary.text = "↶ Chart"
+		%Secondary.text = "‹ Chart"
 	%Clear.pressed.connect(_clear_assembly)
 	%Primary.pressed.connect(_prepare_launch)
 	%Secondary.pressed.connect(func() -> void: back_requested.emit())
@@ -329,12 +329,16 @@ func _accepts_part(slot: String, part_id: String) -> bool:
 	return _config != null and not part.is_empty() and _is_allowed(part_id) and _mount(slot).get("kind") == part.type
 
 
-func install_part(slot: String, part_id: String) -> bool:
+func install_part(slot: String, part_id: String, play_feedback: bool = true) -> bool:
 	if not _accepts_part(slot, part_id):
 		return false
 	var mount := _mount(slot)
+	if String(mount.id) == part_id:
+		return true
 	_apply_part(_config, mount, part_id)
 	_refresh_build()
+	if play_feedback and is_node_ready():
+		%RocketPreview.play_installation(slot)
 	return true
 
 
@@ -440,9 +444,9 @@ func _load_pioneer() -> void:
 	_reset_assembly()
 	if not add_stage():
 		return
-	install_part("engine_1", "ENG_V")
-	install_part("tank_1_0", "TANK_L")
-	install_part("decoupler", "DECOUPLER")
+	install_part("engine_1", "ENG_V", false)
+	install_part("tank_1_0", "TANK_L", false)
+	install_part("decoupler", "DECOUPLER", false)
 	_config.rocket_name = "Pioneer II"
 	%RocketName.text = _config.rocket_name
 	# Loading a preset is one user edit, regardless of its internal assembly steps.
@@ -458,7 +462,6 @@ func _refresh_build() -> void:
 	if not is_node_ready():
 		return
 	var config := build_config()
-	%EmptyHint.visible = config.command_pod_id.is_empty() and calculate(config).wet_mass_kg == 0.0
 	%RocketPreview.show_assembly(_mounts(), _artwork, _is_allowed("LEGS"), _attachment("legs"))
 	if _mission == null:
 		%MissionTag.text = "OFFLINE"
@@ -478,7 +481,6 @@ func _refresh_build() -> void:
 	_render_metrics(stats, _previous_stats)
 	var validation := validate(config, _mission)
 	%Primary.disabled = not validation.valid or _workshop
-	%LabAtmosphere.set_build_state(_part_ids(config).filter(func(id: String) -> bool: return not id.is_empty()).size(), validation.valid)
 	%RocketPreview.set_system_ready(validation.valid and not config.attachment_ids.is_empty())
 	_render_status(validation)
 	%AddStage.visible = _is_allowed("DECOUPLER")
@@ -521,7 +523,8 @@ func _preview_part(slot: String, part_id: String) -> void:
 func _render_metrics(stats: Dictionary, before: Dictionary, preview: bool = false) -> void:
 	if stats.is_empty():
 		return
-	%ComparisonLegend.text = "PART PREVIEW · release to fit" if preview else ("LIVE BUILD · vs previous edit" if not before.is_empty() else "LIVE BUILD · edit to compare")
+	%ComparisonLegend.text = "PART PREVIEW" if preview else ("LAST EDIT" if not before.is_empty() else "")
+	%ComparisonLegend.visible = not %ComparisonLegend.text.is_empty()
 	%ComparisonLegend.modulate = Color("ffd18a") if preview else Color.WHITE
 	%ComparisonLegend.tooltip_text = "Filled bars show this build. Pale ticks show the previous build; diamonds mark mission minimums. Hover a part over a compatible mount to compare before fitting."
 	var largest_tank := 1.0

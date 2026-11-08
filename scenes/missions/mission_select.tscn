@@ -142,9 +142,9 @@ theme_override_constants/separation = 12
 
 [node name="Secondary" type="Button" parent="Center/BriefingLayout/Panel/Stack/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(152, 48)
+custom_minimum_size = Vector2(148, 46)
 layout_mode = 2
-text = "Back to missions"
+text = "‹ Missions"
 
 [node name="Spacer" type="Control" parent="Center/BriefingLayout/Panel/Stack/Actions"]
 layout_mode = 2
@@ -154,9 +154,9 @@ mouse_filter = 2
 [node name="Primary" type="Button" parent="Center/BriefingLayout/Panel/Stack/Actions"]
 theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
-custom_minimum_size = Vector2(220, 54)
+custom_minimum_size = Vector2(184, 46)
 layout_mode = 2
-text = "Build rocket  →"
+text = "Build rocket ›"
 
 [node name="SignalAcquisition" type="AnimationPlayer" parent="."]
 libraries = {&"": SubResource("BriefingAnimations")}

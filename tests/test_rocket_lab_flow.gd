@@ -43,10 +43,20 @@ func _run() -> void:
 	_check(preview.get_script().resource_path == "res://scripts/builder/rocket_preview.gd", "The builder uses the upstream interactive assembly preview.")
 	_check(builder.get_node("%MissionBriefing").text.contains("100 km"), "RocketLab shows the selected mission objective.")
 	var categories := builder.get_node("%Categories")
-	var discs := builder.get_node("%PartDiscs")
+	var discs := builder.get_node("%PartDiscs") as Control
 	_check(discs.get_child_count() == 4, "The catalog creates one disc per available part.")
-	_check(discs.get_node("TANK_S").visible and discs.get_node("POD_A").visible, "All available parts are visible on storage shelves.")
-	_check(categories.get_node("tank").text == "FUEL TANKS", "Fuel shelf is labeled.")
+	_check(not discs.get_node("TANK_S").visible and not discs.get_node("POD_A").visible, "Storage starts with its trays closed.")
+	categories.get_node("Fuel").pressed.emit()
+	_check(discs.get_node("TANK_S").visible and not discs.get_node("POD_A").visible, "Fuel opens only the tank tray.")
+	categories.get_node("Pods").pressed.emit()
+	_check(not discs.get_node("TANK_S").visible and discs.get_node("POD_A").visible, "Selecting Pods replaces the fuel tray.")
+	categories.get_node("Pods").pressed.emit()
+	_check(not discs.get_node("POD_A").visible, "Pressing the active category closes its tray.")
+	categories.get_node("Fuel").pressed.emit()
+	_check(discs.clip_contents and is_zero_approx(discs.size.y), "The drawer starts shut before revealing its contents.")
+	await create_timer(0.35).timeout
+	_check(discs.size.y > 120.0 and discs.get_node("TANK_S").visible, "Rapid switching settles on a fully open fuel drawer.")
+	_check(discs.modulate.a == 1.0, "Drawer contents stay opaque through interrupted transitions.")
 	var shelf_part: Button = discs.get_node("TANK_S")
 	shelf_part.button_down.emit()
 	await create_timer(0.2).timeout

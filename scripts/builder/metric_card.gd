@@ -21,15 +21,15 @@ var _labels: Dictionary = {}
 
 
 func _init() -> void:
-	custom_minimum_size = Vector2(144, 132)
+	custom_minimum_size = Vector2(125, 106)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	focus_mode = Control.FOCUS_ALL
 	mouse_default_cursor_shape = Control.CURSOR_HELP
-	for key: String in ["title", "value", "delta", "hint"]:
+	for key: String in ["title", "value", "delta"]:
 		var label := Label.new()
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		label.add_theme_color_override("font_color", INK if key == "value" else MUTED)
-		label.add_theme_font_size_override("font_size", 21 if key == "value" else (11 if key == "hint" else 12))
+		label.add_theme_font_size_override("font_size", 20 if key == "value" else 12)
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		add_child(label)
 		_labels[key] = label
@@ -51,24 +51,15 @@ func present(metric: String, stats: Dictionary, before: Dictionary, goal: float,
 	_labels.title.text = {"fuel": "FUEL", "mass": "LIFTOFF MASS", "thrust": "THRUST / WEIGHT", "range": "DELTA-V"}[kind]
 	_labels.title.add_theme_color_override("font_color", accent)
 	_labels.value.text = _value(current)
-	_labels.value.add_theme_font_size_override("font_size", 18 if kind == "range" else 21)
+	_labels.value.add_theme_font_size_override("font_size", 15 if kind == "range" else 18)
 	var change := current - previous
 	var unchanged := absf(change) < (0.005 if kind == "thrust" else 0.5)
-	_labels.delta.text = "—" if not has_previous else ("= unchanged" if unchanged else ("↑ " if change > 0.0 else "↓ ") + _value(absf(change)))
+	_labels.delta.text = "" if not has_previous or unchanged else ("↑ " if change > 0.0 else "↓ ") + _value(absf(change))
 	# Fuel and mass are tradeoffs, not intrinsically good or bad.
 	var delta_color := MUTED if unchanged or not has_previous else accent
 	if kind in ["thrust", "range"] and has_previous and not unchanged:
 		delta_color = GOOD if change > 0.0 else ALERT
 	_labels.delta.add_theme_color_override("font_color", delta_color)
-	match kind:
-		"fuel":
-			_labels.hint.text = "Loaded propellant"
-		"mass":
-			_labels.hint.text = "■ dry   ▰ fuel"
-		"thrust":
-			_labels.hint.text = ("◆ > 1 to lift off" if target > 0.0 else "No liftoff target")
-		"range":
-			_labels.hint.text = "◆ %.2f km/s min*" % (target / 1000.0) if target > 0.0 else "No mission Δv target"
 	var explanation: String = {
 		"fuel": "Loaded propellant, not fuel remaining in flight. Scale: %.0f kg (up to three largest allowed tanks per fitted stage, expanded to include the previous build)." % maximum,
 		"mass": "Total liftoff mass. The solid section is dry structure; the striped section is propellant. Dry: %.0f kg. Fuel: %.0f kg." % [dry_mass, stats.fuel_kg],
@@ -94,24 +85,24 @@ func _value(value: float) -> String:
 func _layout() -> void:
 	if _labels.is_empty():
 		return
-	_labels.title.position = Vector2(13, 8)
-	_labels.value.position = Vector2(49, 35)
-	_labels.delta.position = Vector2(49, 64)
-	_labels.hint.position = Vector2(13, 111)
+	_labels.title.position = Vector2(10, 7)
+	_labels.value.position = Vector2(39, 31)
+	_labels.delta.position = Vector2(39, 55)
 	for key: String in _labels:
 		_labels[key].size = Vector2(size.x - _labels[key].position.x - 10, 25 if key == "value" else 18)
 
 
 func _draw() -> void:
 	var panel := StyleBoxFlat.new()
-	panel.bg_color = Color("101f2e")
-	panel.border_color = accent if has_focus() else Color("2b4355")
+	panel.bg_color = Color("#0a1119")
+	panel.border_color = accent if has_focus() else Color("#40515c")
 	panel.set_border_width_all(2 if has_focus() else 1)
-	panel.set_corner_radius_all(9)
+	panel.set_corner_radius_all(4)
 	draw_style_box(panel, Rect2(Vector2.ZERO, size))
-	draw_line(Vector2(13, 1), Vector2(43, 1), accent, 2.0)
-	_draw_icon(Vector2(27, 56))
-	var bar := Rect2(14, 96, size.x - 28, 8)
+	draw_rect(Rect2(2, 2, size.x - 4, 23), Color("#18242d"))
+	draw_line(Vector2(10, 1), Vector2(39, 1), accent, 2.0)
+	_draw_icon(Vector2(20, 50))
+	var bar := Rect2(11, 83, size.x - 22, 8)
 	draw_style_box(_pill(TRACK), bar)
 	var ratio := clampf(current / maximum, 0.0, 1.0)
 	if kind == "mass" and current > 0.0:

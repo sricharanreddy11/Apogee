@@ -8,6 +8,7 @@ const CYAN := Color("#69d9f6")
 const GREEN := Color("#78f2b6")
 const RED := Color("#ff7e89")
 const COMPONENT_FX := preload("res://scripts/effects/component_effect.gd")
+const PLATFORM_HEIGHT := 0.69
 
 var accepts_part: Callable
 var _mounts: Array[Dictionary] = []
@@ -22,7 +23,6 @@ var _drag_texture: Texture2D
 var _hover := ""
 var _snap_tween: Tween
 var _test_tween: Tween
-var _equipped_ids: Dictionary = {}
 var _system_ready := false
 var _activation: Tween
 
@@ -61,8 +61,8 @@ func _layout() -> void:
 		total += height
 	var fit := minf(1.0, size.y * 0.56 / maxf(total, 1.0))
 	var axis := size.x * 0.50
-	%Pad.position = Vector2(axis, size.y * 0.752)
-	var y := size.y * 0.752 - total * fit
+	%Pad.position = Vector2(axis, size.y * PLATFORM_HEIGHT)
+	var y := size.y * PLATFORM_HEIGHT - total * fit
 	for index in _mounts.size():
 		var mount := _mounts[index]
 		var height := heights[index] * fit
@@ -91,14 +91,14 @@ func _sync_sprites() -> void:
 		var texture: Texture2D = _artwork.get(mount.id)
 		if texture != null:
 			_add_piece(mount.key, texture, _rects[mount.key])
-			_attach_effect(mount.key, String(mount.id), String(mount.kind), _equipped_ids.get(mount.key, "") != mount.id)
+			_attach_effect(mount.key, String(mount.id), String(mount.kind))
 			installed[mount.key] = mount.id
 	var legs: Texture2D = _artwork.get(_legs_id)
 	if legs != null:
 		var base: Rect2 = _rects.get("engine_1", _rects.get("engine", Rect2()))
 		var rect := Rect2(base.get_center().x - base.size.x * 0.9, base.position.y - base.size.y * 0.36, base.size.x * 1.8, base.size.y * 1.3)
 		_add_piece("legs", legs, rect)
-		_attach_effect("legs", _legs_id, "legs", _equipped_ids.get("legs", "") != _legs_id)
+		_attach_effect("legs", _legs_id, "legs")
 		installed["legs"] = _legs_id
 	for key: String in _pieces.keys():
 		if not installed.has(key):
@@ -106,10 +106,9 @@ func _sync_sprites() -> void:
 			%Assembly.remove_child(removed)
 			removed.queue_free()
 			_pieces.erase(key)
-	_equipped_ids = installed
 
 
-func _attach_effect(key: String, id: String, kind: String, newly_equipped: bool) -> void:
+func _attach_effect(key: String, id: String, kind: String) -> void:
 	var sprite: Sprite2D = _pieces[key]
 	var previous := sprite.get_node_or_null("ComponentFX")
 	if previous != null:
@@ -120,7 +119,12 @@ func _attach_effect(key: String, id: String, kind: String, newly_equipped: bool)
 	var effect := COMPONENT_FX.new()
 	effect.configure(kind, id, sprite.texture.get_size(), "builder", COMPONENT_FX.power_for(id))
 	sprite.add_child(effect)
-	if newly_equipped:
+
+
+func play_installation(slot: String) -> void:
+	var sprite: Sprite2D = _pieces.get(slot)
+	var effect := sprite.get_node_or_null("ComponentFX") if sprite != null else null
+	if effect != null:
 		effect.pulse(true)
 
 
@@ -286,7 +290,7 @@ func fire_test(config: RocketConfig) -> void:
 	if _test_tween != null:
 		return
 	%TestRig.setup(config)
-	%TestRig.position = Vector2(size.x * 0.50, size.y * 0.752)
+	%TestRig.position = Vector2(size.x * 0.50, size.y * PLATFORM_HEIGHT)
 	%TestRig.scale = Vector2.ONE * minf(1.25, size.y * 0.56 / maxf(1.0, %TestRig.height_px))
 	%TestRig.show()
 	%Assembly.hide()

@@ -117,6 +117,11 @@ func _ready() -> void:
 		vapor.process_material.direction = Vector3(0, 1, 0)
 		vapor.process_material.spread = 55
 		vapor.process_material.gravity = Vector3(0, -9, 0)
+		if context in ["builder", "launchpad"]:
+			vapor.process_material.spread = 30.0
+			vapor.process_material.initial_velocity_min = 35.0
+			vapor.process_material.initial_velocity_max = 72.0
+			vapor.explosiveness = 0.24
 		heat = ColorRect.new()
 		heat.name = "HeatShimmer"
 		heat.position = Vector2(-20, extent.y * 0.5)
@@ -177,14 +182,16 @@ func pulse(sound: bool = false) -> void:
 		_pulse_tween.kill()
 	pulse_level = 1.0
 	if kind == "tank":
-		for vent in fuel_vents:
-			vent.restart()
-			vent.emitting = true
-	elif kind != "engine" or context != "builder":
+		if sound and context == "builder":
+			for vent in fuel_vents:
+				vent.restart()
+				vent.emitting = true
+	elif kind != "engine":
 		burst.restart()
 		burst.emitting = true
-	if sound and kind == "engine" and context == "builder":
+	if sound and kind == "engine" and context in ["builder", "launchpad"]:
 		installation_smoke_remaining = INSTALLATION_SMOKE_SECONDS
+		vapor.restart()
 		_update_emission()
 	_pulse_tween = create_tween()
 	_pulse_tween.tween_property(self, "pulse_level", 0.0, 0.65).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -208,7 +215,7 @@ func set_state(power: float, fuel: float, in_atmosphere: bool, enabled: bool, ac
 func _update_emission() -> void:
 	if not is_node_ready():
 		return
-	var installation := context == "builder" and installation_smoke_remaining > 0.0
+	var installation := installation_smoke_remaining > 0.0
 	var firing := operational and engine_active and throttle > 0.0
 	if flame != null:
 		flame.visible = firing
@@ -220,7 +227,7 @@ func _update_emission() -> void:
 	if sparks != null:
 		sparks.emitting = firing
 	if vapor != null:
-		vapor.emitting = operational and ((kind == "tank" and fuel_fraction > 0 and (context == "launchpad" or (context == "flight" and throttle > 0 and atmospheric))) or (kind == "engine" and ((firing and atmospheric) or installation or context == "launchpad")))
+		vapor.emitting = operational and ((kind == "tank" and fuel_fraction > 0 and context == "flight" and throttle > 0 and atmospheric) or (kind == "engine" and ((firing and atmospheric) or installation)))
 	light.enabled = operational
 
 func _process(delta: float) -> void:

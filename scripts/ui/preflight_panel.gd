@@ -55,7 +55,7 @@ func _render() -> void:
 	else:
 		%ReadinessStatus.text = "GO / READY" if _validation.get("valid", false) else "HOLD / CHECK ROCKET"
 		%ReadinessStatus.theme_type_variation = &"SuccessLabel" if _validation.get("valid", false) else &"WarningLabel"
-		%LaunchButton.text = "LAUNCH"
+		%LaunchButton.text = "LAUNCH ›"
 
 func _render_metrics() -> void:
 	var verifier := BuilderController.new()

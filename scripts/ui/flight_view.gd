@@ -57,10 +57,6 @@ func update_visuals(telemetry: FlightTelemetry, steering := 0.0) -> void:
 		return
 	_rig.apply_flight(telemetry.active_stage, telemetry.throttle, telemetry.legs_deployed)
 	_vehicle_rig.apply_flight(telemetry.active_stage, telemetry.throttle, telemetry.legs_deployed)
-	var powered := telemetry.status != FlightState.Status.CRASHED and telemetry.status != FlightState.Status.LANDED
-	var atmosphere := telemetry.body_id == "earth" and telemetry.altitude_m < 80000.0
-	_rig.update_effects(telemetry.fuel_fraction, atmosphere, powered)
-	_vehicle_rig.update_effects(telemetry.fuel_fraction, atmosphere, powered)
 	_vehicle_rig.position = -_vehicle_rig.get_active_stack_center()
 	_vehicle_jets.position = _vehicle_rig.transform * _neck_socket(_vehicle_rig)
 	_update_sky_target(telemetry)

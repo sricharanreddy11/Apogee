@@ -8,6 +8,7 @@
 </defs>
 <rect width="1280" height="720" fill="url(#wall)"/>
 <!-- Recessed bulkhead and the deep-space observation gate. -->
+<g transform="translate(-128 0) scale(1.2 1)">
 <path d="M390 85h500l77 72v394H313V157z" fill="#111b2b" stroke="#2c4155" stroke-width="3"/>
 <path d="M440 104h400l58 64v343H382V168z" fill="url(#bay)" stroke="#3d5867" stroke-width="2"/>
 <path d="M450 118h380l54 57v321H396V175z" fill="#080e20"/>
@@ -31,6 +32,7 @@
  <path d="M425 163v90m430-90v90" stroke="#3acde6" stroke-width="2" opacity=".45"/>
  <path d="M395 501h40v33m450-33h-40v33" stroke="#7a64b4" stroke-width="3" opacity=".75"/>
 </g>
+</g>
 <!-- Gantry rail, ceiling strip lights, and service housings. -->
 <rect y="71" width="1280" height="23" fill="#111b29" stroke="#293c50"/>
 <path d="M397 83h125m236 0h125" stroke="#49daf5" stroke-width="9" opacity=".1"/>
@@ -41,11 +43,13 @@
 <!-- Low-contrast perspective floor and a dedicated assembly plinth. -->
 <path d="M0 539h1280v181H0z" fill="url(#floor)"/>
 <g fill="none" stroke="#30415c" opacity=".5"><path d="M0 566h1280M0 607h1280M0 665h1280M110 720l363-181M430 720l137-181M850 720L713 539m460 181L807 539"/></g>
+<g transform="translate(0 -40)">
 <ellipse cx="640" cy="554" rx="156" ry="29" fill="#0a1424" stroke="#2a3d56" stroke-width="2"/>
 <ellipse cx="640" cy="554" rx="140" ry="22" fill="none" stroke="#37d9e8" stroke-width="10" opacity=".06"/>
 <ellipse cx="640" cy="554" rx="140" ry="22" fill="none" stroke="#42cee2" stroke-width="1.5" opacity=".6"/>
 <path d="M529 545h222v9H529z" fill="url(#hazard)"/>
 <path d="M452 582l32-10m344 10-32-10" stroke="#ae76f1" stroke-width="3" opacity=".6"/>
+</g>
 <path d="M372 105h43m450 0h43" stroke="#8b6ed3" stroke-width="2"/>
 <g fill="#968551" opacity=".6"><path d="M475 589l13-7h9l-13 7zm20 0 13-7h9l-13 7zm20 0 13-7h9l-13 7z"/><path d="M743 589l-13-7h9l13 7zm20 0-13-7h9l13 7zm20 0-13-7h9l13 7z"/></g>
 <path d="M0 700h1280" stroke="#070c16" stroke-width="21"/>

@@ -15,7 +15,7 @@ var _active := 0
 var _throttle := 0.0
 var _clock := 0.0
 var height_px := 0.0
-var effect_context := "flight"
+@export var effect_context := "flight"
 var _effects: Array[Node2D] = []
 
 
@@ -110,6 +110,8 @@ func _stack_part(parent: Node2D, part_id: String, y: float) -> float:
 
 
 func _add_effect(sprite: Sprite2D, part_id: String, centered: bool, stage_index: int) -> void:
+	if effect_context == "cockpit" or sprite.texture == null:
+		return
 	var effect := COMPONENT_FX.new()
 	var kind := COMPONENT_FX.kind_for(part_id)
 	if kind.is_empty():
@@ -132,13 +134,20 @@ func update_effects(fuel: float, in_atmosphere: bool, enabled: bool = true) -> v
 		effect.set_state(firing if fuel > 0.0 else 0.0, fuel, in_atmosphere, enabled and retained, stage_index == _active)
 
 
+func purge_launchpad() -> void:
+	for effect in _effects:
+		if effect.kind == "engine" and int(effect.get_meta("stage", -1)) == _active:
+			effect.pulse(true)
+
+
 func _add_flame(parent: Node2D, engine_id: String) -> Sprite2D:
 	var flame := _sprite(parent, "res://assets/rockets/flame.svg")
 	flame.offset.y = 48.0
 	flame.visible = false
 	# Keep the legacy exhaust anchor for hit tests and integration contracts.
 	# The component's AnimatedSprite2D supplies the visible flame.
-	flame.self_modulate.a = 0.0
+	if effect_context != "cockpit":
+		flame.self_modulate.a = 0.0
 	var engine: Dictionary = _catalog.get(engine_id, {})
 	var exhaust: Array = engine.get("exhaust_origin_px", [])
 	var attachment: Array = engine.get("attachment_bottom_px", [])

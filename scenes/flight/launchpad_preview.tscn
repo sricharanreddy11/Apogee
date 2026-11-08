@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/ui/rocket_preview.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/flight/preflight_panel.tscn" id="3"]
 
-[ext_resource type="PackedScene" path="res://scenes/ui/mission_backdrop.tscn" id="Backdrop"]
+[ext_resource type="Script" path="res://scripts/ui/cockpit_bezel.gd" id="Bezel"]
 
 [node name="LaunchpadPreview" type="Control"]
 layout_mode = 3
@@ -15,7 +15,13 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 
-[node name="Backdrop" parent="." instance=ExtResource("Backdrop")]
+[node name="Cabin" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.052, 0.073, 0.09, 1)
 
 [node name="Margin" type="MarginContainer" parent="."]
 anchors_preset = 15
@@ -23,9 +29,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 40
+theme_override_constants/margin_left = 26
 theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 40
+theme_override_constants/margin_right = 26
 theme_override_constants/margin_bottom = 24
 
 [node name="Layout" type="VBoxContainer" parent="Margin"]
@@ -44,21 +50,30 @@ text = "APOGEE / LAUNCH CONTROL"
 
 [node name="MainMenu" type="Button" parent="Margin/Layout/Header"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 40)
+custom_minimum_size = Vector2(116, 38)
 layout_mode = 2
-text = "Missions"
+text = "‹ Missions"
 
 [node name="Stage" type="HBoxContainer" parent="Margin/Layout"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 24
+theme_override_constants/separation = 12
 
 [node name="RocketPreview" type="Control" parent="Margin/Layout/Stage"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(480, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.55
 script = ExtResource("2")
+
+[node name="Bezel" type="Control" parent="Margin/Layout/Stage/RocketPreview"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("Bezel")
 
 [node name="PreflightPanel" parent="Margin/Layout/Stage" instance=ExtResource("3")]
 unique_name_in_owner = true
