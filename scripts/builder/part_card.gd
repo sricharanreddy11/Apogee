@@ -39,25 +39,25 @@ func configure(part: Dictionary, texture: Texture2D, spec: String) -> void:
 	mouse_default_cursor_shape = Control.CURSOR_DRAG
 	tooltip_text = "%s   /   %s\nDrag onto the rocket to attach." % [part_name, spec]
 	accessibility_name = "%s, %d credits" % [part_name, part.cost_credits]
-	size = Vector2(94, 44)
+	size = Vector2(94, 52)
 	pivot_offset = size / 2.0
 	add_theme_stylebox_override("normal", StyleBoxEmpty.new())
 	add_theme_stylebox_override("hover", StyleBoxEmpty.new())
 	add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
-	add_theme_constant_override("icon_max_width", 34)
+	add_theme_constant_override("icon_max_width", 43)
 
 	if artwork == null:
 		text = part_id
 	var caption := Label.new()
-	caption.position = Vector2(-6, 55)
-	caption.size = Vector2(106, 32)
+	caption.position = Vector2(-3, 53)
+	caption.size = Vector2(100, 32)
 	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	caption.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	caption.add_theme_constant_override("line_spacing", -2)
 	caption.theme_type_variation = &"TelemetryLabel"
 	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	caption.add_theme_font_size_override("font_size", 10)
-	caption.add_theme_color_override("font_color", Color("e8dfc8"))
+	caption.add_theme_color_override("font_color", Color("#b9cbd4"))
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	caption.text = "%s\n%d CR" % [part_name, part.cost_credits]
 	add_child(caption)

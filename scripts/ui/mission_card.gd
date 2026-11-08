@@ -38,7 +38,13 @@ func _ready() -> void:
 
 func set_selected(selected: bool) -> void:
 	_selected = selected
-	%SelectedRing.visible = selected
+	%SelectedRing.visible = selected or %SelectButton.is_hovered() or %SelectButton.has_focus()
+	var transmitting := selected and is_selectable
+	%SignalWave.visible = transmitting
+	if not transmitting:
+		%BeaconAnimation.stop()
+	elif not %BeaconAnimation.is_playing():
+		%BeaconAnimation.play(&"transmit")
 
 
 func _refresh() -> void:

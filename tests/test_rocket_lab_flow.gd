@@ -53,9 +53,10 @@ func _run() -> void:
 	categories.get_node("Pods").pressed.emit()
 	_check(not discs.get_node("POD_A").visible, "Pressing the active category closes its tray.")
 	categories.get_node("Fuel").pressed.emit()
-	_check(discs.clip_contents and is_zero_approx(discs.size.y), "The drawer starts shut before revealing its contents.")
+	var bay_height := discs.size.y
+	_check(discs.clip_contents and is_zero_approx(discs.size.x) and bay_height > 300.0, "The full-height bay starts closed horizontally.")
 	await create_timer(0.35).timeout
-	_check(discs.size.y > 120.0 and discs.get_node("TANK_S").visible, "Rapid switching settles on a fully open fuel drawer.")
+	_check(discs.size.x > 180.0 and is_equal_approx(discs.size.y, bay_height) and discs.get_node("TANK_S").visible, "Rapid switching settles on a fully open fuel bay.")
 	_check(discs.modulate.a == 1.0, "Drawer contents stay opaque through interrupted transitions.")
 	var shelf_part: Button = discs.get_node("TANK_S")
 	shelf_part.button_down.emit()

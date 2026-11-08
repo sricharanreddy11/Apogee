@@ -39,6 +39,15 @@ func _run() -> void:
 		return
 	await scene_changed
 	var game := root.get_node("GameManager")
+	for entry: String in ["%Sandbox", "%Archive", "%Credits"]:
+		_check(current_scene.get_node_or_null(entry) == null, "The opening screen omits " + entry.substr(1) + ".")
+	_check(current_scene.get_node("%AgencyCredits").text == "%d CR" % game.agency_credits, "The reserve instrument displays the saved credit balance.")
+	var settings := current_scene.get_node("%Settings") as Button
+	var dialog := current_scene.get_node("%SettingsDialog") as AcceptDialog
+	_check(settings.text.is_empty() and settings.accessibility_name == "Settings", "Settings is an accessible icon control.")
+	settings.pressed.emit()
+	_check(dialog.visible, "The gear icon opens Settings.")
+	dialog.hide()
 	var mission_card := current_scene.get_node("%MissionList").get_node("M01")
 	mission_card.get_node("%SelectButton").pressed.emit()
 	await process_frame

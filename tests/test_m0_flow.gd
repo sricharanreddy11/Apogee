@@ -13,9 +13,11 @@ func _run() -> void:
 	if game == null:
 		quit(1)
 		return
-	game.show_main_menu()
+	_check(game.open_sandbox_for_mission("M01"), "The internal sandbox opens directly for QA.")
 	await _settle()
-	if not await _press("%Sandbox", "UISandbox"):
+	_check(current_scene != null and current_scene.name == "UISandbox", "The QA entry opens the sandbox scene.")
+	if _failures > 0:
+		quit(1)
 		return
 	_check(game.get_selected_mission().budget_credits == 2000, "Mission budget comes from JSON.")
 	_check(game.selected_mission_id == "M01", "Sandbox preserves the selected mission.")

@@ -1,7 +1,7 @@
 @tool
 extends Button
 
-enum Kind { HOLD, HELP, END }
+enum Kind { HOLD, HELP, END, SETTINGS }
 
 @export var kind := Kind.HOLD
 var active := false:
@@ -37,3 +37,8 @@ func _draw() -> void:
 		Kind.END:
 			draw_rect(Rect2(center - Vector2(8, 8), Vector2(16, 16)), ink, false, 1.4)
 			draw_rect(Rect2(center - Vector2(4, 4), Vector2(8, 8)), ink)
+		Kind.SETTINGS:
+			draw_arc(center, 8.0, 0, TAU, 32, ink, 3.2, true)
+			for tooth in 8:
+				var axis := Vector2.from_angle(tooth * TAU / 8.0)
+				draw_line(center + axis * 8.0, center + axis * 12.0, ink, 3.6, true)

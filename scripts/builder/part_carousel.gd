@@ -2,8 +2,8 @@ extends Control
 
 const CARD := preload("res://scripts/builder/part_card.gd")
 const TABS := {"pod": "Pods", "tank": "Fuel", "engine": "Engines", "kit": "Kit"}
-const TRAY_TOP := 220.0
-const TRAY_HEIGHT := 142.0
+const BAY_INSET := 8.0
+const TRAY_TOP := 182.0
 var impact_provider: Callable
 var _cards := {"pod": [], "tank": [], "engine": [], "kit": []}
 var _open := ""
@@ -45,7 +45,12 @@ func _toggle_category(category: String) -> void:
 
 
 func _layout() -> void:
-	var tab_width := (size.x - 36.0) * 0.5
+	var count := 0
+	for cards: Array in _cards.values():
+		if not cards.is_empty():
+			count += 1
+	var tab_width := (size.x - 2.0 * BAY_INSET) / maxf(1.0, count)
+	var bay := _bay_size()
 	var tab_index := 0
 	for category: String in TABS:
 		var button: Button = %Categories.get_node(TABS[category])
@@ -55,42 +60,49 @@ func _layout() -> void:
 		button.set_pressed_no_signal(active)
 		button.set_open(active)
 		if button.visible:
-			button.position = Vector2(14.0 + (tab_index % 2) * (tab_width + 8.0), 132.0 + floorf(tab_index / 2.0) * 43.0)
-			button.size = Vector2(tab_width, 35.0)
+			button.position = Vector2(BAY_INSET + tab_index * tab_width, 127.0)
+			button.size = Vector2(tab_width, 48.0)
 			tab_index += 1
 		for index in cards.size():
 			var card: Button = cards[index]
 			card.visible = active
-			var lane := size.x / maxf(1.0, cards.size())
-			var lean := absf(index - (cards.size() - 1) * 0.5)
-			card.position = Vector2(lane * (index + 0.5) - card.size.x * 0.5, 18.0 + lean * 8.0)
-	%PartDiscs.position = Vector2(0, TRAY_TOP)
+			var stacked := cards.size() > 2
+			var columns := mini(cards.size(), 2)
+			var x := bay.x * (float(index) + 0.5) / columns if index < 2 else bay.x * 0.5
+			var y := bay.y * (0.30 if index < 2 else 0.62) if stacked else bay.y * 0.42
+			card.position = Vector2(x, y) - card.size * 0.5
+	%PartDiscs.position = Vector2(BAY_INSET, TRAY_TOP)
 	_extend(_extension)
+
+
+func _bay_size() -> Vector2:
+	return Vector2(maxf(0.0, size.x - 2.0 * BAY_INSET), maxf(0.0, size.y - TRAY_TOP - 10.0))
 
 
 func _extend(amount: float) -> void:
 	_extension = amount
-	%PartDiscs.size = Vector2(size.x, TRAY_HEIGHT * amount)
+	var bay := _bay_size()
+	%PartDiscs.size = Vector2(bay.x * amount, bay.y)
 	queue_redraw()
 
 
 func _draw() -> void:
-	var opening := TRAY_HEIGHT * _extension
-	var cabinet := Rect2(0, 92, size.x, maxf(145.0, TRAY_TOP + opening + 12.0 - 92.0))
+	var bay := Rect2(Vector2(BAY_INSET, TRAY_TOP), _bay_size())
+	var cabinet := Rect2(0, 92, size.x, maxf(32.0, size.y - 92.0))
 	draw_rect(cabinet, Color("#101c25"))
 	draw_rect(cabinet.grow(-1.0), Color("#405260"), false, 1.0)
 	draw_rect(Rect2(1, 93, size.x - 2, 30), Color("#202e39"))
 	draw_line(Vector2(1, 123), Vector2(size.x - 1, 123), Color("#3c515e"))
 	for bolt in [Vector2(8, 101), Vector2(size.x - 8, 101), Vector2(8, cabinet.end.y - 8), Vector2(size.x - 8, cabinet.end.y - 8)]:
 		draw_circle(bolt, 2.0, Color("#71818a"))
-	if opening > 0.0:
-		var lip := TRAY_TOP + opening
-		draw_rect(Rect2(9, TRAY_TOP, size.x - 18, opening), Color("#0a141d"))
-		for x: float in [12.0, size.x - 12.0]:
-			draw_line(Vector2(x, TRAY_TOP), Vector2(x, lip), Color("#3a5d6b"), 2)
-		if opening >= 75.0:
-			draw_line(Vector2(14, TRAY_TOP + 73), Vector2(size.x - 14, TRAY_TOP + 73), Color("#71808a"), 2)
-			draw_line(Vector2(14, TRAY_TOP + 76), Vector2(size.x - 14, TRAY_TOP + 76), Color("#293f4b"), 3)
-		draw_line(Vector2(9, lip), Vector2(size.x - 9, lip), Color("#527584"), 3)
-		var latch := Vector2(size.x * 0.5, lip + 4.0)
-		draw_line(latch - Vector2(12, 0), latch + Vector2(12, 0), Color("#8fe5e7"), 1.4)
+	draw_rect(bay, Color("#0a141d"))
+	var shutter := bay.position.x + bay.size.x * _extension
+	if _extension < 1.0:
+		draw_rect(Rect2(shutter, bay.position.y, bay.end.x - shutter, bay.size.y), Color("#192631"))
+		for seam in range(1, 5):
+			var x := lerpf(shutter, bay.end.x, seam / 5.0)
+			draw_line(Vector2(x, bay.position.y + 8), Vector2(x, bay.end.y - 8), Color("#263742"), 1)
+	if _extension > 0.0:
+		draw_line(Vector2(shutter, bay.position.y), Vector2(shutter, bay.end.y), Color("#527584"), 2)
+	var grip := Vector2(shutter, bay.get_center().y)
+	draw_line(grip - Vector2(0, 13), grip + Vector2(0, 13), Color("#82b2bc"), 2)

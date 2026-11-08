@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/builder/builder_controller.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/builder/rocket_preview.gd" id="2"]
@@ -12,14 +12,16 @@
 [ext_resource type="Script" path="res://scripts/builder/metric_card.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/builder/lab_atmosphere.gd" id="11"]
 [ext_resource type="Script" path="res://scripts/builder/storage_hatch.gd" id="12"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/Oxanium.res" id="DisplayFont"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/IBMPlexMono-Regular.res" id="MonoFont"]
 
 [sub_resource type="StyleBoxFlat" id="TelemetryPanel"]
-bg_color = Color(0.064, 0.098, 0.129, 0.97)
+bg_color = Color(0.082, 0.119, 0.153, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.2, 0.31, 0.39, 1)
+border_color = Color(0.25, 0.32, 0.38, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_left = 4
@@ -29,10 +31,13 @@ content_margin_right = 16.0
 content_margin_top = 14.0
 content_margin_bottom = 14.0
 
-[sub_resource type="StyleBoxEmpty" id="RocketNameStyle"]
-content_margin_left = 0.0
-content_margin_top = 2.0
-content_margin_bottom = 2.0
+[sub_resource type="StyleBoxFlat" id="RocketNameStyle"]
+bg_color = Color(0.033, 0.055, 0.076, 1)
+border_width_bottom = 1
+border_color = Color(0.24, 0.35, 0.42, 1)
+content_margin_left = 9.0
+content_margin_top = 3.0
+content_margin_bottom = 3.0
 
 [sub_resource type="Animation" id="CraneTravel"]
 resource_name = "gantry"
@@ -162,7 +167,8 @@ unique_name_in_owner = true
 layout_mode = 1
 anchor_bottom = 1.0
 offset_left = 28.0
-offset_right = 328.0
+offset_right = 248.0
+offset_bottom = -86.0
 mouse_filter = 2
 script = ExtResource("3")
 
@@ -253,15 +259,16 @@ theme_override_constants/separation = 6
 
 [node name="Eyebrow" type="Label" parent="Telemetry/Scroll/Readouts"]
 layout_mode = 2
-theme_type_variation = &"EyebrowLabel"
-theme_override_font_sizes/font_size = 11
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 15
 text = "LIVE BUILD"
 
 [node name="RocketName" type="LineEdit" parent="Telemetry/Scroll/Readouts"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 38)
-theme_override_font_sizes/font_size = 27
+theme_override_fonts/font = ExtResource("DisplayFont")
+theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("RocketNameStyle")
 text = "Sparrow I"
 max_length = 60
@@ -270,6 +277,7 @@ tooltip_text = "Rename rocket"
 [node name="ComparisonLegend" type="Label" parent="Telemetry/Scroll/Readouts"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
 theme_override_colors/font_color = Color(0.65, 0.77, 0.84, 1)
 theme_override_font_sizes/font_size = 12
 text = "LIVE BUILD   ·   edit to compare"
@@ -306,6 +314,7 @@ layout_mode = 2
 [node name="Title" type="Label" parent="Telemetry/Scroll/Readouts/BudgetHeading"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"TelemetryLabel"
 theme_override_font_sizes/font_size = 12
 text = "BUDGET"
 
@@ -325,13 +334,15 @@ show_percentage = false
 [node name="BudgetDelta" type="Label" parent="Telemetry/Scroll/Readouts"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 12
 
 [node name="BuildStatus" type="Label" parent="Telemetry/Scroll/Readouts"]
 theme_type_variation = &"SuccessLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_fonts/font = ExtResource("MonoFont")
+theme_override_font_sizes/font_size = 13
 autowrap_mode = 2
 
 [node name="Stages" type="HBoxContainer" parent="."]

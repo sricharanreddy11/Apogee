@@ -1,15 +1,16 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/preflight_panel.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/builder/metric_card.gd" id="2"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/IBMPlexMono-Regular.res" id="MonoFont"]
 
 [sub_resource type="StyleBoxFlat" id="AnalysisPanel"]
-bg_color = Color(0.064, 0.098, 0.129, 1)
+bg_color = Color(0.082, 0.119, 0.153, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.2, 0.31, 0.39, 1)
+border_color = Color(0.25, 0.32, 0.38, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_left = 4
@@ -32,30 +33,32 @@ theme_override_constants/separation = 8
 layout_mode = 2
 
 [node name="Section" type="Label" parent="Stack/Header"]
-theme_type_variation = &"EyebrowLabel"
+theme_type_variation = &"TelemetryLabel"
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 15
 text = "02  /  FLIGHT SYSTEMS"
 
 [node name="ReadinessStatus" type="Label" parent="Stack/Header"]
 theme_type_variation = &"SuccessLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_fonts/font = ExtResource("MonoFont")
+theme_override_font_sizes/font_size = 13
 text = "HOLD"
 
 [node name="MissionName" type="Label" parent="Stack"]
-theme_type_variation = &"DisplayLabel"
+theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 16
 autowrap_mode = 3
 text = "Mission"
 
 [node name="ObjectiveLabel" type="Label" parent="Stack"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"MutedLabel"
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
 
@@ -78,7 +81,7 @@ theme_override_constants/separation = 6
 theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 24
 autowrap_mode = 3
 
 [node name="Metrics" type="GridContainer" parent="Stack/Scroll/Readouts"]
@@ -122,7 +125,8 @@ show_percentage = false
 [node name="BudgetHint" type="Label" parent="Stack/Scroll/Readouts"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="ValidationMessage" type="Label" parent="Stack/Scroll/Readouts"]

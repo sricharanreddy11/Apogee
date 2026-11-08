@@ -1,9 +1,7 @@
 # Milestone 0: run it, understand it, change it
 
-**M1 update:** Mission selection now appears directly on the main menu. Use its
-**UI sandbox** button to run this M0 demo. The earlier New Campaign/selection steps
-below describe the original M0 layout. See [the M1 guide](MILESTONE_1_GUIDE.md) for
-the current main menu → builder → preflight flow.
+The M0 demo is an internal editor scene. See [the M1 guide](MILESTONE_1_GUIDE.md)
+for the campaign flow.
 
 M0 gives you a safe place to build your UI while your teammates work. The flight
 numbers are scripted examples. The real rocket simulator, mission win detection,
@@ -13,18 +11,13 @@ scoring, and campaign saves are later milestones.
 
 1. Open Godot Project Manager, choose **Import**, and select `E:\Apogee\project.godot`.
 2. Use the standard Godot 4.7.2 editor installed on this computer.
-3. Press **F5** to run the whole project.
-4. Choose **New Campaign**, then **Select M01 · Open UI sandbox**.
-5. Watch altitude and speed rise while fuel falls. Use **Pause** or **Restart sample**.
-6. Choose **Open sample report**, then **Retry sandbox** or **Main menu**.
+3. Open `scenes/ui/ui_sandbox.tscn` and press **F6**.
+4. Watch altitude and speed rise while fuel falls. Use **Pause** or **Restart sample**.
+5. Choose **Open sample report**, then **Retry sandbox** or **Main menu**.
 
 The default 60-second sample takes 12 real seconds at 5× speed, then holds its final
 values. **Mock flight report** shows the highest sample altitude and speed seen;
 it does not declare mission success. **Back to mission** returns to the briefing.
-
-You can also open `scenes/ui/ui_sandbox.tscn` in Godot and press **F6** to run only
-that scene. F5 always starts the project's main scene; F6 starts the selected scene.
-The separate builder preview still leads to the existing static Flight placeholder.
 
 ## What each kind of file does
 

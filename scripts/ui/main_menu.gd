@@ -1,21 +1,26 @@
 extends Control
 
 const MISSION_CARD := preload("res://scenes/menus/mission_card.tscn")
+const CONSOLE := preload("res://scripts/ui/console_button.gd")
 const CHART_SIZE := Vector2(1184, 500)
 
 var _cards: Dictionary = {}
 var _signals: Dictionary = {}
+var _active_signal := ""
+var _signal_tween: Tween
 
 
 func _ready() -> void:
-	%AgencyCredits.text = "AGENCY CREDITS\n%d CR" % GameManager.agency_credits
+	%AgencyCredits.text = "%d CR" % GameManager.agency_credits
+	%AgencyCredits.accessibility_name = "%d agency credits" % GameManager.agency_credits
 	%Chart.resized.connect(_fit_chart)
 	_fit_chart()
 	%Settings.pressed.connect(func() -> void: %SettingsDialog.popup_centered(Vector2i(460, 230)))
-	%Credits.pressed.connect(func() -> void: %CreditsDialog.popup_centered(Vector2i(460, 230)))
 	%Exit.pressed.connect(func() -> void: get_tree().quit())
-	%Archive.pressed.connect(_open_archive)
-	%Sandbox.pressed.connect(_open_sandbox)
+	CONSOLE.apply(%Workshop, "primary")
+	CONSOLE.apply(%Showcase)
+	CONSOLE.apply(%Exit)
+	CONSOLE.apply(%SettingsDialog.get_ok_button())
 	%Showcase.pressed.connect(GameManager.show_moon_flyby_showcase)
 	%Workshop.pressed.connect(GameManager.show_workshop)
 	%MasterVolume.value = db_to_linear(AudioServer.get_bus_volume_db(0)) * 100.0
@@ -23,10 +28,22 @@ func _ready() -> void:
 	%MasterVolume.value_changed.connect(_set_master_volume)
 	GameManager.navigation_error.connect(_show_error)
 	_build_mission_beacons()
+	_reveal_beacons()
 
 
 func _fit_chart() -> void:
 	%ChartWorld.scale = %Chart.size / CHART_SIZE
+
+
+func _reveal_beacons() -> void:
+	if _cards.is_empty():
+		return
+	var reveal := create_tween().set_parallel().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	var delay := 0.0
+	for card: MissionCard in _cards.values():
+		card.modulate.a = 0.4
+		reveal.tween_property(card, "modulate:a", 1.0, 0.32).set_delay(delay)
+		delay += 0.09
 
 
 func _build_mission_beacons() -> void:
@@ -42,9 +59,9 @@ func _build_mission_beacons() -> void:
 	var titles: Dictionary = {}
 	for mission in missions:
 		titles[mission.id] = mission.title
-	for mission in missions:
-		if not mission.released:
-			continue
+	var released := missions.filter(func(mission: MissionDefinition) -> bool: return mission.released)
+	var route := Curve2D.new()
+	for mission: MissionDefinition in released:
 		var card := MISSION_CARD.instantiate() as MissionCard
 		card.name = mission.id
 		var unlock_text := ""
@@ -56,8 +73,10 @@ func _build_mission_beacons() -> void:
 		card.mission_selected.connect(_on_mission_selected)
 		card.signal_focused.connect(_show_signal)
 		%MissionList.add_child(card)
-		var marker := %MissionAnchors.get_node_or_null(mission.id) as Control
-		var point := Vector2(marker.anchor_left, marker.anchor_top) if marker != null else Vector2(0.14 + float(_cards.size() % 4) * 0.23, 0.10)
+		var index := _cards.size()
+		var progress := float(index) / maxi(released.size() - 1, 1)
+		var point := Vector2(lerpf(0.15, 0.85, progress), 0.69 if index % 2 == 0 else 0.46)
+		route.add_point(point * CHART_SIZE)
 		card.anchor_left = point.x
 		card.anchor_right = point.x
 		card.anchor_top = point.y
@@ -67,7 +86,14 @@ func _build_mission_beacons() -> void:
 		card.offset_top = -40.0
 		card.offset_bottom = 112.0
 		_cards[mission.id] = card
-		_signals[mission.id] = mission.objective_text if card.is_selectable else unlock_text
+		_signals[mission.id] = {
+			"title": mission.title,
+			"details": mission.objective_text if card.is_selectable else unlock_text,
+		}
+	%TransferRoute.points = route.get_baked_points()
+	if route.point_count > 1:
+		%TrackingPath.curve = route
+		%RouteAnimation.play(&"track")
 	if not _cards.is_empty():
 		var active := GameManager.selected_mission_id
 		_show_signal(active if _cards.has(active) else _cards.keys()[0])
@@ -79,10 +105,22 @@ func get_mission_card(id: String) -> MissionCard:
 
 
 func _show_signal(id: String) -> void:
+	if id == _active_signal:
+		return
+	_active_signal = id
 	for mission_id: String in _cards:
 		_cards[mission_id].set_selected(mission_id == id)
-	%SignalID.text = "SIGNAL / %s" % id
-	%SignalDetails.text = _signals[id]
+	var briefing: Dictionary = _signals[id]
+	%SignalID.text = "%s  /  BRIEFING" % id
+	%SignalTitle.text = briefing.title
+	%SignalDetails.text = briefing.details
+	if _signal_tween != null:
+		_signal_tween.kill()
+	%SignalDetails.modulate.a = 0.55
+	%SignalLight.modulate.a = 1.0
+	_signal_tween = create_tween().set_parallel().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_signal_tween.tween_property(%SignalDetails, "modulate:a", 1.0, 0.22)
+	_signal_tween.tween_property(%SignalLight, "modulate:a", 0.45, 0.45)
 
 
 func _on_mission_selected(id: String) -> void:
@@ -90,23 +128,6 @@ func _on_mission_selected(id: String) -> void:
 	%ErrorMessage.hide()
 	if not GameManager.select_mission(id) and %ErrorMessage.text.is_empty():
 		_show_error("This mission could not be opened. Check its unlock requirement and mission data.")
-
-
-func _open_archive() -> void:
-	var records := JsonData.read_object("res://data/discoveries.json")
-	var entries: Array[String] = []
-	for id: String in GameManager.discovered_ids:
-		var record: Dictionary = records.get(id, {})
-		if not record.is_empty():
-			entries.append("%s\n%s" % [record.title, record.fact])
-	%ArchiveDialog.dialog_text = "Complete missions to unlock discoveries." if entries.is_empty() else "\n\n".join(entries)
-	%ArchiveDialog.popup_centered(Vector2i(560, 240))
-
-
-func _open_sandbox() -> void:
-	%ErrorMessage.text = ""
-	%ErrorMessage.hide()
-	GameManager.open_sandbox_for_mission("M01")
 
 
 func _show_error(message: String) -> void:

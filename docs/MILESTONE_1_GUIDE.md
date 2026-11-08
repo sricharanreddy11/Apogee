@@ -159,8 +159,7 @@ retained config, a single launch request, and completed/unlocked card states.
 The RocketLab check also covers real part selection and assembly preservation
 through Prepare Launch → Edit Rocket.
 
-The old M0 demo remains available through the main menu's **UI sandbox** button or
-by opening `scenes/ui/ui_sandbox.tscn` and pressing **F6**. You can also run the
+For internal UI testing, open `scenes/ui/ui_sandbox.tscn` and press **F6**. You can also run the
 launchpad preview directly with F6 to inspect its reference craft.
 
 If a normal run closes immediately with a local Windows `WASAPI` audio error, use
