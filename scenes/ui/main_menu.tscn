@@ -1,25 +1,22 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/star_chart_layer.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/ui/campaign_hologram.gd" id="3"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/earth.svg" id="Earth"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/moon.svg" id="Moon"]
-[ext_resource type="Script" path="res://scripts/ui/campaign_rocket_preview.gd" id="5"]
-[ext_resource type="Shader" path="res://assets/ui/frosted_glass.gdshader" id="Glass"]
-
 [ext_resource type="Script" path="res://scripts/ui/cockpit_header_button.gd" id="Gear"]
 [ext_resource type="Script" path="res://scripts/ui/agency_token.gd" id="Token"]
 
 [sub_resource type="StyleBoxFlat" id="ReserveHousing"]
-content_margin_left = 7.0
-content_margin_top = 3.0
-content_margin_right = 16.0
-content_margin_bottom = 3.0
+content_margin_left = 0.2
+content_margin_top = 7.0
+content_margin_right = 1.0
+content_margin_bottom = 7.0
 bg_color = Color(0.075, 0.103, 0.127, 0.12)
-border_width_left = 1
+border_width_left = 0
 border_width_top = 1
-border_width_right = 1
+border_width_right = 0
 border_width_bottom = 2
 border_color = Color(0.37, 0.32, 0.25, 1)
 corner_radius_top_left = 4
@@ -28,20 +25,16 @@ corner_radius_bottom_left = 4
 corner_radius_bottom_right = 4
 
 [sub_resource type="StyleBoxFlat" id="SignalHousing"]
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 8.0
-bg_color = Color(0.052, 0.087, 0.123, 0.12)
-border_width_left = 2
+content_margin_left = 30.0
+content_margin_top = 18.0
+content_margin_right = 30.0
+content_margin_bottom = 18.0
+bg_color = Color(0.02, 0.06, 0.1, 0.72)
+border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.22, 0.35, 0.44, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_left = 5
-corner_radius_bottom_right = 5
+border_color = Color(0.3, 0.65, 0.72, 0.4)
 
 [sub_resource type="StyleBoxFlat" id="VolumeTrack"]
 content_margin_top = 3.0
@@ -62,13 +55,6 @@ corner_radius_bottom_left = 2
 corner_radius_bottom_right = 2
 
 [sub_resource type="StyleBoxEmpty" id="EmptyHousing"]
-
-[sub_resource type="ShaderMaterial" id="SignalGlass"]
-shader = ExtResource("Glass")
-shader_parameter/reveal = 1.0
-
-[sub_resource type="ShaderMaterial" id="ReserveGlass"]
-shader = ExtResource("Glass")
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -155,15 +141,6 @@ layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 4
 theme_override_constants/separation = 24
-
-[node name="HeaderGlass" type="ColorRect" parent="Margin/Layout/Header/Actions"]
-show_behind_parent = true
-layout_mode = 0
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-material = SubResource("ReserveGlass")
 
 [node name="HeaderControls" type="HBoxContainer" parent="Margin/Layout/Header/Actions"]
 layout_mode = 2
@@ -289,15 +266,8 @@ offset_right = 1184.0
 offset_bottom = 500.0
 mouse_filter = 2
 
-[node name="RocketTurntable" type="Control" parent="Margin/Layout/CommandCenter"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(270, 390)
-layout_mode = 2
-mouse_filter = 2
-script = ExtResource("5")
-
 [node name="SignalSlot" type="Control" parent="Margin/Layout"]
-custom_minimum_size = Vector2(0, 88)
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 mouse_filter = 2
 
@@ -308,16 +278,6 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_styles/panel = SubResource("SignalHousing")
-
-[node name="SignalGlass" type="ColorRect" parent="Margin/Layout/SignalSlot/SignalHousing"]
-unique_name_in_owner = true
-show_behind_parent = true
-layout_mode = 0
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-material = SubResource("SignalGlass")
 
 [node name="SignalStrip" type="HBoxContainer" parent="Margin/Layout/SignalSlot/SignalHousing"]
 layout_mode = 2

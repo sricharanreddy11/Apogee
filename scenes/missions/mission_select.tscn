@@ -1,42 +1,20 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mission_select.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/starfield.svg" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/missions/mission_projection.tscn" id="3"]
 
-[ext_resource type="Shader" path="res://assets/ui/frosted_glass.gdshader" id="Glass"]
-
-[sub_resource type="ShaderMaterial" id="GlassMaterial"]
-shader = ExtResource("Glass")
-shader_parameter/reveal = 0.0
-
 [sub_resource type="StyleBoxFlat" id="GlassBorder"]
-content_margin_left = 22.0
-content_margin_right = 22.0
-content_margin_top = 20.0
-content_margin_bottom = 20.0
-bg_color = Color(0.02, 0.06, 0.1, 0.08)
+content_margin_left = 30.0
+content_margin_right = 30.0
+content_margin_top = 26.0
+content_margin_bottom = 26.0
+bg_color = Color(0.02, 0.06, 0.1, 0.72)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.3, 0.65, 0.72, 0.4)
-
-[sub_resource type="Animation" id="BriefingReveal"]
-resource_name = "acquire_signal"
-length = 0.28
-tracks/0/type = "value"
-tracks/0/path = NodePath("Center/BriefingLayout:modulate")
-tracks/0/interp = 1
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.28),
-"transitions": PackedFloat32Array(0.55, 1),
-"update": 0,
-"values": [Color(0.72, 0.88, 1, 0.25), Color(1, 1, 1, 1)]
-}
-
-[sub_resource type="AnimationLibrary" id="BriefingAnimations"]
-_data = {&"acquire_signal": SubResource("BriefingReveal")}
 
 [node name="MissionBriefing" type="Control"]
 layout_mode = 3
@@ -76,16 +54,6 @@ accessibility_name = "Mission briefing"
 theme_override_styles/panel = SubResource("GlassBorder")
 custom_minimum_size = Vector2(480, 0)
 layout_mode = 2
-
-[node name="BriefingGlass" type="ColorRect" parent="Center/BriefingLayout/BriefingPanel"]
-unique_name_in_owner = true
-show_behind_parent = true
-layout_mode = 0
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-material = SubResource("GlassMaterial")
 
 [node name="Stack" type="VBoxContainer" parent="Center/BriefingLayout/BriefingPanel"]
 layout_mode = 2
@@ -188,7 +156,3 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(184, 46)
 layout_mode = 2
 text = "Build rocket ›"
-
-[node name="SignalAcquisition" type="AnimationPlayer" parent="."]
-libraries = {&"": SubResource("BriefingAnimations")}
-autoplay = "acquire_signal"

@@ -16,6 +16,12 @@ func _run() -> void:
 	game.show_main_menu()
 	await _settle()
 	_check(current_scene.name == "MainMenu", "T01: Game opens on the mission-selecting main menu.")
+	_check(current_scene.get_node_or_null("%RocketTurntable") == null, "Mission Control omits the Vehicle/Live panel.")
+	_check(current_scene.find_child("HeaderGlass", true, false) == null, "Settings icon has no surrounding glass box.")
+	_check(current_scene.get_node("%Settings").get_theme_stylebox("focus") is StyleBoxEmpty, "Settings icon has no focus border.")
+	var signal_style := current_scene.get_node("%SignalHousing").get_theme_stylebox("panel") as StyleBoxFlat
+	_check(signal_style.content_margin_left >= 30.0 and signal_style.content_margin_top >= 18.0, "Mission Control briefing box has comfortable inner padding.")
+	_check(current_scene.get_node_or_null("%SignalGlass") == null, "Mission Control briefing box uses the clean mission-card treatment.")
 	_check(current_scene.get_node("%MissionList").get_child_count() == 4, "M01 through M04 have data-backed beacons.")
 	for id: String in ["M01", "M02", "M03", "M04"]:
 		var card := _card(id)
@@ -37,6 +43,9 @@ func _run() -> void:
 	_card("M01").get_node("%SelectButton").pressed.emit()
 	await _settle()
 	_check(current_scene.name == "MissionBriefing", "T02: M01 opens the briefing before the builder.")
+	var briefing_style := current_scene.get_node("%BriefingPanel").get_theme_stylebox("panel") as StyleBoxFlat
+	_check(briefing_style.content_margin_left >= 30.0 and briefing_style.content_margin_top >= 26.0, "Mission description and build card has comfortable inner padding.")
+	_check(current_scene.get_node_or_null("%BriefingGlass") == null, "Mission description uses the clean mission-card treatment.")
 	_check(game.selected_mission_id == "M01", "Selected mission survives navigation.")
 	_check(current_scene.get_node("%Details").text.contains("100 km"), "Briefing shows the mission objective.")
 	_check(current_scene.get_node("%Route").text.contains("Earth surface"), "Briefing shows the mission route.")
