@@ -77,6 +77,11 @@ func _ready() -> void:
 		%MissionLabel.text = _display_title
 		if not _showcase_mode:
 			%Objective.text = _mission.definition.objective_text
+			if _mission_id == "M04":
+				var limits := _mission.definition.win_conditions
+				%Objective.text = "Lunar touchdown  /  Vertical ≤ %.0f m/s  ·  Sideways ≤ %.0f m/s  ·  Tilt ≤ %.0f°  ·  Legs deployed  ·  Pod intact" % [
+					limits.max_vertical_speed_mps, limits.max_horizontal_speed_mps, limits.max_orientation_deg,
+				]
 			_comms = JsonData.read_object("res://data/mission_comms.json")
 			_mission_comms = _comms.get(_mission_id, {})
 			_say(String(_mission_comms.get("intro", "")))
@@ -234,7 +239,8 @@ func _set_orbit_view(enabled: bool) -> void:
 	%FlightArtwork.visible = not _showing_orbit
 	%ViewTitle.visible = not _showing_orbit
 	%ViewButton.text = "FLIGHT  [Tab]" if _showing_orbit else "ORBIT  [Tab]"
-	%ViewTitle.text = "FLIGHT VIEW"
+	%ViewTitle.text = "01  /  FORWARD WINDOW"
+	_update_landing_guidance(_simulator.get_telemetry())
 	if _showing_orbit:
 		_request_prediction()
 	elif _prediction_worker != null:
@@ -255,8 +261,8 @@ func _update_views(telemetry: FlightTelemetry) -> void:
 
 
 func _update_landing_guidance(telemetry: FlightTelemetry) -> void:
-	var visible := _mission_id == "M04" and telemetry.body_id == "moon" and telemetry.altitude_m < 1000.0
-	%LandingGuidance.visible = visible
+	var visible := not _showing_orbit and _mission_id == "M04" and telemetry.body_id == "moon" and telemetry.altitude_m < 1000.0
+	%LandingPanel.visible = visible
 	if not visible:
 		return
 	var rules := _mission.definition.win_conditions
@@ -275,7 +281,7 @@ func _update_landing_guidance(telemetry: FlightTelemetry) -> void:
 		and tilt <= float(rules.max_orientation_deg)
 		and telemetry.legs_deployed
 	)
-	%LandingGuidance.text = "VERT %s %.1f / %.0f m/s\nSIDE   %.1f / %.0f m/s\nTILT   %.1f / %.0f°\n%s" % [
+	%LandingGuidance.text = "LUNAR APPROACH\nVERT %s %.1f / %.0f m/s\nSIDE   %.1f / %.0f m/s\nTILT   %.1f / %.0f°\n%s" % [
 		"↓" if descending else "↑", absf(radial), rules.max_vertical_speed_mps,
 		lateral, rules.max_horizontal_speed_mps, tilt, rules.max_orientation_deg,
 		"LEGS UP" if not telemetry.legs_deployed else ("TOUCHDOWN READY" if safe else "CORRECT APPROACH"),
@@ -354,16 +360,13 @@ func _update_control_state(telemetry: FlightTelemetry) -> void:
 		button.disabled = not _can_warp(telemetry)
 	%ThrottleValue.text = ("%.1f%%" if _mission_id == "M04" else "%.0f%%") % (telemetry.throttle * 100.0)
 	%EngineButton.text = "CUTOFF  [X]" if telemetry.throttle > 0.0 else "IGNITE"
-	var terminal := telemetry.status in [FlightState.Status.LANDED, FlightState.Status.CRASHED]
-	%Throttle.editable = not terminal
-	%EngineButton.disabled = terminal
-	%StageButton.disabled = terminal or _rocket_config == null or telemetry.active_stage + 1 >= _rocket_config.stages.size()
-	%LegsButton.disabled = terminal or _rocket_config == null or not _rocket_config.attachment_ids.has("LEGS")
+	var controls_locked := _paused or _finished or telemetry.status in [FlightState.Status.LANDED, FlightState.Status.CRASHED]
+	%Throttle.editable = not controls_locked
+	%EngineButton.disabled = controls_locked
+	%StageButton.disabled = controls_locked or _rocket_config == null or telemetry.active_stage + 1 >= _rocket_config.stages.size()
+	%LegsButton.disabled = controls_locked or _rocket_config == null or not _rocket_config.attachment_ids.has("LEGS")
 	%LegsButton.text = "RETRACT  [L]" if telemetry.legs_deployed else "LEGS  [L]"
-	%FlightArtwork.set_vehicle_controls(
-		not _paused and not _finished and not %StageButton.disabled,
-		not _paused and not _finished and not %LegsButton.disabled
-	)
+	%FlightArtwork.set_vehicle_controls(not %StageButton.disabled, not %LegsButton.disabled)
 	if telemetry.status == FlightState.Status.CRASHED:
 		%ControlStatus.text = "POD LOST"
 	elif telemetry.status == FlightState.Status.LANDED:

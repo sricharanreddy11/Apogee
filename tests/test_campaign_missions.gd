@@ -127,11 +127,16 @@ func _test_campaign_flight() -> void:
 	var flight := current_scene
 	flight.set_physics_process(false)
 	var throttle := flight.get_node("%Throttle") as Slider
+	_check(throttle is VSlider, "The cockpit provides a vertical throttle lever.")
 	throttle.value = 40.0
 	for index in 120:
 		flight.call("_physics_process", 1.0 / 60.0)
 	var sim: FlightSimulator = flight.get("_simulator")
 	_check(sim.get_telemetry().altitude_m > 0.0, "Positive net thrust lifts Sparrow I from the pad at 40%.")
+	flight.get_node("%PauseFlight").pressed.emit()
+	_check(not throttle.editable and flight.get_node("%EngineButton").disabled, "Pause locks the cockpit lever and ignition.")
+	flight.get_node("%PauseFlight").pressed.emit()
+	_check(throttle.editable and is_equal_approx(throttle.value, 40.0), "Resuming restores the lever at the current thrust.")
 	flight.get_node("%EngineButton").pressed.emit()
 	flight.get_node("%EngineButton").pressed.emit()
 	_check(is_equal_approx(sim.get_telemetry().throttle, 0.4), "Reignition restores the previous throttle.")

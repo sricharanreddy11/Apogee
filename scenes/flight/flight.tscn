@@ -1,12 +1,76 @@
 [gd_scene format=3 uid="uid://ct3h3bo0cv75s"]
 
 [ext_resource type="Script" uid="uid://c8p3pa1x8kp35" path="res://scripts/physics/flight_screen.gd" id="1"]
-[ext_resource type="Script" uid="uid://bqhth4o1s3qlq" path="res://scripts/ui/flight_hud.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/cockpit_instruments.gd" id="2"]
 [ext_resource type="Script" uid="uid://g1bipiynsfhm" path="res://scripts/ui/orbit_map.gd" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/flight/flight_view.tscn" id="4"]
-[ext_resource type="PackedScene" path="res://scenes/ui/mission_backdrop.tscn" id="Backdrop"]
 
 [ext_resource type="SpriteFrames" path="res://assets/mission_control/astronaut_wave.tres" id="Astronaut"]
+
+[ext_resource type="Script" path="res://scripts/ui/cockpit_bezel.gd" id="Bezel"]
+[ext_resource type="Texture2D" path="res://assets/ui/throttle_grip.svg" id="Grip"]
+
+[sub_resource type="StyleBoxFlat" id="Cabin"]
+bg_color = Color(0.052, 0.073, 0.09, 1)
+
+[sub_resource type="StyleBoxFlat" id="Window"]
+content_margin_left = 9.0
+content_margin_top = 9.0
+content_margin_right = 9.0
+content_margin_bottom = 9.0
+bg_color = Color(0.13, 0.17, 0.21, 1)
+
+[sub_resource type="StyleBoxFlat" id="Deck"]
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+bg_color = Color(0.09, 0.13, 0.17, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.28, 0.32, 1)
+
+[sub_resource type="StyleBoxFlat" id="Track"]
+content_margin_left = 3.0
+content_margin_right = 3.0
+bg_color = Color(0.026, 0.04, 0.05, 1)
+border_width_left = 1
+border_width_right = 1
+border_color = Color(0.34, 0.38, 0.40, 1)
+
+[sub_resource type="StyleBoxFlat" id="TrackFill"]
+bg_color = Color(0.83, 0.49, 0.21, 1)
+
+[sub_resource type="StyleBoxFlat" id="Ignition"]
+bg_color = Color(0.34, 0.10, 0.09, 1)
+border_width_top = 2
+border_width_bottom = 4
+border_color = Color(0.59, 0.21, 0.16, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+
+[sub_resource type="StyleBoxFlat" id="IgnitionHover"]
+bg_color = Color(0.51, 0.15, 0.11, 1)
+border_width_top = 2
+border_width_bottom = 4
+border_color = Color(0.84, 0.39, 0.28, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+
+[sub_resource type="StyleBoxFlat" id="LandingGlass"]
+content_margin_left = 13.0
+content_margin_top = 9.0
+content_margin_right = 13.0
+content_margin_bottom = 9.0
+bg_color = Color(0.034, 0.065, 0.085, 0.92)
+border_width_left = 2
+border_color = Color(0.48, 0.68, 0.74, 1)
 
 [node name="Flight" type="Control" unique_id=1210526896]
 layout_mode = 3
@@ -17,7 +81,13 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 
-[node name="Backdrop" parent="." unique_id=2089881422 instance=ExtResource("Backdrop")]
+[node name="Cabin" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Cabin")
 
 [node name="Margin" type="MarginContainer" parent="." unique_id=32368794]
 layout_mode = 1
@@ -26,9 +96,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 28
+theme_override_constants/margin_left = 22
 theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 28
+theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 16
 
 [node name="Layout" type="VBoxContainer" parent="Margin" unique_id=483249276]
@@ -47,7 +117,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_type_variation = &"DisplayLabel"
 theme_override_font_sizes/font_size = 26
-text = "APOGEE / FLIGHT"
+text = "APOGEE  /  FLIGHT DECK"
 
 [node name="MissionLabel" type="Label" parent="Margin/Layout/Header/TitleStack" unique_id=868944670]
 unique_name_in_owner = true
@@ -63,7 +133,7 @@ theme_override_constants/separation = 2
 [node name="WarpHeading" type="Label" parent="Margin/Layout/Header/WarpStack" unique_id=779894971]
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
-text = "TIME"
+text = "SIM RATE"
 horizontal_alignment = 1
 
 [node name="WarpRow" type="HBoxContainer" parent="Margin/Layout/Header/WarpStack" unique_id=595164974]
@@ -126,16 +196,17 @@ layout_mode = 2
 theme_type_variation = &"MutedLabel"
 autowrap_mode = 2
 
-[node name="Main" type="HBoxContainer" parent="Margin/Layout" unique_id=2034337223]
+[node name="Main" type="VBoxContainer" parent="Margin/Layout" unique_id=2034337223]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 16
+theme_override_constants/separation = 8
 
 [node name="ViewFrame" type="PanelContainer" parent="Margin/Layout/Main" unique_id=188467928]
-custom_minimum_size = Vector2(760, 0)
+custom_minimum_size = Vector2(0, 245)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Window")
 
 [node name="ViewStack" type="Control" parent="Margin/Layout/Main/ViewFrame" unique_id=982204246]
 layout_mode = 2
@@ -165,103 +236,182 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3")
 
+[node name="Bezel" type="Control" parent="Margin/Layout/Main/ViewFrame/ViewStack"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("Bezel")
+
+[node name="LandingPanel" type="PanelContainer" parent="Margin/Layout/Main/ViewFrame/ViewStack"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -141.0
+offset_right = 245.0
+offset_bottom = -26.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("LandingGlass")
+
+[node name="LandingGuidance" type="Label" parent="Margin/Layout/Main/ViewFrame/ViewStack/LandingPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 14
+theme_override_constants/line_spacing = 2
+
 [node name="ViewTitle" type="Label" parent="Margin/Layout/Main/ViewFrame/ViewStack" unique_id=1859715418]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 18.0
+offset_left = 49.0
 offset_top = 14.0
 offset_right = 360.0
 offset_bottom = 42.0
 theme_type_variation = &"TelemetryLabel"
-text = "FLIGHT VIEW"
+text = "01  /  FORWARD WINDOW"
 
-[node name="Console" type="PanelContainer" parent="Margin/Layout/Main" unique_id=1944793035]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Stack" type="VBoxContainer" parent="Margin/Layout/Main/Console" unique_id=2020793019]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="HUD" type="Label" parent="Margin/Layout/Main/Console/Stack" unique_id=1251304025]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"TelemetryLabel"
-theme_override_font_sizes/font_size = 16
-text = "Waiting for telemetry…"
-script = ExtResource("2")
-
-[node name="LandingGuidance" type="Label" parent="Margin/Layout/Main/Console/Stack"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_type_variation = &"TelemetryLabel"
-theme_override_font_sizes/font_size = 14
-
-[node name="Rule" type="HSeparator" parent="Margin/Layout/Main/Console/Stack" unique_id=970900006]
-layout_mode = 2
-
-[node name="ThrottleHeading" type="Label" parent="Margin/Layout/Main/Console/Stack" unique_id=973503548]
-layout_mode = 2
-text = "THROTTLE"
-
-[node name="ThrottleRow" type="HBoxContainer" parent="Margin/Layout/Main/Console/Stack" unique_id=73393201]
+[node name="Deck" type="HBoxContainer" parent="Margin/Layout/Main"]
+custom_minimum_size = Vector2(0, 207)
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Throttle" type="HSlider" parent="Margin/Layout/Main/Console/Stack/ThrottleRow" unique_id=1228164662]
+[node name="HUD" type="Control" parent="Margin/Layout/Main/Deck"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
+script = ExtResource("2")
+
+[node name="Console" type="PanelContainer" parent="Margin/Layout/Main/Deck"]
+custom_minimum_size = Vector2(295, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Deck")
+
+[node name="Controls" type="HBoxContainer" parent="Margin/Layout/Main/Deck/Console"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="ThrottleStack" type="VBoxContainer" parent="Margin/Layout/Main/Deck/Console/Controls"]
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ThrottleHeading" type="Label" parent="Margin/Layout/Main/Deck/Console/Controls/ThrottleStack"]
+layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 13
+text = "THRUST"
+horizontal_alignment = 1
+
+[node name="ThrottleRail" type="HBoxContainer" parent="Margin/Layout/Main/Deck/Console/Controls/ThrottleStack"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+theme_override_constants/separation = 3
+
+[node name="Throttle" type="VSlider" parent="Margin/Layout/Main/Deck/Console/Controls/ThrottleStack/ThrottleRail"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 0)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_icons/grabber = ExtResource("Grip")
+theme_override_icons/grabber_highlight = ExtResource("Grip")
+theme_override_icons/grabber_disabled = ExtResource("Grip")
+theme_override_styles/slider = SubResource("Track")
+theme_override_styles/grabber_area = SubResource("TrackFill")
+theme_override_styles/grabber_area_highlight = SubResource("TrackFill")
 step = 0.1
+tooltip_text = "Drag the throttle or use W / S"
 
-[node name="ThrottleValue" type="Label" parent="Margin/Layout/Main/Console/Stack/ThrottleRow" unique_id=1190770910]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(52, 0)
+[node name="Detents" type="VBoxContainer" parent="Margin/Layout/Main/Deck/Console/Controls/ThrottleStack/ThrottleRail"]
 layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="High" type="Label" parent="Margin/Layout/Main/Deck/Console/Controls/ThrottleStack/ThrottleRail/Detents"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 11
+text = "100"
+horizontal_alignment = 1
+
+[node name="Mid" type="Label" parent="Margin/Layout/Main/Deck/Console/Controls/ThrottleStack/ThrottleRail/Detents"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 11
+text = "50"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Low" type="Label" parent="Margin/Layout/Main/Deck/Console/Controls/ThrottleStack/ThrottleRail/Detents"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 11
+text = "0"
+horizontal_alignment = 1
+
+[node name="ThrottleValue" type="Label" parent="Margin/Layout/Main/Deck/Console/Controls/ThrottleStack"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"WarningLabel"
+theme_override_font_sizes/font_size = 15
 text = "0%"
-horizontal_alignment = 2
+horizontal_alignment = 1
 
-[node name="EngineButton" type="Button" parent="Margin/Layout/Main/Console/Stack" unique_id=31882653]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
+[node name="Switches" type="VBoxContainer" parent="Margin/Layout/Main/Deck/Console/Controls"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="SwitchHeading" type="Label" parent="Margin/Layout/Main/Deck/Console/Controls/Switches"]
+layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 13
+text = "04  /  COMMAND"
+
+[node name="EngineButton" type="Button" parent="Margin/Layout/Main/Deck/Console/Controls/Switches"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 39)
+layout_mode = 2
+theme_override_styles/normal = SubResource("Ignition")
+theme_override_styles/hover = SubResource("IgnitionHover")
+theme_override_styles/pressed = SubResource("IgnitionHover")
 text = "IGNITE"
+tooltip_text = "Ignite the active engine or cut thrust"
 
-[node name="StageButton" type="Button" parent="Margin/Layout/Main/Console/Stack" unique_id=1837843502]
+[node name="StageButton" type="Button" parent="Margin/Layout/Main/Deck/Console/Controls/Switches"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 29)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 text = "STAGE  [Space]"
 
-[node name="LegsButton" type="Button" parent="Margin/Layout/Main/Console/Stack" unique_id=643807736]
+[node name="LegsButton" type="Button" parent="Margin/Layout/Main/Deck/Console/Controls/Switches"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 29)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 text = "LEGS  [L]"
 
-[node name="ControlStatus" type="Label" parent="Margin/Layout/Main/Console/Stack" unique_id=1677813690]
+[node name="ControlStatus" type="Label" parent="Margin/Layout/Main/Deck/Console/Controls/Switches"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_type_variation = &"WarningLabel"
+theme_override_font_sizes/font_size = 12
 text = "READY"
-autowrap_mode = 3
-
-[node name="Help" type="Label" parent="Margin/Layout/Main/Console/Stack" unique_id=433613400]
-layout_mode = 2
-theme_type_variation = &"MutedLabel"
-theme_override_font_sizes/font_size = 15
-text = "W/S thrust · A/D steer
-X cutoff · Space stage · L legs
-Tab orbit · drag/zoom map"
-autowrap_mode = 2
-
+text_overrun_behavior = 3
+vertical_alignment = 2
 
 [node name="Comms" type="Label" parent="Margin/Layout"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
 theme_type_variation = &"EyebrowLabel"
 autowrap_mode = 2

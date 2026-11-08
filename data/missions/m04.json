@@ -6,30 +6,30 @@
   "budget_credits": 10000,
   "reward_credits": 4000,
   "scenario": {
-    "body_id": "moon",
-    "spawn_profile": "lunar_descent"
+	"body_id": "moon",
+	"spawn_profile": "lunar_descent"
   },
   "allowed_part_ids": [
-    "POD_A",
-    "TANK_S",
-    "TANK_L",
-    "ENG_L",
-    "ENG_S",
-    "ENG_V",
-    "DECOUPLER",
-    "PROBE",
+	"POD_A",
+	"TANK_S",
+	"TANK_L",
+	"ENG_L",
+	"ENG_S",
+	"ENG_V",
+	"DECOUPLER",
+	"PROBE",
     "LEGS"
   ],
   "required_part_ids": [
-    "POD_A",
+	"POD_A",
     "LEGS"
   ],
   "win_conditions": {
-    "max_vertical_speed_mps": 8,
-    "max_horizontal_speed_mps": 5,
-    "max_orientation_deg": 20,
-    "require_landing_legs": true,
-    "require_intact_pod": true
+	"max_vertical_speed_mps": 20,
+	"max_horizontal_speed_mps": 15,
+	"max_orientation_deg": 20,
+	"require_landing_legs": true,
+	"require_intact_pod": true
   },
   "discovery_ids": ["APOLLO_TRIBUTE"]
 }
