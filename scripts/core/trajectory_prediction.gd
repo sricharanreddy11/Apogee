@@ -11,3 +11,9 @@ var sample_times_s: PackedFloat64Array = PackedFloat64Array()
 ## When true, both arrays have equal lengths and strictly increasing sample times.
 ## Consumers must ignore the arrays while false.
 var valid: bool = false
+
+var impact_body_id: String = ""
+var lunar_closest_altitude_m: float = INF
+var lunar_closest_time_s: float = -1.0
+var lunar_closest_position_m: Vector2 = Vector2.ZERO
+var lunar_future_position_m: Vector2 = Vector2.ZERO

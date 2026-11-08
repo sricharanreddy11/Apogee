@@ -31,5 +31,5 @@
     "require_landing_legs": true,
     "require_intact_pod": true
   },
-  "discovery_ids": []
+  "discovery_ids": ["APOLLO_TRIBUTE"]
 }

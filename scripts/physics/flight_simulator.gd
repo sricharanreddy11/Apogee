@@ -55,16 +55,24 @@ func initialize(config: RocketConfig, scenario: Dictionary) -> void:
 
 
 func step(dt_s: float) -> void:
-	if dt_s <= 0.0 or _state.status in [FlightState.Status.LANDED, FlightState.Status.CRASHED]:
+	if dt_s <= 0.0 or _has_terminal_contact():
 		return
 	var remaining := dt_s
-	while remaining > 0.0:
+	while remaining > 0.0 and not _has_terminal_contact():
 		var substep := minf(remaining, MAX_SUBSTEP_S)
 		_integrate(substep)
 		remaining -= substep
 
 
+func _has_terminal_contact() -> bool:
+	return _state.status == FlightState.Status.LANDED or _state.status == FlightState.Status.CRASHED
+
+
 func set_throttle(value: float) -> void:
+	var active := _state.active_stage
+	if _has_terminal_contact() or active < 0 or active >= _state.stage_fuel_kg.size() or _state.stage_fuel_kg[active] <= 0.0:
+		_state.throttle = 0.0
+		return
 	_state.throttle = clampf(value, 0.0, 1.0)
 
 
@@ -76,17 +84,19 @@ func toggle_engine() -> bool:
 	if _state.throttle > 0.0:
 		_state.throttle = 0.0
 		return false
-	_state.throttle = 1.0
-	return true
+	set_throttle(1.0)
+	return _state.throttle > 0.0
 
 
 func set_legs_deployed(deployed: bool) -> void:
+	if _has_terminal_contact():
+		return
 	_state.legs_deployed = deployed and _config != null and _config.attachment_ids.has("LEGS")
 
 
 func stage() -> bool:
 	var old_stage := _state.active_stage
-	if old_stage < 0 or old_stage + 1 >= _state.stage_fuel_kg.size():
+	if _has_terminal_contact() or old_stage < 0 or old_stage + 1 >= _state.stage_fuel_kg.size():
 		return false
 	var dropped_mass := _stage_dry_mass_kg[old_stage] + _state.stage_fuel_kg[old_stage]
 	if old_stage == 0:
@@ -116,6 +126,11 @@ func get_telemetry() -> FlightTelemetry:
 	for fuel in _state.stage_fuel_kg:
 		fuel_remaining += fuel
 	telemetry.fuel_remaining_kg = fuel_remaining
+	telemetry.fuel_burned_kg = _state.fuel_burned_kg
+	telemetry.contact_body_id = _state.contact_body_id
+	telemetry.impact_radial_speed_mps = _state.impact_radial_speed_mps
+	telemetry.impact_tangential_speed_mps = _state.impact_tangential_speed_mps
+	telemetry.impact_tilt_rad = _state.impact_tilt_rad
 	telemetry.fuel_fraction = fuel_remaining / _initial_fuel_kg if _initial_fuel_kg > 0.0 else 0.0
 	var central_position := _body_position(_body_id, _state.elapsed_time_s)
 	var central_velocity := _body_velocity(_body_id, _state.elapsed_time_s)
@@ -146,11 +161,33 @@ func get_state_snapshot() -> Dictionary:
 	}
 
 
-func get_trajectory_prediction(duration_s: float = -1.0, sample_count: int = 721) -> TrajectoryPrediction:
+func get_prediction_snapshot() -> Dictionary:
+	return {
+		"position": _state.position_m,
+		"velocity": _state.velocity_mps,
+		"time": _state.elapsed_time_s,
+		"status": _state.status,
+		"body_id": _body_id,
+		"bodies": _bodies.duplicate(true),
+	}
+
+
+static func predict_snapshot(snapshot: Dictionary, cancel: Semaphore) -> TrajectoryPrediction:
+	var worker := FlightSimulator.new()
+	worker._bodies = snapshot.bodies
+	worker._body_id = snapshot.body_id
+	worker._state.position_m = snapshot.position
+	worker._state.velocity_mps = snapshot.velocity
+	worker._state.elapsed_time_s = snapshot.time
+	worker._state.status = snapshot.status
+	return worker.get_trajectory_prediction(-1.0, 721, cancel)
+
+
+func get_trajectory_prediction(duration_s: float = -1.0, sample_count: int = 721, cancel: Semaphore = null) -> TrajectoryPrediction:
 	var prediction := TrajectoryPrediction.new()
 	prediction.body_id = _body_id
 	prediction.elapsed_time_s = _state.elapsed_time_s
-	if sample_count < 2 or _state.status == FlightState.Status.CRASHED:
+	if sample_count < 2 or _has_terminal_contact():
 		return prediction
 	var position := _state.position_m
 	var velocity := _state.velocity_mps
@@ -158,7 +195,11 @@ func get_trajectory_prediction(duration_s: float = -1.0, sample_count: int = 721
 	if duration_s <= 0.0:
 		duration_s = _complete_prediction_duration(position, velocity, time)
 	var sample_dt := duration_s / float(sample_count - 1)
+	var moon: Dictionary = _bodies.get("moon", {})
+	var lunar_radius := float(moon.get("radius_m", 0.0))
 	for index in sample_count:
+		if cancel != null and cancel.try_wait():
+			return prediction
 		prediction.positions_m.append(position)
 		prediction.sample_times_s.append(time)
 		if index == sample_count - 1:
@@ -171,10 +212,17 @@ func get_trajectory_prediction(duration_s: float = -1.0, sample_count: int = 721
 			velocity = Vector2(motion.z, motion.w)
 			time += dt
 			remaining -= dt
-			if _position_hits_body(position, time):
-				remaining = 0.0
+			var moon_position := _body_position("moon", time)
+			var lunar_altitude := position.distance_to(moon_position) - lunar_radius
+			if lunar_radius > 0.0 and lunar_altitude < prediction.lunar_closest_altitude_m:
+				prediction.lunar_closest_altitude_m = lunar_altitude
+				prediction.lunar_closest_time_s = time
+				prediction.lunar_closest_position_m = position
+				prediction.lunar_future_position_m = moon_position
+			prediction.impact_body_id = "moon" if lunar_radius > 0.0 and lunar_altitude <= 0.0 else _impact_body_at(position, time, "moon")
+			if not prediction.impact_body_id.is_empty():
 				break
-		if _position_hits_body(position, time):
+		if not prediction.impact_body_id.is_empty():
 			prediction.positions_m.append(position)
 			prediction.sample_times_s.append(time)
 			break
@@ -263,6 +311,12 @@ func _initialize_spawn(profile: String) -> void:
 			_state.heading_rad = PI * 0.5
 			_state.throttle = 0.0
 			_state.status = FlightState.Status.FLYING
+		"lunar_survey":
+			# The unpowered reference pass clears the Moon and exits the survey band.
+			_state.position_m = body_position + Vector2(-120000.0, 137500.0)
+			_state.velocity_mps = body_velocity + Vector2(650.0, 0.0)
+			_state.heading_rad = PI * 0.5
+			_state.status = FlightState.Status.FLYING
 		"lunar_approach":
 			_state.position_m = body_position + Vector2.RIGHT * (_body_radius_m + 30000.0)
 			_state.velocity_mps = body_velocity + Vector2.DOWN * 140.0
@@ -293,6 +347,7 @@ func _integrate(dt_s: float) -> void:
 			var burn_fraction := burned / requested_fuel if requested_fuel > 0.0 else 0.0
 			var average_mass := maxf(_state.mass_kg - burned * 0.5, 0.001)
 			thrust_acceleration = Vector2.UP.rotated(_state.heading_rad) * (thrust * burn_fraction / average_mass)
+			_state.fuel_burned_kg += burned
 			_state.stage_fuel_kg[active] -= burned
 			_state.mass_kg = maxf(_state.mass_kg - burned, 0.001)
 			if _state.stage_fuel_kg[active] <= 0.0001:
@@ -337,7 +392,7 @@ func _resolve_collisions() -> void:
 		var relative_velocity := _state.velocity_mps - body_velocity
 		var radial_speed := relative_velocity.dot(normal)
 		if _state.status == FlightState.Status.READY and id == _body_id:
-			if radial_speed > 0.1:
+			if radial_speed > 0.0:
 				# Preserve outward liftoff velocity while the contact tolerance still
 				# overlaps the pad; FLYING begins once the craft clears that shell.
 				_state.velocity_mps = body_velocity + relative_velocity
@@ -349,6 +404,10 @@ func _resolve_collisions() -> void:
 		var tilt := acos(clampf(thrust_direction.dot(normal), -1.0, 1.0))
 		var safe := _state.legs_deployed and absf(radial_speed) <= SAFE_LANDING_RADIAL_MPS \
 			and tangential_velocity.length() <= SAFE_LANDING_TANGENTIAL_MPS and tilt <= SAFE_LANDING_TILT_RAD
+		_state.contact_body_id = id
+		_state.impact_radial_speed_mps = radial_speed
+		_state.impact_tangential_speed_mps = tangential_velocity.length()
+		_state.impact_tilt_rad = tilt
 		_state.velocity_mps = body_velocity
 		_state.throttle = 0.0
 		_state.status = FlightState.Status.LANDED if safe else FlightState.Status.CRASHED
@@ -430,14 +489,20 @@ func _populate_orbit(telemetry: FlightTelemetry, position: Vector2, velocity: Ve
 	telemetry.periapsis_altitude_m = periapsis
 	telemetry.apoapsis_altitude_m = apoapsis
 	telemetry.predicted_impact = periapsis < 0.0
+	var eccentricity_vector := (velocity.length_squared() * position - velocity.dot(position) * velocity) / mu - position.normalized()
+	var periapsis_direction := eccentricity_vector.normalized() if eccentricity_vector.length_squared() > 0.00000001 else position.normalized()
+	telemetry.periapsis_position_m = telemetry.central_body_position_m + periapsis_direction * (periapsis + _body_radius_m)
+	telemetry.apoapsis_position_m = telemetry.central_body_position_m - periapsis_direction * (apoapsis + _body_radius_m)
 
 
-func _position_hits_body(position: Vector2, elapsed_time_s: float) -> bool:
+func _impact_body_at(position: Vector2, elapsed_time_s: float, skip_id: String) -> String:
 	for id: String in _bodies:
+		if id == skip_id:
+			continue
 		var body: Dictionary = _bodies[id]
 		if position.distance_to(_body_position(id, elapsed_time_s)) <= float(body.get("radius_m", 0.0)):
-			return true
-	return false
+			return id
+	return ""
 
 
 func _body_snapshots(elapsed_time_s: float) -> Dictionary:

@@ -16,3 +16,10 @@ var stages_used: int = 0
 var score: int = 0
 var awarded_credits: int = 0
 var discovery_ids: Array[String] = []
+
+var advice: String = ""
+var closest_approach_m: float = -1.0
+var contact_body_id: String = ""
+var touchdown_vertical_mps: float = 0.0
+var touchdown_horizontal_mps: float = 0.0
+var touchdown_tilt_deg: float = 0.0

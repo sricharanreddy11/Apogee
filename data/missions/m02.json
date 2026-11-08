@@ -26,5 +26,5 @@
     "max_apoapsis_m": 350000,
     "hold_duration_s": 2
   },
-  "discovery_ids": []
+  "discovery_ids": ["FIRST_ORBIT"]
 }

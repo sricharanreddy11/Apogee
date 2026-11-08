@@ -254,6 +254,12 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Credits"
 
+[node name="Archive" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Archive"
+
 [node name="Spacer" type="Control" parent="Margin/Layout/Footer"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -337,4 +343,12 @@ unique_name_in_owner = true
 title = "Credits"
 min_size = Vector2i(460, 230)
 dialog_text = "APOGEE — Build Beyond Earth\n\nPhysics & flight · Member 1\nBuilder & rocket visuals · Member 2\nMissions & interface · Member 3\n\nBuilt with Godot. Mission Control artwork and flight schematics are original project assets."
+ok_button_text = "Close"
+
+
+[node name="ArchiveDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Mission archive"
+dialog_autowrap = true
+min_size = Vector2i(560, 240)
 ok_button_text = "Close"

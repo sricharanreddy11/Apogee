@@ -1,10 +1,10 @@
 # Apogee
 
-Milestones 0–1 for Member 3 (missions, map, and UI) of the 2D rocket-building game. Import `project.godot` in the standard Godot 4.7.2 editor and press **F5**. The project uses typed GDScript and the Compatibility renderer.
+Apogee is a 2D rocket-building and flight game. Import `project.godot` in the standard Godot 4.7.2 editor and press **F5**. The project uses typed GDScript and the Compatibility renderer.
 
 The integrated flow is **Campaign star chart → Mission briefing → Rocket Lab → Preflight → Active flight → Mission report**. M01 is available initially; M02–M04 are visible and locked. Mission beacons are generated from JSON. Select an active beacon to open its briefing, and use **Replay track** to watch the mission projection again. The briefing shows the objective, route, build budget, and reward before you assemble the rocket. The launchpad shows your selected parts, calculated cost, mass, and fuel. Launch emits the integration signal once and then opens the authoritative flight simulation with the exact configured rocket.
 
-Active flight has two interchangeable views. **Normal view** holds the rocket at a fixed center framing while keeping the active planet visible as a launch/landing reference; click the active engine to ignite/cut off or the separator to stage. **Orbit view** is a clean pannable Earth/Moon schematic with a constant-size triangular rocket marker, the Moon's faint orbit, the flown trail, and a complete ballistic projection. Earth and the moving Moon both pull on the rocket, including during projection, so a close lunar approach curves naturally. Velocity-Verlet integration preserves elliptical-orbit energy well enough for gameplay, so the rocket travels fastest at periapsis and slowest at apoapsis. Drag to pan, use the wheel to zoom, and right-click to recenter. Keyboard controls are W/S throttle, A/D steering, X cutoff, Space stage, L landing legs, Tab view toggle, and 1/5/3/4 for 1x/5x/25x/50x fast-forward. The detailed Member 1 checklist is in [Member 1 flight tasks](docs/MEMBER_1_FLIGHT_TASKS.md).
+Active flight has two interchangeable views. **Normal view** holds the rocket at a fixed center framing while keeping the active planet visible as a launch/landing reference; click the active engine to ignite/cut off or the separator to stage. **Orbit view** is a clean pannable Earth/Moon schematic with a constant-size triangular rocket marker, the Moon's faint orbit, the flown trail, and a complete ballistic projection. Earth and the moving Moon both pull on the rocket, including during projection, so a close lunar approach curves naturally. Velocity-Verlet integration preserves elliptical-orbit energy well enough for gameplay, so the rocket travels fastest at periapsis and slowest at apoapsis. Drag to pan, use the wheel to zoom, and right-click to recenter. Keyboard controls are W/S throttle, A/D steering, X cutoff, Space stage, L landing legs, Tab view toggle, Esc to pause, and 1/5/3/4 for 1×/5×/25×/50× fast-forward. Ignition and steering cancel fast-forward. The detailed Member 1 checklist is in [Member 1 flight tasks](docs/MEMBER_1_FLIGHT_TASKS.md).
 
 Use **Moon flyby demo** on the main menu for an automatic 25x showcase. It opens directly in an auto-framed orbit view with a safe close approach and the projected lunar-gravity bend already visible; manual pan or zoom releases the automatic framing.
 
@@ -12,9 +12,15 @@ Use **Moon flyby demo** on the main menu for an automatic 25x showcase. It opens
 
 Open **Workshop** from the star chart to build with the full parts catalog. Choose **Pioneer II** for a two-stage reference rocket, then **Test fire** to see ignition and separation. In the mission flow, **Back to briefing** keeps your draft and **Edit Rocket** reloads the confirmed build. Mission builds retain their own parts rules and budgets. M02 introduces upper stages and the separator, M03 requires the science payload, and M04 requires landing legs.
 
-Progress is held in memory; mission evaluation, rewards, and save files are later milestones. The **UI sandbox** button preserves M0's changing mock HUD and sample report, with pause/restart and 5× playback. It can also run directly with **F6** from `scenes/ui/ui_sandbox.tscn`. See the [M0 editing guide](docs/MILESTONE_0_GUIDE.md) for sample data changes.
+Campaign completion, one-time rewards, best scores and discoveries are saved locally. The **UI sandbox** button preserves M0's changing mock HUD and sample report, with pause/restart and 5× playback. It can also run directly with **F6** from `scenes/ui/ui_sandbox.tscn`. See the [M0 editing guide](docs/MILESTONE_0_GUIDE.md) for sample data changes.
 
 The shared interface theme lives in `assets/ui/apogee_theme.tres`. Edit its type variations in Godot to update headings, controls, or readouts across scenes. Oxanium and IBM Plex Mono are bundled with their licenses under `assets/ui/fonts/`.
+
+## Campaign flight
+
+On the star chart, select **First Flight → Build rocket → Prepare Launch → Launch**. Ignite and climb past 100 km with the pod intact. The result opens automatically and offers **Retry build** or the next unlocked mission. **End** reports an unfinished attempt as a failure. **Tab** opens Orbit view, where AP and PE show the active orbit and the gold track shows an unpowered projection. An impact marker, projected Moon position, and closest-approach label appear when relevant.
+
+**Lunar Encounter** starts on a verified survey approach. Fit the science payload, then coast through the 15–30 km band and back out. **One Small Step** requires legs and a safe Moon touchdown. Landing near the chart's illustrative site unlocks the fictional Apollo 11 tribute. Revisit discoveries through **Archive**.
 
 ## Team ownership
 
@@ -36,7 +42,7 @@ Member 1 is the proposed integrator for `scripts/core/`, `project.godot`, and sh
 | `MissionDefinition` | The mission loader reads JSON into a typed definition. Builder validation consumes its budget and part restrictions. Flight initialization consumes its scenario. |
 | `MissionResult` | The mission manager owns the result while evaluating telemetry. The report reads the outcome and measured stats. |
 
-Use SI units for simulation. Positive X points right and positive Y points down. Heading zero is up, with clockwise positive. The UI converts altitude to kilometers for display. At launch M01 starts at the north surface of scaled Earth, centered on the origin. A future trajectory predictor can consume `get_state_snapshot()` and send results to `OrbitMap.set_prediction()`. The project reserves the design's keyboard actions in Godot's Input Map. The preview map can be toggled with its button.
+Use SI units for simulation. Positive X points right and positive Y points down. Heading zero is up, with clockwise positive. The UI converts altitude to kilometers for display. At launch M01 starts at the north surface of scaled Earth, centered on the origin. The flight screen computes coast predictions from copied snapshots on a worker thread. The project reserves the design's keyboard actions in Godot's Input Map. The preview map can be toggled with its button.
 
 ## Smoke check
 
@@ -51,6 +57,7 @@ Also run:
 
 ```text
 godot --headless --path . --script res://tests/test_mission_catalog.gd
+godot --headless --path . --script res://tests/test_campaign_missions.gd
 godot --headless --path . --script res://tests/test_builder.gd
 godot --headless --path . --script res://tests/test_menu_flow.gd
 godot --headless --path . --script res://tests/test_rocket_lab_flow.gd

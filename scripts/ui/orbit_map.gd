@@ -7,6 +7,7 @@ const ROCKET_MARKER_SIZE_PX := 10.0
 const TRAIL_LIMIT := 360
 const MAX_PAN_DISTANCE_M := 12000000.0
 
+var show_landing_site := false
 var _telemetry: FlightTelemetry
 var _prediction: TrajectoryPrediction
 var _zoom := 1.0
@@ -152,10 +153,44 @@ func _draw() -> void:
 		_draw_path(_prediction.positions_m, focus, scale, Color("#f5c96b"), 2.25)
 	_draw_body(_telemetry.earth_position_m, _telemetry.earth_radius_m, focus, scale, Color("#245f88"), Color("#59c8e8"))
 	_draw_body(_telemetry.moon_position_m, _telemetry.moon_radius_m, focus, scale, Color("#758095"), Color("#cad2df"))
+	_draw_mission_markers(focus, scale)
 	_draw_rocket_marker(_world_to_screen(_telemetry.position_m, focus, scale))
 	var font := get_theme_default_font()
 	var framing := " AUTO" if _auto_frame_enabled else ""
 	draw_string(font, Vector2(16.0, 25.0), "ORBIT%s  ×%.2f" % [framing, _zoom], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 15, Color("#b9d5e5"))
+
+
+func _draw_mission_markers(focus: Vector2, scale: float) -> void:
+	if _telemetry.has_bound_orbit and _telemetry.altitude_m > 0.0:
+		if _telemetry.apoapsis_altitude_m >= 0.0:
+			_draw_marker(_telemetry.apoapsis_position_m, "AP", focus, scale, Color("#81dbf1"))
+		if _telemetry.periapsis_altitude_m >= 0.0:
+			_draw_marker(_telemetry.periapsis_position_m, "PE", focus, scale, Color("#81dbf1"))
+	if show_landing_site:
+		var site := _telemetry.moon_position_m + Vector2.UP * _telemetry.moon_radius_m
+		_draw_marker(site, "LANDING ZONE", focus, scale, Color("#83edba"))
+	if _prediction == null or not _prediction.valid:
+		return
+	if not _prediction.impact_body_id.is_empty():
+		_draw_marker(_prediction.positions_m[-1], "IMPACT", focus, scale, Color("#ff8a91"))
+	if _prediction.lunar_closest_altitude_m < 350000.0 and _prediction.lunar_closest_time_s - _prediction.elapsed_time_s > 2.0:
+		var label := "MOON CA %.1f km" % (_prediction.lunar_closest_altitude_m / 1000.0)
+		_draw_marker(_prediction.lunar_closest_position_m, label, focus, scale, Color("#ffbd71"))
+		var future := _world_to_screen(_prediction.lunar_future_position_m, focus, scale)
+		draw_arc(future, maxf(4.0, _telemetry.moon_radius_m * scale), 0, TAU, 40, Color(0.95, 0.76, 0.52, 0.40), 1.0, true)
+
+
+func _draw_marker(world: Vector2, label: String, focus: Vector2, scale: float, color: Color) -> void:
+	var point := _world_to_screen(world, focus, scale)
+	if not Rect2(Vector2.ZERO, size).grow(-6.0).has_point(point):
+		return
+	var font := get_theme_font("font", &"TelemetryLabel")
+	var width := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+	var x := clampf(point.x + 9.0, 4.0, maxf(4.0, size.x - width - 5.0))
+	var y := maxf(18.0, point.y - 8.0)
+	draw_circle(point, 4.0, color, false, 1.5, true)
+	draw_rect(Rect2(x - 3.0, y - 14.0, width + 6.0, 18.0), Color("#07111f"))
+	draw_string(font, Vector2(x, y), label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13, color)
 
 
 func _draw_moon_orbit(focus: Vector2, scale: float) -> void:

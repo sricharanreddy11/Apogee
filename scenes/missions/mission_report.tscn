@@ -1,8 +1,10 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mission_report.gd" id="1"]
 
 [ext_resource type="PackedScene" path="res://scenes/ui/mission_backdrop.tscn" id="Backdrop"]
+
+[ext_resource type="SpriteFrames" path="res://assets/mission_control/astronaut_wave.tres" id="Astronaut"]
 
 [node name="MissionReport" type="Control"]
 layout_mode = 3
@@ -26,9 +28,9 @@ grow_vertical = 2
 layout_mode = 2
 
 [node name="Stack" type="VBoxContainer" parent="Center/Console"]
-custom_minimum_size = Vector2(690, 0)
+custom_minimum_size = Vector2(800, 0)
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 11
 
 [node name="Heading" type="Label" parent="Center/Console/Stack"]
 theme_type_variation = &"DisplayLabel"
@@ -44,15 +46,77 @@ theme_override_font_sizes/font_size = 19
 text = "Report preview"
 autowrap_mode = 3
 
-[node name="Primary" type="Button" parent="Center/Console/Stack"]
+[node name="Stats" type="Label" parent="Center/Console/Stack"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 16
+
+[node name="Advice" type="Label" parent="Center/Console/Stack"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+autowrap_mode = 2
+
+[node name="Discovery" type="HBoxContainer" parent="Center/Console/Stack"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="AstronautFrame" type="Control" parent="Center/Console/Stack/Discovery"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(76, 74)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Astronaut" type="AnimatedSprite2D" parent="Center/Console/Stack/Discovery/AstronautFrame"]
+unique_name_in_owner = true
+position = Vector2(36, 36)
+texture_filter = 1
+scale = Vector2(2.0, 2.0)
+sprite_frames = ExtResource("Astronaut")
+animation = &"wave"
+
+[node name="Caption" type="VBoxContainer" parent="Center/Console/Stack/Discovery"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DiscoveryText" type="Label" parent="Center/Console/Stack/Discovery/Caption"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Source" type="LinkButton" parent="Center/Console/Stack/Discovery/Caption"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NASA mission history"
+
+[node name="Actions" type="HBoxContainer" parent="Center/Console/Stack"]
+layout_mode = 2
+theme_override_constants/separation = 12
+[node name="Primary" type="Button" parent="Center/Console/Stack/Actions"]
 theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(150, 44)
 layout_mode = 2
 text = "Retry build"
 
-[node name="Secondary" type="Button" parent="Center/Console/Stack"]
+[node name="Secondary" type="Button" parent="Center/Console/Stack/Actions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Main menu"
+
+
+[node name="Next" type="Button" parent="Center/Console/Stack/Actions"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 44)
+theme_type_variation = &"PrimaryAction"
+text = "Next mission"

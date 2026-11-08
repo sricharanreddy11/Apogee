@@ -1,0 +1,20 @@
+{
+  "M01": {
+    "intro": "First Flight, you have the pad. Take the pod past 100 km.",
+    "flying": "Liftoff confirmed. Keep the nose up and watch your altitude."
+  },
+  "M02": {
+    "intro": "Go for orbit. Both altitude markers must meet the brief for two seconds.",
+    "flying": "Climb first, then build sideways speed. Watch AP and PE in Orbit view."
+  },
+  "M03": {
+    "intro": "Survey payload aboard. The approach is set. Coast through the corridor and back out.",
+    "flying": "Gold is the coast track. The lunar marker shows the projected closest pass."
+  },
+  "M04": {
+    "intro": "Aim for the marked landing zone. Deploy the legs and brake early.",
+    "flying": "Touchdown limits are 8 m/s vertical, 5 m/s sideways and 20° tilt."
+  },
+  "stage": "Stage separation confirmed.",
+  "legs": "Landing legs deployed."
+}

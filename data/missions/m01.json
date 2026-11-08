@@ -21,5 +21,5 @@
     "min_altitude_m": 100000,
     "require_intact_pod": true
   },
-  "discovery_ids": []
+  "discovery_ids": ["SPACE_BOUNDARY"]
 }

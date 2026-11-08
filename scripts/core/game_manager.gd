@@ -1,7 +1,7 @@
 extends Node
 
 signal navigation_error(message: String)
-## Member 1 can attach a flight adapter here in M4. M1 does not simulate a launch.
+## Emitted once when a validated build is committed to flight.
 signal flight_launch_requested(config: RocketConfig, mission_id: String)
 
 const MENU := preload("res://scenes/ui/main_menu.tscn")
@@ -16,13 +16,57 @@ const REPORT := preload("res://scenes/missions/mission_report.tscn")
 var selected_mission_id: String = ""
 var current_rocket_config: RocketConfig
 var last_result: MissionResult
-## In-memory campaign state. Persistent saves and real completion come later.
+## In-memory view of the persisted campaign.
 var agency_credits: int = 0
 var completed_missions: Array[String] = []
 var best_scores: Dictionary = {}
+var discovered_ids: Array[String] = []
+var _campaign_save := CampaignSave.new()
 var last_navigation_error: String = ""
 var _mission: MissionDefinition
 var _builder_draft: RocketConfig
+
+
+func _ready() -> void:
+	var progress := _campaign_save.load_progress()
+	if progress.is_empty():
+		return
+	agency_credits = int(progress.agency_credits)
+	completed_missions.assign(progress.completed_missions)
+	best_scores = progress.best_scores
+	discovered_ids.assign(progress.discovered_ids)
+
+
+func _record_success(result: MissionResult) -> String:
+	result.awarded_credits = 0
+	if not completed_missions.has(result.mission_id):
+		completed_missions.append(result.mission_id)
+		result.awarded_credits = _mission.reward_credits
+		agency_credits += result.awarded_credits
+	best_scores[result.mission_id] = maxi(int(best_scores.get(result.mission_id, 0)), result.score)
+	var new_discoveries: Array[String] = []
+	for id in result.discovery_ids:
+		if not discovered_ids.has(id):
+			discovered_ids.append(id)
+			new_discoveries.append(id)
+	result.discovery_ids = new_discoveries
+	var error := _campaign_save.save_progress({
+		"agency_credits": agency_credits,
+		"completed_missions": completed_missions,
+		"best_scores": best_scores,
+		"discovered_ids": discovered_ids,
+	})
+	return "" if error == OK else "Campaign progress could not be saved. It is available for this session."
+
+
+func _next_mission(after_id: String) -> MissionDefinition:
+	var passed_current := false
+	for mission in MissionCatalog.new().get_mission_list():
+		if passed_current and _definition_is_unlocked(mission):
+			return mission
+		if mission.id == after_id:
+			passed_current = true
+	return null
 
 
 func select_mission(id: String) -> bool:
@@ -220,9 +264,17 @@ func show_report(result: MissionResult, retry_in_sandbox: bool = false) -> void:
 	if _mission == null or selected_mission_id != result.mission_id:
 		if not _load_mission(result.mission_id):
 			return
+	if last_result == result:
+		return
 	last_result = result
+	var next: MissionDefinition
+	var save_notice := ""
+	if not retry_in_sandbox and result.outcome == MissionResult.Outcome.SUCCESS:
+		save_notice = _record_success(result)
+		next = _next_mission(result.mission_id)
 	var screen := REPORT.instantiate()
-	screen.setup(result, retry_in_sandbox)
+	screen.setup(result, retry_in_sandbox, next, save_notice)
+	screen.next_requested.connect(select_mission)
 	if retry_in_sandbox:
 		screen.retry_requested.connect(show_ui_sandbox)
 	else:

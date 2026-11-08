@@ -32,3 +32,11 @@ var earth_position_m: Vector2 = Vector2.ZERO
 var moon_position_m: Vector2 = Vector2.ZERO
 var earth_radius_m: float = 0.0
 var moon_radius_m: float = 0.0
+
+var fuel_burned_kg: float = 0.0
+var contact_body_id: String = ""
+var impact_radial_speed_mps: float = 0.0
+var impact_tangential_speed_mps: float = 0.0
+var impact_tilt_rad: float = 0.0
+var apoapsis_position_m: Vector2 = Vector2.ZERO
+var periapsis_position_m: Vector2 = Vector2.ZERO

@@ -15,3 +15,9 @@ var stage_fuel_kg: Array[float] = []
 var status: Status = Status.READY
 var pod_intact: bool = true
 var legs_deployed: bool = false
+
+var fuel_burned_kg: float = 0.0
+var contact_body_id: String = ""
+var impact_radial_speed_mps: float = 0.0
+var impact_tangential_speed_mps: float = 0.0
+var impact_tilt_rad: float = 0.0

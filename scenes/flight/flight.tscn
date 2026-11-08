@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://b5ylqmoqf571g" path="res://scripts/ui/rocket_preview.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/mission_backdrop.tscn" id="Backdrop"]
 
+[ext_resource type="SpriteFrames" path="res://assets/mission_control/astronaut_wave.tres" id="Astronaut"]
+
 [node name="Flight" type="Control" unique_id=1210526896]
 layout_mode = 3
 anchors_preset = 15
@@ -106,11 +108,23 @@ custom_minimum_size = Vector2(140, 40)
 layout_mode = 2
 text = "ORBIT  [Tab]"
 
+[node name="PauseFlight" type="Button" parent="Margin/Layout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 40)
+layout_mode = 2
+text = "PAUSE"
+
 [node name="EndFlight" type="Button" parent="Margin/Layout/Header" unique_id=1884341874]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(92, 40)
 layout_mode = 2
 text = "END"
+
+[node name="Objective" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+autowrap_mode = 2
 
 [node name="Main" type="HBoxContainer" parent="Margin/Layout" unique_id=2034337223]
 layout_mode = 2
@@ -126,6 +140,7 @@ size_flags_vertical = 3
 [node name="ViewStack" type="Control" parent="Margin/Layout/Main/ViewFrame" unique_id=982204246]
 layout_mode = 2
 mouse_filter = 1
+clip_contents = true
 
 [node name="FlightArtwork" type="Control" parent="Margin/Layout/Main/ViewFrame/ViewStack" unique_id=1793691273]
 unique_name_in_owner = true
@@ -138,6 +153,14 @@ grow_vertical = 2
 script = ExtResource("4")
 show_launchpad = false
 interactive_flight_controls = true
+
+[node name="LunarVisitor" type="AnimatedSprite2D" parent="Margin/Layout/Main/ViewFrame/ViewStack"]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+scale = Vector2(1.65, 1.65)
+sprite_frames = ExtResource("Astronaut")
+animation = &"wave"
 
 [node name="Map" type="Control" parent="Margin/Layout/Main/ViewFrame/ViewStack" unique_id=1065507179]
 unique_name_in_owner = true
@@ -167,7 +190,7 @@ size_flags_vertical = 3
 
 [node name="Stack" type="VBoxContainer" parent="Margin/Layout/Main/Console" unique_id=2020793019]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
 [node name="HUD" type="Label" parent="Margin/Layout/Main/Console/Stack" unique_id=1251304025]
 unique_name_in_owner = true
@@ -202,19 +225,19 @@ horizontal_alignment = 2
 
 [node name="EngineButton" type="Button" parent="Margin/Layout/Main/Console/Stack" unique_id=31882653]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 text = "IGNITE"
 
 [node name="StageButton" type="Button" parent="Margin/Layout/Main/Console/Stack" unique_id=1837843502]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 text = "STAGE  [Space]"
 
 [node name="LegsButton" type="Button" parent="Margin/Layout/Main/Console/Stack" unique_id=643807736]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 text = "LEGS  [L]"
 
@@ -229,7 +252,16 @@ autowrap_mode = 3
 [node name="Help" type="Label" parent="Margin/Layout/Main/Console/Stack" unique_id=433613400]
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
-text = "W/S throttle · A/D turn · X cutoff
-Space stage · L legs · Tab view
-Map: drag · wheel zoom · right-click reset"
+theme_override_font_sizes/font_size = 15
+text = "W/S thrust · A/D steer
+X cutoff · Space stage · L legs
+Tab orbit · drag/zoom map"
+autowrap_mode = 2
+
+
+[node name="Comms" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
 autowrap_mode = 2

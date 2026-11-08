@@ -14,6 +14,7 @@ func _ready() -> void:
 	%Settings.pressed.connect(func() -> void: %SettingsDialog.popup_centered(Vector2i(460, 230)))
 	%Credits.pressed.connect(func() -> void: %CreditsDialog.popup_centered(Vector2i(460, 230)))
 	%Exit.pressed.connect(func() -> void: get_tree().quit())
+	%Archive.pressed.connect(_open_archive)
 	%Sandbox.pressed.connect(_open_sandbox)
 	%Showcase.pressed.connect(GameManager.show_moon_flyby_showcase)
 	%Workshop.pressed.connect(GameManager.show_workshop)
@@ -89,6 +90,17 @@ func _on_mission_selected(id: String) -> void:
 	%ErrorMessage.hide()
 	if not GameManager.select_mission(id) and %ErrorMessage.text.is_empty():
 		_show_error("This mission could not be opened. Check its unlock requirement and mission data.")
+
+
+func _open_archive() -> void:
+	var records := JsonData.read_object("res://data/discoveries.json")
+	var entries: Array[String] = []
+	for id: String in GameManager.discovered_ids:
+		var record: Dictionary = records.get(id, {})
+		if not record.is_empty():
+			entries.append("%s\n%s" % [record.title, record.fact])
+	%ArchiveDialog.dialog_text = "Complete missions to unlock discoveries." if entries.is_empty() else "\n\n".join(entries)
+	%ArchiveDialog.popup_centered(Vector2i(560, 240))
 
 
 func _open_sandbox() -> void:

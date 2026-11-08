@@ -105,19 +105,21 @@ an empty `unlock_requirement` string in the typed definition. Supported schemas:
 | `safe_landing` | `max_vertical_speed_mps`, `max_horizontal_speed_mps`, `max_orientation_deg`, `require_landing_legs`, `require_intact_pod` |
 
 Schema validation does not implement these objectives. `MissionManager.load_mission`
-delegates to the catalog; `evaluate(telemetry)` and scoring in `finalize_result()`
-remain later work. Future payload/landing parts and lunar simulation also remain
-team integration work. The hangar can assemble two stages, a science payload, and landing legs.
-M03 declares a required science payload and a lunar-approach checkpoint; M04 uses
-a lunar-descent checkpoint. Their enforcement, verified start states, and missing
-science/landing parts are future M6 work with Members 1 and 2.
+delegates to the catalog. `begin_attempt(config, stats)` captures the builder
+handoff. `evaluate(telemetry)` updates statistics and returns true at a terminal
+outcome. `finalize_result()` returns that outcome or records an abandoned flight.
+M03 requires the science payload and an outbound exit after passing within
+15–30 km of the Moon. M04 checks the physical contact body, impact speeds,
+tilt, and deployed legs. A safe touchdown near the illustrative landing zone
+can unlock the Apollo 11 tribute.
 
 ## Navigation, builder, and preflight APIs
 
 `GameManager` is the autoload and sole navigation owner. It keeps
 `selected_mission_id`, `current_rocket_config`, and `last_result` between scenes.
-`agency_credits: int`, `completed_missions: Array[String]`, and `best_scores: Dictionary`
-are **in-memory** progress, not saved campaign data. Unlocking uses a released
+Campaign credits, completions, best scores, and discovery IDs persist through
+`CampaignSave` in `user://campaign.json`. The first campaign success awards
+credits. Workshop, UI sandbox, and the showcase leave progression untouched. Unlocking uses a released
 mission's prerequisite completion, never Agency Credits. A completed mission is
 itself replayable even if a developer test state omits its prerequisite.
 

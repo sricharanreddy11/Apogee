@@ -27,7 +27,7 @@ func _run() -> void:
 	mock.step(2.0)
 	_check(current_scene.get_node("%HUD").text != initial_hud, "HUD responds to changing mock telemetry.")
 	_check(current_scene.get_node("%HUD").text.contains("5.0 km"), "HUD converts 5000 meters to 5.0 km.")
-	_check(current_scene.get_node("%HUD").text.contains("Stage 1"), "HUD converts stage index 0 to Stage 1.")
+	_check(current_scene.get_node("%HUD").text.contains("STAGE  1"), "HUD converts stage index 0 to Stage 1.")
 	_check(is_equal_approx(current_scene.get_node("%FuelBar").value, 85.0), "Fuel bar shows 85 percent.")
 	current_scene.get_node("%Pause").pressed.emit()
 	var frozen_time := mock.get_telemetry().elapsed_time_s
@@ -57,7 +57,7 @@ func _run() -> void:
 	game.set("_mission", null)
 	_check(change_scene_to_file("res://scenes/ui/ui_sandbox.tscn") == OK, "Sandbox opens directly.")
 	await _settle()
-	_check(current_scene.get_node("%HUD").text.contains("Altitude"), "Direct sandbox loads M01 and feeds the HUD.")
+	_check(current_scene.get_node("%HUD").text.contains("ALT"), "Direct sandbox loads M01 and feeds the HUD.")
 	if not await _press("%Primary", "MissionReport"):
 		return
 	_check(game.selected_mission_id == "M01", "Direct report establishes the session for Retry.")

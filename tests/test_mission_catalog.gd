@@ -88,7 +88,7 @@ func _run() -> void:
 	first.discovery_ids.append("CHANGED")
 	var second := _catalog.load_mission("M01")
 	_check(second.scenario.body_id == "earth" and second.win_conditions.min_altitude_m == 100000, "Loaded mission dictionaries are independent.")
-	_check(second.allowed_part_ids.size() == 4 and second.required_part_ids == ["POD_A"] and second.discovery_ids.is_empty(), "Loaded mission arrays are independent.")
+	_check(second.allowed_part_ids.size() == 4 and second.required_part_ids == ["POD_A"] and second.discovery_ids == ["SPACE_BOUNDARY"], "Loaded mission arrays are independent.")
 	_check(_catalog.last_error.is_empty(), "A successful reload clears old validation errors.")
 	_test_mission_index()
 	_test_objective_types()

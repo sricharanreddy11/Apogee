@@ -7,7 +7,7 @@
   "reward_credits": 2500,
   "scenario": {
 	"body_id": "moon",
-	"spawn_profile": "lunar_approach"
+	"spawn_profile": "lunar_survey"
   },
   "allowed_part_ids": [
 	"POD_A",
@@ -32,5 +32,5 @@
 	"max_altitude_m": 30000,
 	"require_intact_pod": true
   },
-  "discovery_ids": []
+  "discovery_ids": ["LUNAR_SURVEY"]
 }

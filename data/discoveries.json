@@ -1,0 +1,21 @@
+{
+  "SPACE_BOUNDARY": {
+    "title": "Across the space boundary",
+    "fact": "First Flight crossed the 100 km line used in this campaign."
+  },
+  "FIRST_ORBIT": {
+    "title": "Orbital Flight",
+    "fact": "Your spacecraft held an Earth orbit within the mission's altitude limits."
+  },
+  "LUNAR_SURVEY": {
+    "title": "Lunar Survey",
+    "fact": "The science payload passed through the Moon's survey corridor and returned data."
+  },
+  "APOLLO_TRIBUTE": {
+    "title": "One Small Step",
+    "fact": "Apollo 11 landed in the Sea of Tranquility on July 20, 1969. Neil Armstrong and Buzz Aldrin explored the lunar surface.",
+    "subtitle": "Nice landing, explorer. You made that look easy.",
+    "speaker": "FICTIONAL ASTRONAUT · APOLLO 11 TRIBUTE",
+    "source_url": "https://www.nasa.gov/missions/apollo/apollo-11-mission-overview/"
+  }
+}
