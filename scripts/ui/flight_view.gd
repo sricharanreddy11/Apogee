@@ -11,7 +11,7 @@ const MIN_ZOOM := 0.00005
 const MAX_ZOOM := 8.5
 const DETAIL_ENTER_PX := 13.0
 const DETAIL_EXIT_PX := 18.0
-const VIBRATION_TRAVEL_PX := Vector2(5.4, 6.3)
+const VIBRATION_TRAVEL_PX := Vector2(2.0, 3.3)
 const VIBRATION_ROLL_RAD := 0.0105
 
 var landing_mode := false

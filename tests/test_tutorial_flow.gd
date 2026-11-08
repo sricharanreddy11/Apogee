@@ -10,6 +10,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var game := root.get_node("GameManager")
 	var tutorial := root.get_node("TutorialManager")
+	game.mod_enabled = false
 	game.completed_missions.clear()
 	game.show_main_menu()
 	await _settle()

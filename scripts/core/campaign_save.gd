@@ -12,18 +12,9 @@ func load_progress() -> Dictionary:
 
 func save_progress(progress: Dictionary) -> Error:
 	var temporary := path + ".tmp"
-	var file := FileAccess.open(temporary, FileAccess.WRITE)
-	if file == null:
-		return FileAccess.get_open_error()
-	var payload := progress.duplicate(true)
-	payload["version"] = VERSION
-	var written := file.store_string(JSON.stringify(payload))
-	file.flush()
-	var write_error := file.get_error()
-	file.close()
-	if not written or write_error != OK:
-		return ERR_FILE_CANT_WRITE
-
+	var write_error := _write_progress(temporary, progress)
+	if write_error != OK:
+		return write_error
 	var backup := path + ".previous"
 	# Preserve a known-good backup if the primary file was already corrupt.
 	if not _read(path).is_empty():
@@ -36,11 +27,46 @@ func save_progress(progress: Dictionary) -> Error:
 	return replace_error
 
 
+## Administrative changes replace both snapshots so reset cannot resurrect
+## earlier unlocks, credits, or Mod state through the recovery backup.
+func replace_progress(progress: Dictionary) -> Error:
+	var temporary := path + ".tmp"
+	var backup_temporary := path + ".previous.tmp"
+	var error := _write_progress(temporary, progress)
+	if error != OK:
+		return error
+	error = DirAccess.copy_absolute(temporary, backup_temporary)
+	if error != OK:
+		return error
+	error = DirAccess.rename_absolute(backup_temporary, path + ".previous")
+	if error != OK:
+		return error
+	return DirAccess.rename_absolute(temporary, path)
+
+
+func _write_progress(filename: String, progress: Dictionary) -> Error:
+	var file := FileAccess.open(filename, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+	var payload := progress.duplicate(true)
+	payload["version"] = VERSION
+	var written := file.store_string(JSON.stringify(payload))
+	file.flush()
+	var write_error := file.get_error()
+	file.close()
+	if not written or write_error != OK:
+		return ERR_FILE_CANT_WRITE
+
+	return OK
+
+
 func _read(filename: String) -> Dictionary:
 	if not FileAccess.file_exists(filename):
 		return {}
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(filename))
 	if not data is Dictionary or data.get("version") != VERSION:
+		return {}
+	if data.has("mod_enabled") and not data.mod_enabled is bool:
 		return {}
 	var credits: Variant = data.get("agency_credits")
 	if not _whole_number(credits, 9007199254740991.0):

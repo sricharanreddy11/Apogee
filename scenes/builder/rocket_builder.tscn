@@ -1,60 +1,19 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene format=3 uid="uid://c1tugqdqqy13q"]
 
-[ext_resource type="Script" path="res://scripts/builder/builder_controller.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/builder/rocket_preview.gd" id="2"]
-[ext_resource type="Script" path="res://scripts/builder/part_carousel.gd" id="3"]
-[ext_resource type="Texture2D" path="res://assets/rockets/hangar.svg" id="4"]
-[ext_resource type="Script" path="res://scripts/ui/rocket_rig.gd" id="5"]
-[ext_resource type="Texture2D" path="res://assets/rockets/pod_a.svg" id="6"]
-[ext_resource type="Texture2D" path="res://assets/rockets/tank_s.svg" id="7"]
-[ext_resource type="Texture2D" path="res://assets/rockets/eng_l.svg" id="8"]
-[ext_resource type="Texture2D" path="res://assets/rockets/decoupler.svg" id="9"]
-[ext_resource type="Script" path="res://scripts/builder/metric_card.gd" id="10"]
-[ext_resource type="Script" path="res://scripts/builder/lab_atmosphere.gd" id="11"]
-[ext_resource type="Script" path="res://scripts/builder/storage_hatch.gd" id="12"]
+[ext_resource type="Script" uid="uid://cvnxav0uon8gi" path="res://scripts/builder/builder_controller.gd" id="1"]
+[ext_resource type="Script" uid="uid://cs8xo0khu6fk" path="res://scripts/builder/rocket_preview.gd" id="2"]
+[ext_resource type="Script" uid="uid://bbf76nhweil1o" path="res://scripts/builder/part_carousel.gd" id="3"]
+[ext_resource type="Texture2D" uid="uid://c0cqh0gmr11lk" path="res://assets/rockets/hangar.svg" id="4"]
+[ext_resource type="Script" uid="uid://7yo61l8nv6s0" path="res://scripts/ui/rocket_rig.gd" id="5"]
+[ext_resource type="Texture2D" uid="uid://b05mqokqvmbhl" path="res://assets/rockets/pod_a.svg" id="6"]
+[ext_resource type="Texture2D" uid="uid://c7bcpjj3fhgt7" path="res://assets/rockets/tank_s.svg" id="7"]
+[ext_resource type="Texture2D" uid="uid://bru4d3v0gmugv" path="res://assets/rockets/eng_l.svg" id="8"]
+[ext_resource type="Texture2D" uid="uid://nabfyrmv0es2" path="res://assets/rockets/decoupler.svg" id="9"]
+[ext_resource type="Script" uid="uid://bubk63bidl6ek" path="res://scripts/builder/metric_card.gd" id="10"]
+[ext_resource type="Script" uid="uid://cjujohgfw3xc" path="res://scripts/builder/lab_atmosphere.gd" id="11"]
+[ext_resource type="Script" uid="uid://okq7dhg64u1h" path="res://scripts/builder/storage_hatch.gd" id="12"]
 [ext_resource type="FontFile" path="res://assets/ui/fonts/Oxanium.res" id="DisplayFont"]
 [ext_resource type="FontFile" path="res://assets/ui/fonts/IBMPlexMono-Regular.res" id="MonoFont"]
-
-[sub_resource type="StyleBoxFlat" id="TelemetryPanel"]
-bg_color = Color(0.082, 0.119, 0.153, 0.98)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.25, 0.32, 0.38, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_left = 4
-corner_radius_bottom_right = 4
-content_margin_left = 16.0
-content_margin_right = 16.0
-content_margin_top = 14.0
-content_margin_bottom = 14.0
-
-[sub_resource type="StyleBoxFlat" id="RocketNameStyle"]
-bg_color = Color(0.033, 0.055, 0.076, 1)
-border_width_bottom = 1
-border_color = Color(0.24, 0.35, 0.42, 1)
-content_margin_left = 9.0
-content_margin_top = 3.0
-content_margin_bottom = 3.0
-
-[sub_resource type="Animation" id="CraneTravel"]
-resource_name = "gantry"
-length = 10.0
-loop_mode = 2
-tracks/0/type = "value"
-tracks/0/path = NodePath("Crane:position")
-tracks/0/interp = 1
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 10),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(433, 99), Vector2(785, 99)]
-}
-
-[sub_resource type="AnimationLibrary" id="HangarAnimation"]
-_data = {&"gantry": SubResource("CraneTravel")}
 
 [sub_resource type="Gradient" id="LampGradient"]
 offsets = PackedFloat32Array(0, 0.7, 1)
@@ -68,7 +27,53 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
-[node name="RocketBuilder" type="Control"]
+[sub_resource type="Animation" id="CraneTravel"]
+resource_name = "gantry"
+length = 10.0
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Crane:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 10),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(433, 99), Vector2(785, 99)]
+}
+
+[sub_resource type="AnimationLibrary" id="HangarAnimation"]
+_data = {
+&"gantry": SubResource("CraneTravel")
+}
+
+[sub_resource type="StyleBoxFlat" id="TelemetryPanel"]
+content_margin_left = 16.0
+content_margin_top = 14.0
+content_margin_right = 16.0
+content_margin_bottom = 14.0
+bg_color = Color(0.082, 0.119, 0.153, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.32, 0.38, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="RocketNameStyle"]
+content_margin_left = 9.0
+content_margin_top = 3.0
+content_margin_bottom = 3.0
+bg_color = Color(0.033, 0.055, 0.076, 1)
+border_width_bottom = 1
+border_color = Color(0.24, 0.35, 0.42, 1)
+
+[node name="RocketBuilder" type="Control" unique_id=1121512132]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -77,76 +82,82 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 
-[node name="HangarBackdrop" type="TextureRect" parent="."]
+[node name="HangarBackdrop" type="TextureRect" parent="." unique_id=831953456]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("4")
 expand_mode = 1
 
-[node name="LabAtmosphere" type="Control" parent="."]
+[node name="LabAtmosphere" type="Control" parent="." unique_id=1093740238]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("11")
 
-[node name="Crane" type="Node2D" parent="."]
+[node name="Crane" type="Node2D" parent="." unique_id=2141028835]
 position = Vector2(433, 99)
 
-[node name="RailCart" type="Polygon2D" parent="Crane"]
+[node name="RailCart" type="Polygon2D" parent="Crane" unique_id=1183163347]
 color = Color(0.19, 0.3, 0.39, 1)
 polygon = PackedVector2Array(-34, -12, 34, -12, 34, 7, 24, 16, -24, 16, -34, 7)
 
-[node name="Cable" type="Line2D" parent="Crane"]
+[node name="Cable" type="Line2D" parent="Crane" unique_id=952567039]
 points = PackedVector2Array(0, 16, 0, 74, 10, 81)
 width = 3.0
 default_color = Color(0.56, 0.67, 0.7, 1)
 
-[node name="WorkLight" type="PointLight2D" parent="Crane"]
+[node name="WorkLight" type="PointLight2D" parent="Crane" unique_id=1994164016]
 position = Vector2(0, 66)
+energy = 0.8
 texture = SubResource("LampTexture")
 texture_scale = 1.2
-energy = 0.8
 
-[node name="GantryMotion" type="AnimationPlayer" parent="."]
-libraries = {&"": SubResource("HangarAnimation")}
-autoplay = "gantry"
+[node name="GantryMotion" type="AnimationPlayer" parent="." unique_id=2081982541]
+libraries/ = SubResource("HangarAnimation")
+autoplay = &"gantry"
 
-[node name="RocketPreview" type="Control" parent="."]
+[node name="RocketPreview" type="Control" parent="." unique_id=919359057]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("2")
 
-[node name="Pad" type="Node2D" parent="RocketPreview"]
+[node name="Pad" type="Node2D" parent="RocketPreview" unique_id=2053841148]
 unique_name_in_owner = true
 position = Vector2(640, 497)
 
-[node name="Deck" type="Polygon2D" parent="RocketPreview/Pad"]
+[node name="Deck" type="Polygon2D" parent="RocketPreview/Pad" unique_id=697790008]
 color = Color(0.16, 0.24, 0.28, 1)
 polygon = PackedVector2Array(-112, 10, -69, -9, 69, -9, 112, 10, 112, 27, -112, 27)
 
-[node name="DeckLip" type="Line2D" parent="RocketPreview/Pad"]
+[node name="DeckLip" type="Line2D" parent="RocketPreview/Pad" unique_id=1766050823]
 points = PackedVector2Array(-112, 11, 112, 11)
 width = 3.0
 default_color = Color(0.35, 0.86, 0.93, 1)
 
-[node name="Assembly" type="Node2D" parent="RocketPreview"]
+[node name="Assembly" type="Node2D" parent="RocketPreview" unique_id=217595270]
 unique_name_in_owner = true
 
-[node name="TestRig" type="Node2D" parent="RocketPreview"]
+[node name="TestRig" type="Node2D" parent="RocketPreview" unique_id=1788048916]
 unique_name_in_owner = true
 visible = false
 script = ExtResource("5")
 
-[node name="SnapSparks" type="CPUParticles2D" parent="RocketPreview"]
+[node name="SnapSparks" type="CPUParticles2D" parent="RocketPreview" unique_id=1129441130]
 unique_name_in_owner = true
 emitting = false
 amount = 14
@@ -162,9 +173,10 @@ scale_amount_min = 2.0
 scale_amount_max = 4.0
 color = Color(0.48, 0.97, 0.77, 1)
 
-[node name="Carousel" type="Control" parent="."]
+[node name="Carousel" type="Control" parent="." unique_id=342108406]
 unique_name_in_owner = true
 layout_mode = 1
+anchors_preset = 9
 anchor_bottom = 1.0
 offset_left = 28.0
 offset_right = 248.0
@@ -172,16 +184,13 @@ offset_bottom = -86.0
 mouse_filter = 2
 script = ExtResource("3")
 
-[node name="Categories" type="Control" parent="Carousel"]
+[node name="Categories" type="Control" parent="Carousel" unique_id=1148799819]
 unique_name_in_owner = true
+anchors_preset = 0
 mouse_filter = 2
 
-[node name="PartDiscs" type="Control" parent="Carousel"]
-unique_name_in_owner = true
-mouse_filter = 2
-clip_contents = true
-
-[node name="Pods" type="Button" parent="Carousel/Categories"]
+[node name="Pods" type="Button" parent="Carousel/Categories" unique_id=883665718]
+layout_mode = 0
 offset_right = 118.0
 offset_bottom = 46.0
 toggle_mode = true
@@ -189,7 +198,8 @@ text = "Pods"
 icon = ExtResource("6")
 script = ExtResource("12")
 
-[node name="Fuel" type="Button" parent="Carousel/Categories"]
+[node name="Fuel" type="Button" parent="Carousel/Categories" unique_id=1520234826]
+layout_mode = 0
 offset_right = 118.0
 offset_bottom = 46.0
 toggle_mode = true
@@ -197,7 +207,8 @@ text = "Fuel"
 icon = ExtResource("7")
 script = ExtResource("12")
 
-[node name="Engines" type="Button" parent="Carousel/Categories"]
+[node name="Engines" type="Button" parent="Carousel/Categories" unique_id=1411276835]
+layout_mode = 0
 offset_right = 118.0
 offset_bottom = 46.0
 toggle_mode = true
@@ -205,7 +216,8 @@ text = "Engines"
 icon = ExtResource("8")
 script = ExtResource("12")
 
-[node name="Kit" type="Button" parent="Carousel/Categories"]
+[node name="Kit" type="Button" parent="Carousel/Categories" unique_id=62506819]
+layout_mode = 0
 offset_right = 118.0
 offset_bottom = 46.0
 toggle_mode = true
@@ -213,26 +225,36 @@ text = "Kit"
 icon = ExtResource("9")
 script = ExtResource("12")
 
-[node name="HangarTitle" type="Label" parent="."]
-theme_type_variation = &"DisplayLabel"
+[node name="PartDiscs" type="Control" parent="Carousel" unique_id=448734535]
+unique_name_in_owner = true
+clip_contents = true
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="HangarTitle" type="Label" parent="." unique_id=995364301]
+layout_mode = 0
 offset_left = 39.0
 offset_top = 21.0
+theme_type_variation = &"DisplayLabel"
 theme_override_font_sizes/font_size = 36
 text = "ROCKET LAB / 01"
 
-[node name="MissionTag" type="Label" parent="."]
-theme_type_variation = &"EyebrowLabel"
+[node name="MissionTag" type="Label" parent="." unique_id=2083111703]
 unique_name_in_owner = true
+layout_mode = 0
 offset_left = 363.0
 offset_top = 37.0
+theme_type_variation = &"EyebrowLabel"
 text = "M01"
 
-[node name="MissionBriefing" type="Label" parent="."]
+[node name="MissionBriefing" type="Label" parent="." unique_id=574889568]
 unique_name_in_owner = true
 visible = false
+layout_mode = 0
 
-[node name="Telemetry" type="PanelContainer" parent="."]
+[node name="Telemetry" type="PanelContainer" parent="." unique_id=1677819444]
 layout_mode = 1
+anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -348.0
@@ -241,40 +263,33 @@ offset_right = -28.0
 offset_bottom = 605.0
 theme_override_styles/panel = SubResource("TelemetryPanel")
 
-[node name="StorageTitle" type="Label" parent="."]
-offset_left = 44.0
-offset_top = 106.0
-theme_type_variation = &"TelemetryLabel"
-theme_override_font_sizes/font_size = 14
-text = "PARTS / STORAGE"
-
-[node name="Scroll" type="ScrollContainer" parent="Telemetry"]
+[node name="Scroll" type="ScrollContainer" parent="Telemetry" unique_id=95190875]
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="Readouts" type="VBoxContainer" parent="Telemetry/Scroll"]
+[node name="Readouts" type="VBoxContainer" parent="Telemetry/Scroll" unique_id=1317664753]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="Eyebrow" type="Label" parent="Telemetry/Scroll/Readouts"]
+[node name="Eyebrow" type="Label" parent="Telemetry/Scroll/Readouts" unique_id=1042976751]
 layout_mode = 2
 theme_type_variation = &"TelemetryLabel"
 theme_override_font_sizes/font_size = 15
 text = "LIVE BUILD"
 
-[node name="RocketName" type="LineEdit" parent="Telemetry/Scroll/Readouts"]
+[node name="RocketName" type="LineEdit" parent="Telemetry/Scroll/Readouts" unique_id=1368470085]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+tooltip_text = "Rename rocket"
 theme_override_fonts/font = ExtResource("DisplayFont")
 theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("RocketNameStyle")
 text = "Sparrow I"
 max_length = 60
-tooltip_text = "Rename rocket"
 
-[node name="ComparisonLegend" type="Label" parent="Telemetry/Scroll/Readouts"]
+[node name="ComparisonLegend" type="Label" parent="Telemetry/Scroll/Readouts" unique_id=639375977]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"TelemetryLabel"
@@ -282,139 +297,149 @@ theme_override_colors/font_color = Color(0.65, 0.77, 0.84, 1)
 theme_override_font_sizes/font_size = 12
 text = "LIVE BUILD   ·   edit to compare"
 
-[node name="Metrics" type="GridContainer" parent="Telemetry/Scroll/Readouts"]
+[node name="Metrics" type="GridContainer" parent="Telemetry/Scroll/Readouts" unique_id=1209455424]
 layout_mode = 2
-columns = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
+columns = 2
 
-[node name="FuelMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics"]
+[node name="FuelMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics" unique_id=1841108554]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("10")
 
-[node name="MassMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics"]
+[node name="MassMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics" unique_id=212773153]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("10")
 
-[node name="ThrustMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics"]
+[node name="ThrustMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics" unique_id=659832002]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("10")
 
-[node name="RangeMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics"]
+[node name="RangeMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics" unique_id=2096855778]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("10")
 
-[node name="BudgetHeading" type="HBoxContainer" parent="Telemetry/Scroll/Readouts"]
+[node name="BudgetHeading" type="HBoxContainer" parent="Telemetry/Scroll/Readouts" unique_id=1986950675]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="Telemetry/Scroll/Readouts/BudgetHeading"]
+[node name="Title" type="Label" parent="Telemetry/Scroll/Readouts/BudgetHeading" unique_id=85591968]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"TelemetryLabel"
 theme_override_font_sizes/font_size = 12
 text = "BUDGET"
 
-[node name="BudgetValue" type="Label" parent="Telemetry/Scroll/Readouts/BudgetHeading"]
-theme_type_variation = &"TelemetryLabel"
+[node name="BudgetValue" type="Label" parent="Telemetry/Scroll/Readouts/BudgetHeading" unique_id=206471312]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
 theme_override_font_sizes/font_size = 15
 text = "1600 / 2000 CR"
 
-[node name="BudgetBar" type="ProgressBar" parent="Telemetry/Scroll/Readouts"]
+[node name="BudgetBar" type="ProgressBar" parent="Telemetry/Scroll/Readouts" unique_id=1927985376]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
 show_percentage = false
 
-[node name="BudgetDelta" type="Label" parent="Telemetry/Scroll/Readouts"]
+[node name="BudgetDelta" type="Label" parent="Telemetry/Scroll/Readouts" unique_id=740935078]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"TelemetryLabel"
 theme_override_font_sizes/font_size = 12
 
-[node name="BuildStatus" type="Label" parent="Telemetry/Scroll/Readouts"]
-theme_type_variation = &"SuccessLabel"
+[node name="BuildStatus" type="Label" parent="Telemetry/Scroll/Readouts" unique_id=1594193333]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"SuccessLabel"
 theme_override_fonts/font = ExtResource("MonoFont")
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 2
 
-[node name="Stages" type="HBoxContainer" parent="."]
+[node name="StorageTitle" type="Label" parent="." unique_id=1585670174]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 106.0
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 14
+text = "PARTS / STORAGE"
+
+[node name="Stages" type="HBoxContainer" parent="." unique_id=1625195228]
 layout_mode = 1
+anchors_preset = 7
 anchor_left = 0.5
-anchor_right = 0.5
 anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -117.0
-offset_right = 117.0
 offset_top = -145.0
+offset_right = 117.0
 offset_bottom = -101.0
-alignment = 1
 theme_override_constants/separation = 8
+alignment = 1
 
-[node name="RemoveStage" type="Button" parent="Stages"]
+[node name="RemoveStage" type="Button" parent="Stages" unique_id=551147853]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(40, 44)
-text = "−"
-tooltip_text = "Remove upper stage"
-
-[node name="AddStage" type="Button" parent="Stages"]
-unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(106, 44)
-text = "+ STAGE"
-tooltip_text = "Add an upper stage and separator mount"
+tooltip_text = "Remove upper stage"
+text = "−"
 
-[node name="Actions" type="HBoxContainer" parent="."]
+[node name="AddStage" type="Button" parent="Stages" unique_id=1035584443]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(106, 44)
+layout_mode = 2
+tooltip_text = "Add an upper stage and separator mount"
+text = "+ STAGE"
+
+[node name="Actions" type="HBoxContainer" parent="." unique_id=1271975908]
 layout_mode = 1
+anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 32.0
-offset_right = -32.0
 offset_top = -80.0
+offset_right = -32.0
 offset_bottom = -22.0
 theme_override_constants/separation = 8
 
-[node name="Secondary" type="Button" parent="Actions"]
+[node name="Secondary" type="Button" parent="Actions" unique_id=1824454666]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(110, 44)
+layout_mode = 2
 text = "‹ Briefing"
 
-[node name="Clear" type="Button" parent="Actions"]
+[node name="Clear" type="Button" parent="Actions" unique_id=417698776]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(70, 44)
+layout_mode = 2
 text = "Clear"
 
-[node name="Reset" type="Button" parent="Actions"]
+[node name="Reset" type="Button" parent="Actions" unique_id=31519012]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
 text = "Sparrow I"
 
-[node name="Pioneer" type="Button" parent="Actions"]
+[node name="Pioneer" type="Button" parent="Actions" unique_id=1571079072]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(102, 44)
+layout_mode = 2
 text = "Pioneer II"
 
-[node name="Spacer" type="Control" parent="Actions"]
+[node name="Spacer" type="Control" parent="Actions" unique_id=884298127]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Primary" type="Button" parent="Actions"]
-theme_type_variation = &"PrimaryAction"
+[node name="Primary" type="Button" parent="Actions" unique_id=153690156]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(184, 46)
+layout_mode = 2
+theme_type_variation = &"PrimaryAction"
 text = "Prepare Launch"

@@ -11,7 +11,7 @@ static func project(point: Vector2) -> Vector2:
 	return Vector2(FIELD.x * 0.5 + (point.x - FIELD.x * 0.5) * perspective,
 		54.0 + point.y * 0.79)
 
-func configure(missions: Array[MissionDefinition], points: Dictionary, completed: Array[String]) -> void:
+func configure(missions: Array[MissionDefinition], points: Dictionary, completed: Array[String], unlocked: Array[String]) -> void:
 	_routes.clear()
 	var distances: Dictionary = {}
 	for mission in missions:
@@ -24,7 +24,7 @@ func configure(missions: Array[MissionDefinition], points: Dictionary, completed
 		var offset := float(distances.get(mission.unlock_requirement, 0.0))
 		distances[mission.id] = offset + curve.get_baked_length()
 		_routes.append({"curve": curve, "completed": completed.has(mission.id),
-			"id": mission.id, "offset": offset})
+			"unlocked": unlocked.has(mission.id), "id": mission.id, "offset": offset})
 	queue_redraw()
 
 func _process(delta: float) -> void:
@@ -44,13 +44,15 @@ func _draw() -> void:
 		var curve := route.curve as Curve2D
 		var length := curve.get_baked_length()
 		var points := curve.get_baked_points()
-		if not route.completed:
-			for segment in range(0, int(length), 14):
-				draw_line(curve.sample_baked(segment), curve.sample_baked(minf(segment + 5, length)), Color(0.4, 0.53, 0.63, 0.25), 1, true)
+		if not route.unlocked:
+			for segment in range(0, int(length), 17):
+				draw_line(curve.sample_baked(segment), curve.sample_baked(minf(segment + 8, length)), Color(0.54, 0.67, 0.75, 0.65), 1.7, true)
 			continue
 		draw_polyline(points, Color(CYAN, 0.035), 13, true)
 		draw_polyline(points, Color(CYAN, 0.13), 5, true)
 		draw_polyline(points, Color(CYAN, 0.5), 1.4, true)
+		if not route.completed:
+			continue
 		# One phase measured from Earth, including the length of predecessor routes.
 		var phase := fposmod(_clock * 105.0 - float(route.offset), 180.0)
 		for packet in range(-1, int(length / 180) + 1):

@@ -10,6 +10,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var game := root.get_node("GameManager")
+	game.mod_enabled = false
 	game.completed_missions.clear()
 	game.best_scores.clear()
 	game.agency_credits = 0

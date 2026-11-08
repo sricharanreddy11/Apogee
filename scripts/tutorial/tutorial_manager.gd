@@ -6,6 +6,7 @@ const OVERLAY := preload("res://scenes/tutorial/tutorial_overlay.tscn")
 
 var active := false
 var completed := false
+var progress_path := PROGRESS_PATH
 var _steps: Array[Dictionary] = []
 var _index := 0
 var _overlay: TutorialOverlay
@@ -71,17 +72,30 @@ func _load_flow() -> bool:
 
 
 func _load_progress() -> void:
-	if not FileAccess.file_exists(PROGRESS_PATH):
+	if not FileAccess.file_exists(progress_path):
 		return
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(PROGRESS_PATH))
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(progress_path))
 	if parsed is Dictionary:
 		completed = bool(parsed.get("completed", false))
 
 
-func _save_progress() -> void:
-	var file := FileAccess.open(PROGRESS_PATH, FileAccess.WRITE)
-	if file != null:
-		file.store_string(JSON.stringify({"version": 1, "completed": completed}))
+func _save_progress() -> Error:
+	var file := FileAccess.open(progress_path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+	var written := file.store_string(JSON.stringify({"version": 1, "completed": completed}))
+	file.flush()
+	var error := file.get_error()
+	file.close()
+	return error if written else ERR_FILE_CANT_WRITE
+
+
+func reset_progress() -> Error:
+	active = false
+	completed = false
+	_clear_watch()
+	_overlay.dismiss()
+	return _save_progress()
 
 
 func _on_scene_changed() -> void:

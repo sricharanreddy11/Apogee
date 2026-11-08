@@ -161,6 +161,7 @@ func _test_playback() -> void:
 
 func _test_screens() -> void:
 	var game := root.get_node("GameManager")
+	game.mod_enabled = false
 	game.completed_missions.clear()
 	game.select_mission("M01")
 	await _settle()

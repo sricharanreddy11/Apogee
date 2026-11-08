@@ -141,6 +141,7 @@ func _test_campaign_flight() -> void:
 	var save: CampaignSave = game.get("_campaign_save")
 	save.path = "user://campaign-test-%d.json" % OS.get_process_id()
 	game.agency_credits = 0
+	game.mod_enabled = false
 	game.completed_missions.clear()
 	game.best_scores.clear()
 	game.discovered_ids.clear()

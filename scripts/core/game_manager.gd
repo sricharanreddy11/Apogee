@@ -17,6 +17,7 @@ const BGM_VOLUME_DB := -12.0
 const UI_CLICK_VOLUME_DB := 12.0
 const UI_CLICK_EXCLUDED_META := &"skip_ui_click_sound"
 const UI_CLICK_REGISTERED_META := &"_ui_click_sound_registered"
+const MOD_CREDITS := 1000000
 
 ## Session data survives scene changes. The simulator stays inside the Flight scene.
 var selected_mission_id: String = ""
@@ -27,6 +28,7 @@ var agency_credits: int = 0
 var completed_missions: Array[String] = []
 var best_scores: Dictionary = {}
 var discovered_ids: Array[String] = []
+var mod_enabled := false
 var _campaign_save := CampaignSave.new()
 var last_navigation_error: String = ""
 var _mission: MissionDefinition
@@ -40,6 +42,10 @@ func _ready() -> void:
 	_start_bgm()
 	MissionVoiceManager.speaking_changed.connect(_duck_music_for_voice)
 	_start_ui_clicks()
+	_load_campaign_progress()
+
+
+func _load_campaign_progress() -> void:
 	var progress := _campaign_save.load_progress()
 	if progress.is_empty():
 		return
@@ -47,6 +53,7 @@ func _ready() -> void:
 	completed_missions.assign(progress.completed_missions)
 	best_scores = progress.best_scores
 	discovered_ids.assign(progress.discovered_ids)
+	mod_enabled = bool(progress.get("mod_enabled", false))
 
 
 func _start_bgm() -> void:
@@ -117,13 +124,66 @@ func _record_success(result: MissionResult) -> String:
 			discovered_ids.append(id)
 			new_discoveries.append(id)
 	result.discovery_ids = new_discoveries
-	var error := _campaign_save.save_progress({
-		"agency_credits": agency_credits,
-		"completed_missions": completed_missions,
-		"best_scores": best_scores,
-		"discovered_ids": discovered_ids,
-	})
+	var error := _campaign_save.save_progress(_campaign_progress())
 	return "" if error == OK else "Campaign progress could not be saved. It is available for this session."
+
+
+func _campaign_progress() -> Dictionary:
+	return {
+		"agency_credits": agency_credits,
+		"completed_missions": completed_missions.duplicate(),
+		"best_scores": best_scores.duplicate(),
+		"discovered_ids": discovered_ids.duplicate(),
+		"mod_enabled": mod_enabled,
+	}
+
+
+func _clear_campaign_session() -> void:
+	selected_mission_id = ""
+	current_rocket_config = null
+	_builder_draft = null
+	last_result = null
+	_mission = null
+	last_navigation_error = ""
+	MissionVoiceManager.stop_all()
+
+
+func reset_campaign() -> bool:
+	var fresh := {"agency_credits": 0, "completed_missions": [], "best_scores": {}, "discovered_ids": [], "mod_enabled": false}
+	if _campaign_save.replace_progress(fresh) != OK:
+		_fail_navigation("Campaign reset could not be saved. Your current session has been kept.")
+		return false
+	agency_credits = 0
+	completed_missions.clear()
+	best_scores.clear()
+	discovered_ids.clear()
+	mod_enabled = false
+	_clear_campaign_session()
+	var tutorial_error := TutorialManager.reset_progress()
+	show_main_menu()
+	if tutorial_error != OK:
+		_fail_navigation.call_deferred("Campaign reset. Tutorial progress could not be saved.")
+	return true
+
+
+func enable_mod() -> bool:
+	var progress := _campaign_progress()
+	progress.agency_credits = maxi(agency_credits, MOD_CREDITS)
+	progress.mod_enabled = true
+	if _campaign_save.replace_progress(progress) != OK:
+		_fail_navigation("Mod could not be saved. Your current campaign has been kept.")
+		return false
+	agency_credits = int(progress.agency_credits)
+	mod_enabled = true
+	_clear_campaign_session()
+	show_main_menu()
+	return true
+
+
+func _apply_mod_rules(mission: MissionDefinition) -> void:
+	if mod_enabled:
+		mission.budget_credits = maxi(mission.budget_credits, MOD_CREDITS)
+		mission.allowed_part_ids.clear()
 
 
 func _next_mission(after_id: String) -> MissionDefinition:
@@ -152,6 +212,7 @@ func _load_mission(id: String) -> bool:
 	if not _definition_is_unlocked(mission):
 		_fail_navigation("%s is locked. Complete its prerequisite mission first." % mission.title)
 		return false
+	_apply_mod_rules(mission)
 	_mission = mission
 	selected_mission_id = mission.id
 	current_rocket_config = null
@@ -174,7 +235,7 @@ func is_mission_unlocked(id: String) -> bool:
 
 func _definition_is_unlocked(mission: MissionDefinition) -> bool:
 	return mission.released and (
-		completed_missions.has(mission.id) or mission.unlock_requirement.is_empty()
+		mod_enabled or completed_missions.has(mission.id) or mission.unlock_requirement.is_empty()
 		or completed_missions.has(mission.unlock_requirement)
 	)
 
@@ -222,6 +283,7 @@ func show_workshop() -> void:
 	workshop.title = "Workshop"
 	workshop.budget_credits = 10000
 	workshop.scenario = {"body_id": "earth"}
+	_apply_mod_rules(workshop)
 	var screen := BUILDER.instantiate() as BuilderController
 	screen.setup(workshop, true)
 	screen.back_requested.connect(show_main_menu)

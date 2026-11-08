@@ -22,6 +22,15 @@ func _ready() -> void:
 	CONSOLE.apply(%Workshop, "primary")
 	CONSOLE.apply(%Showcase)
 	CONSOLE.apply(%Exit)
+	CONSOLE.apply(%ResetCampaign, "danger")
+	CONSOLE.apply(%ModCampaign, "preset")
+	CONSOLE.apply(%ResetDialog.get_ok_button(), "danger")
+	CONSOLE.apply(%ResetDialog.get_cancel_button())
+	%ResetCampaign.pressed.connect(func() -> void: %ResetDialog.popup_centered(Vector2i(510, 230)))
+	%ResetDialog.confirmed.connect(GameManager.reset_campaign)
+	%ModCampaign.pressed.connect(GameManager.enable_mod)
+	%ModCampaign.disabled = GameManager.mod_enabled
+	%ModCampaign.text = "Mod: ON" if GameManager.mod_enabled else "Mod"
 	CONSOLE.apply(%SettingsDialog.get_ok_button())
 	%Showcase.pressed.connect(GameManager.show_moon_flyby_showcase)
 	%Workshop.pressed.connect(GameManager.show_workshop)
@@ -68,6 +77,7 @@ func _build_mission_beacons() -> void:
 		titles[mission.id] = mission.title
 	var released := missions.filter(func(mission: MissionDefinition) -> bool: return mission.released)
 	var points: Dictionary = {}
+	var unlocked: Array[String] = []
 	for mission: MissionDefinition in released:
 		var card := MISSION_CARD.instantiate() as MissionCard
 		card.name = mission.id
@@ -77,6 +87,8 @@ func _build_mission_beacons() -> void:
 		card.setup(mission, GameManager.is_mission_unlocked(mission.id),
 			GameManager.completed_missions.has(mission.id),
 			int(GameManager.best_scores.get(mission.id, 0)), unlock_text)
+		if card.is_selectable:
+			unlocked.append(mission.id)
 		card.mission_selected.connect(_on_mission_selected)
 		card.signal_focused.connect(_show_signal)
 		%MissionList.add_child(card)
@@ -97,7 +109,7 @@ func _build_mission_beacons() -> void:
 			"title": mission.title,
 			"details": mission.objective_text if card.is_selectable else unlock_text,
 		}
-	%CampaignHologram.configure(released, points, GameManager.completed_missions)
+	%CampaignHologram.configure(released, points, GameManager.completed_missions, unlocked)
 	if not _cards.is_empty():
 		var active := GameManager.selected_mission_id
 		_show_signal(active if _cards.has(active) else _cards.keys()[0])

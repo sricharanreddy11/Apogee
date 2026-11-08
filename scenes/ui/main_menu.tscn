@@ -373,11 +373,32 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
+[node name="ResetCampaign" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 44)
+layout_mode = 2
+text = "Reset"
+tooltip_text = "Start fresh: Level 1 only, zero credits, no scores, discoveries, builds, tutorial progress, or Mod."
+
+[node name="ModCampaign" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 44)
+layout_mode = 2
+text = "Mod"
+tooltip_text = "Unlock all missions and parts, grant at least 1,000,000 CR, and raise build budgets. Reset turns Mod off."
+
 [node name="Exit" type="Button" parent="Margin/Layout/Footer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Exit"
+
+[node name="ResetDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Reset campaign?"
+dialog_text = "Return to Level 1 with 0 credits?\nMission progress, scores, discoveries, saved builds,\ntutorial progress, and Mod will be cleared."
+ok_button_text = "Reset game"
+cancel_button_text = "Keep progress"
 
 [node name="SettingsDialog" type="AcceptDialog" parent="."]
 unique_name_in_owner = true
