@@ -1,1 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="48" viewBox="0 0 64 48"><path d="M12 1h40v9H12z" fill="#a9bed1"/><path d="M21 10h22v14l10 18H11l10-18z" fill="#467187" stroke="#a0c6d9" stroke-width="2"/><path d="M29 12h6v15l8 13H21l8-13z" fill="#203a55"/><path d="M10 41h44v6H10z" fill="#6cd6c6"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="48" viewBox="0 0 64 48">
+<defs>
+    <linearGradient id="paint" x1="0" x2="1"><stop stop-color="#6b7172"/><stop offset=".17" stop-color="#e2e3dd"/><stop offset=".36" stop-color="#fffdf5"/><stop offset=".66" stop-color="#d8d9d3"/><stop offset=".88" stop-color="#a0a5a3"/><stop offset="1" stop-color="#51585a"/></linearGradient>
+    <linearGradient id="steel" x1="0" x2="1"><stop stop-color="#303638"/><stop offset=".19" stop-color="#8f9595"/><stop offset=".35" stop-color="#e5e5de"/><stop offset=".5" stop-color="#a3a7a4"/><stop offset=".76" stop-color="#585e5e"/><stop offset="1" stop-color="#242a2d"/></linearGradient>
+    <linearGradient id="bell" x1="0" x2="1"><stop stop-color="#181c1e"/><stop offset=".25" stop-color="#656968"/><stop offset=".42" stop-color="#8d9088"/><stop offset=".64" stop-color="#4a4f4d"/><stop offset="1" stop-color="#111517"/></linearGradient>
+    <linearGradient id="copper" x1="0" x2="1"><stop stop-color="#593222"/><stop offset=".26" stop-color="#c08b63"/><stop offset=".48" stop-color="#e0b28a"/><stop offset=".77" stop-color="#946043"/><stop offset="1" stop-color="#40271e"/></linearGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop stop-color="#62431c"/><stop offset=".2" stop-color="#bd8d3e"/><stop offset=".43" stop-color="#f1d28b"/><stop offset=".65" stop-color="#9b6e2e"/><stop offset=".85" stop-color="#e0bd71"/><stop offset="1" stop-color="#6a4b20"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#536e80"/><stop offset=".45" stop-color="#1d3445"/><stop offset="1" stop-color="#090f15"/></linearGradient>
+    </defs>
+
+<path d="M14 0h36v7H14z" fill="url(#steel)" stroke="#343a3a" stroke-width=".8"/>
+<path d="M19 8h26v9H19z" fill="url(#copper)" stroke="#453d32" stroke-width=".8"/>
+<path d="M26 15h12l3 8  10 22H13l10 -22z" fill="url(#bell)" stroke="#252c2d" stroke-width="1.1"/>
+<path d="M26 17h12v6H26z" fill="url(#copper)"/>
+<path d="M17 6v12q0 4 8 4M47 5v12q0 5-7 5" fill="none" stroke="#b6bbb5" stroke-width="2.5"/>
+<path d="M17 6v12q0 4 8 4M47 5v12q0 5-7 5" fill="none" stroke="#454e4e" stroke-width=".6"/>
+<circle cx="19" cy="13" r="4.4" fill="url(#steel)" stroke="#3a4140" stroke-width=".8"/><circle cx="19" cy="13" r="1.5" fill="#30393b"/>
+<path d="M28 25L20 43M36 25l8 18" stroke="#242c2b" stroke-width="1"/>
+<path d="M22.43 26.14q9.57 2 19.14 0" fill="none" stroke="#a0a296" stroke-opacity=".38" stroke-width=".55"/><path d="M20.86 29.29q11.14 2 22.29 0" fill="none" stroke="#a0a296" stroke-opacity=".38" stroke-width=".55"/><path d="M19.29 32.43q12.71 2 25.43 0" fill="none" stroke="#a0a296" stroke-opacity=".38" stroke-width=".55"/><path d="M17.71 35.57q14.29 2 28.57 0" fill="none" stroke="#a0a296" stroke-opacity=".38" stroke-width=".55"/><path d="M16.14 38.71q15.86 2 31.71 0" fill="none" stroke="#a0a296" stroke-opacity=".38" stroke-width=".55"/><path d="M14.57 41.86q17.43 2 34.86 0" fill="none" stroke="#a0a296" stroke-opacity=".38" stroke-width=".55"/>
+<path d="M12 44h40v3H12z" fill="url(#steel)" stroke="#202729" stroke-width=".6"/>
+<path d="M15 47h34" stroke="#0e1316" stroke-width="1.7"/>
+<path d="M22 2h20M24 11h16" stroke="#e0e0d5" stroke-width=".6" opacity=".7"/>
+</svg>

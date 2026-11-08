@@ -186,6 +186,7 @@ func _toggle_pause() -> void:
 		return
 	_paused = not _paused
 	MissionVoiceManager.set_hold(_paused)
+	%FlightArtwork.set_motion_paused(_paused)
 	if _paused:
 		%FlightArtwork.stop_steering_effects()
 	%PauseFlight.tooltip_text = "Resume simulation [Esc]" if _paused else "Hold simulation [Esc]"
@@ -241,6 +242,7 @@ func _input(event: InputEvent) -> void:
 func _open_manual() -> void:
 	%Manual.open()
 	MissionVoiceManager.set_hold(true)
+	%FlightArtwork.set_motion_paused(true)
 	%FlightArtwork.stop_steering_effects()
 	_update_control_state(_simulator.get_telemetry())
 
@@ -248,6 +250,7 @@ func _open_manual() -> void:
 func _close_manual() -> void:
 	%Manual.dismiss()
 	MissionVoiceManager.set_hold(_paused)
+	%FlightArtwork.set_motion_paused(_paused)
 	%HelpButton.grab_focus()
 	_update_control_state(_simulator.get_telemetry())
 

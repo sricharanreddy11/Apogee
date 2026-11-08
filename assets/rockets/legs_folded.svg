@@ -1,1 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="114" height="70" viewBox="0 0 114 70"><path d="M28 13h11l-4 44H24zm47 0h11l4 44H79z" fill="#718b9e" stroke="#aec4ce" stroke-width="2"/><path d="M25 48h12v9H24zm52 0h12l1 9H78z" fill="#e0ae59"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="114" height="70" viewBox="0 0 114 70">
+<defs>
+    <linearGradient id="paint" x1="0" x2="1"><stop stop-color="#6b7172"/><stop offset=".17" stop-color="#e2e3dd"/><stop offset=".36" stop-color="#fffdf5"/><stop offset=".66" stop-color="#d8d9d3"/><stop offset=".88" stop-color="#a0a5a3"/><stop offset="1" stop-color="#51585a"/></linearGradient>
+    <linearGradient id="steel" x1="0" x2="1"><stop stop-color="#303638"/><stop offset=".19" stop-color="#8f9595"/><stop offset=".35" stop-color="#e5e5de"/><stop offset=".5" stop-color="#a3a7a4"/><stop offset=".76" stop-color="#585e5e"/><stop offset="1" stop-color="#242a2d"/></linearGradient>
+    <linearGradient id="bell" x1="0" x2="1"><stop stop-color="#181c1e"/><stop offset=".25" stop-color="#656968"/><stop offset=".42" stop-color="#8d9088"/><stop offset=".64" stop-color="#4a4f4d"/><stop offset="1" stop-color="#111517"/></linearGradient>
+    <linearGradient id="copper" x1="0" x2="1"><stop stop-color="#593222"/><stop offset=".26" stop-color="#c08b63"/><stop offset=".48" stop-color="#e0b28a"/><stop offset=".77" stop-color="#946043"/><stop offset="1" stop-color="#40271e"/></linearGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop stop-color="#62431c"/><stop offset=".2" stop-color="#bd8d3e"/><stop offset=".43" stop-color="#f1d28b"/><stop offset=".65" stop-color="#9b6e2e"/><stop offset=".85" stop-color="#e0bd71"/><stop offset="1" stop-color="#6a4b20"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#536e80"/><stop offset=".45" stop-color="#1d3445"/><stop offset="1" stop-color="#090f15"/></linearGradient>
+    </defs>
+
+<path d="M28 13h11l-4 44H24zm47 0h11l4 44H79z" fill="url(#steel)" stroke="#313a3b" stroke-width="1.1"/>
+<path d="M31 19l-3 29m54-29 3 29" stroke="#232d31" stroke-width="3"/>
+<path d="M32 20l-2 24m51-24 2 24" stroke="#a3ada5" stroke-width=".9"/>
+<path d="M25 48h12v9H24zm52 0h12l1 9H78z" fill="#282f31" stroke="#10191c" stroke-width=".8"/>
+<path d="M26 50h9m44 0h8" stroke="#979f99" stroke-width="1"/>
+<g fill="#535e5d"><circle cx="33" cy="16" r="1.7"/><circle cx="81" cy="16" r="1.7"/></g>
+</svg>

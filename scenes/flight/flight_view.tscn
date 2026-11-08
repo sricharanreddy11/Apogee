@@ -199,15 +199,18 @@ anchor_right = 0.5
 anchor_bottom = 0.5
 mouse_filter = 2
 
-[node name="VehicleMount" type="Node2D" parent="VehicleCam/Layout/Preview/Pivot"]
+[node name="VehicleVibration" type="Node2D" parent="VehicleCam/Layout/Preview/Pivot"]
 unique_name_in_owner = true
 
-[node name="VehicleRig" type="Node2D" parent="VehicleCam/Layout/Preview/Pivot/VehicleMount"]
+[node name="VehicleMount" type="Node2D" parent="VehicleCam/Layout/Preview/Pivot/VehicleVibration"]
+unique_name_in_owner = true
+
+[node name="VehicleRig" type="Node2D" parent="VehicleCam/Layout/Preview/Pivot/VehicleVibration/VehicleMount"]
 unique_name_in_owner = true
 script = ExtResource("3")
 effect_context = "cockpit"
 
-[node name="VehicleJets" parent="VehicleCam/Layout/Preview/Pivot/VehicleMount" instance=ExtResource("Jets")]
+[node name="VehicleJets" parent="VehicleCam/Layout/Preview/Pivot/VehicleVibration/VehicleMount" instance=ExtResource("Jets")]
 unique_name_in_owner = true
 
 [node name="Controls" type="HBoxContainer" parent="VehicleCam/Layout"]

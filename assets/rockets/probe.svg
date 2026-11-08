@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="32" viewBox="0 0 64 32"><path d="M10 2h44v28H10z" fill="#a4a7b8" stroke="#d5cce9" stroke-width="2"/><path d="M17 7h30v18H17z" fill="#574b77"/><path d="M21 10h8v11h-8zm12 0h10v11H33z" fill="#aa87dc"/><path d="M5 11h5v11H5zm49 0h5v11h-5z" fill="#e2ad57"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="32" viewBox="0 0 64 32">
+<defs>
+    <linearGradient id="paint" x1="0" x2="1"><stop stop-color="#6b7172"/><stop offset=".17" stop-color="#e2e3dd"/><stop offset=".36" stop-color="#fffdf5"/><stop offset=".66" stop-color="#d8d9d3"/><stop offset=".88" stop-color="#a0a5a3"/><stop offset="1" stop-color="#51585a"/></linearGradient>
+    <linearGradient id="steel" x1="0" x2="1"><stop stop-color="#303638"/><stop offset=".19" stop-color="#8f9595"/><stop offset=".35" stop-color="#e5e5de"/><stop offset=".5" stop-color="#a3a7a4"/><stop offset=".76" stop-color="#585e5e"/><stop offset="1" stop-color="#242a2d"/></linearGradient>
+    <linearGradient id="bell" x1="0" x2="1"><stop stop-color="#181c1e"/><stop offset=".25" stop-color="#656968"/><stop offset=".42" stop-color="#8d9088"/><stop offset=".64" stop-color="#4a4f4d"/><stop offset="1" stop-color="#111517"/></linearGradient>
+    <linearGradient id="copper" x1="0" x2="1"><stop stop-color="#593222"/><stop offset=".26" stop-color="#c08b63"/><stop offset=".48" stop-color="#e0b28a"/><stop offset=".77" stop-color="#946043"/><stop offset="1" stop-color="#40271e"/></linearGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop stop-color="#62431c"/><stop offset=".2" stop-color="#bd8d3e"/><stop offset=".43" stop-color="#f1d28b"/><stop offset=".65" stop-color="#9b6e2e"/><stop offset=".85" stop-color="#e0bd71"/><stop offset="1" stop-color="#6a4b20"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#536e80"/><stop offset=".45" stop-color="#1d3445"/><stop offset="1" stop-color="#090f15"/></linearGradient>
+    </defs>
+
+<path d="M10 2h44v28H10z" fill="url(#gold)" stroke="#625135" stroke-width="1.2"/>
+<path d="M12 5l8 4-5 7 6 6-8 5m38-22-7 5 6 6-5 5 7 6M24 4l5 6-4 6 4 11M39 4l-3 8 4 8-4 8" fill="none" stroke="#ffe3a1" stroke-opacity=".35" stroke-width=".8"/>
+<path d="M19 8h26v17H19z" fill="#202b32" stroke="#a1a9a2" stroke-width="1"/>
+<path d="M22 10h8v12h-8zm11 0h9v12h-9z" fill="#172838"/>
+<path d="M24 10v12m3-12v12m9-12v12m3-12v12M22 14h8m3 0h9m-20 4h8m3 0h9" stroke="#738fa0" stroke-opacity=".55" stroke-width=".5"/>
+<path d="M5 11h5v11H5zm49 0h5v11h-5z" fill="url(#steel)" stroke="#30393a" stroke-width=".5"/>
+<path d="M28 1h8v3h-8zM28 29h8v3h-8z" fill="#a3aaa4"/>
+</svg>

@@ -11,6 +11,8 @@ const MIN_ZOOM := 0.00005
 const MAX_ZOOM := 8.5
 const DETAIL_ENTER_PX := 13.0
 const DETAIL_EXIT_PX := 18.0
+const VIBRATION_TRAVEL_PX := Vector2(5.4, 6.3)
+const VIBRATION_ROLL_RAD := 0.0105
 
 var landing_mode := false
 var _config: RocketConfig
@@ -25,12 +27,18 @@ var _sky_mix := Vector2.ZERO
 var _sky_initialized := false
 var _vent_gain := 0.0
 var _vent_target := 0.0
+var _vibration_clock := 0.0
+var _vibration_strength := 0.0
+var _motion_paused := false
+var _stage_thrust_n: Array[float] = []
+var _reference_thrust_n := 1.0
 @onready var _rig: RocketRig = %RocketRig
 @onready var _vehicle_rig: RocketRig = %VehicleRig
 @onready var _vehicle_cam: PanelContainer = %VehicleCam
 @onready var _vehicle_stage: Button = %VehicleStage
 @onready var _vehicle_legs: Button = %VehicleLegs
 @onready var _vehicle_mount: Node2D = %VehicleMount
+@onready var _vehicle_vibration: Node2D = %VehicleVibration
 @onready var _stage_readout: Label = %StageReadout
 @onready var _vehicle_jets: Node2D = %VehicleJets
 @onready var _power_flash: ColorRect = %PowerFlash
@@ -40,9 +48,11 @@ var _vent_target := 0.0
 
 func setup(config: RocketConfig) -> void:
 	_config = config.copy() if config != null else null
+	_telemetry = null
 	_landed = false
 	_crashed = false
 	_sky_initialized = false
+	_motion_paused = false
 	if is_node_ready():
 		_setup_rigs()
 
@@ -64,6 +74,7 @@ func update_visuals(telemetry: FlightTelemetry, steering := 0.0) -> void:
 		_stage_readout.text = "STAGE %d / %d" % [telemetry.active_stage + 1, _config.stages.size()]
 	_vehicle_legs.text = "RETRACT" if telemetry.legs_deployed else "DEPLOY"
 	_update_world()
+	_update_vehicle_vibration(0.0)
 	var can_steer := _config != null and telemetry.status in [FlightState.Status.READY, FlightState.Status.FLYING]
 	_set_steering_effects(steering if can_steer else 0.0)
 	if telemetry.status == FlightState.Status.CRASHED and not _crashed:
@@ -112,6 +123,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_update_vehicle_vibration(delta)
 	if _sky_mix.distance_squared_to(_sky_target) > 0.00000001:
 		_sky_mix = _sky_mix.lerp(_sky_target, 1.0 - exp(-2.7 * delta))
 		_apply_sky()
@@ -122,6 +134,38 @@ func _process(delta: float) -> void:
 			_vent.play()
 	elif _vent.playing:
 		_vent.stop()
+
+
+func set_motion_paused(paused: bool) -> void:
+	_motion_paused = paused
+	if paused:
+		_reset_vehicle_vibration()
+
+
+func _reset_vehicle_vibration() -> void:
+	_vibration_strength = 0.0
+	_vehicle_vibration.position = Vector2.ZERO
+	_vehicle_vibration.rotation = 0.0
+
+
+func _update_vehicle_vibration(delta: float) -> void:
+	if _motion_paused or _telemetry == null or not _vehicle_cam.visible or not %FarMarker.visible \
+			or not _telemetry.pod_intact or _telemetry.status not in [FlightState.Status.READY, FlightState.Status.FLYING] \
+			or _telemetry.throttle <= 0.0 or _telemetry.fuel_remaining_kg <= 0.0:
+		_reset_vehicle_vibration()
+		return
+	var stage := _telemetry.active_stage
+	var thrust := _stage_thrust_n[stage] if stage >= 0 and stage < _stage_thrust_n.size() else 0.0
+	if thrust <= 0.0:
+		_reset_vehicle_vibration()
+		return
+	var target := clampf(_telemetry.throttle * thrust / _reference_thrust_n, 0.0, 1.0)
+	_vibration_strength = lerpf(_vibration_strength, target, 1.0 - exp(-delta * 14.0))
+	_vibration_clock += delta
+	var x := sin(_vibration_clock * 107.0) * 0.65 + sin(_vibration_clock * 145.0) * 0.35
+	var y := sin(_vibration_clock * 119.0) * 0.65 + sin(_vibration_clock * 170.0) * 0.35
+	_vehicle_vibration.position = Vector2(x, y) * VIBRATION_TRAVEL_PX * _vibration_strength
+	_vehicle_vibration.rotation = sin(_vibration_clock * 56.0) * VIBRATION_ROLL_RAD * _vibration_strength
 
 
 func _update_sky_target(telemetry: FlightTelemetry) -> void:
@@ -165,6 +209,19 @@ func _setup_rigs() -> void:
 	%ImpactFlash.color.a = 0.0
 	%Craft.show()
 	stop_steering_effects()
+	_reset_vehicle_vibration()
+	_vibration_clock = 0.0
+	_stage_thrust_n.clear()
+	var engine_thrust: Dictionary = {}
+	_reference_thrust_n = 1.0
+	for part: Dictionary in JsonData.read_object("res://data/parts.json").get("parts", []):
+		if part.get("type") == "engine":
+			var thrust := float(part.get("thrust_n", 0.0))
+			engine_thrust[String(part.id)] = thrust
+			_reference_thrust_n = maxf(_reference_thrust_n, thrust)
+	if _config != null:
+		for stage in _config.stages:
+			_stage_thrust_n.append(float(engine_thrust.get(stage.engine_id, 0.0)) if stage != null else 0.0)
 	_rig.setup(_config)
 	_vehicle_rig.setup(_config)
 	# Fit the full stack with room for the feet and exhaust in any orientation.

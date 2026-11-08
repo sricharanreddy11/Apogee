@@ -6,6 +6,10 @@ The integrated flow is **Campaign star chart → Mission briefing → Rocket Lab
 
 The flight deck shows the **forward window** and **orbit display** side by side. When the rocket shrinks to a marker, Vehicle Cam opens across the center seam and shows the live stack with staging and landing-leg controls. The forward camera zooms in on lunar descent to show ground clearance. The orbit display shows the flown trail and a gold ballistic projection based on Earth and lunar gravity. Drag to pan, scroll to zoom, right-click to recenter, or press Tab to fit the projected route. Use the lower-deck rate dial for 1×, 5×, 25×, or 50× speed. Press **?** on the deck for a control reference that holds the simulation while open.
 
+Vehicle Cam gives the rocket engine vibration proportional to throttle and the active engine's catalog thrust, with up to 5.4 px horizontal travel, 6.3 px vertical travel, and 0.6 degrees of roll at full thrust. A separate visual mount moves the rocket and its steering jets while the bezel, controls, world camera, and simulator stay steady. Cutoff, empty fuel, touchdown, crash, pause, the control manual, or closing Vehicle Cam stops the vibration. The lunar landing scenario starts exactly **10 km above the Moon**, retaining the existing 55 m/s descent velocity.
+
+Rocket parts use shaded white insulation, black thermal bands, brushed metal, copper engine plumbing, dark ribbed nozzles, and gold payload foil. All ten part SVGs retain their original sizes and attachment points, so builder mounts, exhaust origins, and the flight stack use the same geometry and part stats.
+
 Use **Moon flyby demo** on the main menu for an automatic 25x showcase. It opens with the orbit display auto-framed with a safe close approach and the projected lunar-gravity bend already visible; manual pan or zoom releases the automatic framing.
 
 **Start here:** [Milestone 1 beginner guide](docs/MILESTONE_1_GUIDE.md) explains how to build a rocket and where to change missions, prerequisites, budgets, cards, and preflight labels. [Shared interfaces](docs/INTERFACES.md) records field names, units, ownership, and integration APIs for team review.
@@ -85,6 +89,7 @@ godot --headless --path . --script res://tests/test_lab_atmosphere.gd
 godot --headless --path . --script res://tests/test_projection_visuals.gd
 godot --headless --path . --script res://tests/test_campaign_vfx.gd
 godot --headless --path . --script res://tests/test_mission_voiceover.gd
+godot --headless --path . --script res://tests/test_vehicle_vibration.gd
 godot --headless --path . --script res://tests/test_menu_flow.gd
 godot --headless --path . --script res://tests/test_rocket_lab_flow.gd
 godot --headless --path . --script res://tests/test_mock_telemetry.gd

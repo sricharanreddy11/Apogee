@@ -340,7 +340,7 @@ func _initialize_spawn(profile: String) -> void:
 			_state.heading_rad = PI * 0.5
 			_state.status = FlightState.Status.FLYING
 		"lunar_descent":
-			_state.position_m = body_position + Vector2.UP * (_body_radius_m + 22000.0)
+			_state.position_m = body_position + Vector2.UP * (_body_radius_m + 10000.0)
 			_state.velocity_mps = body_velocity + Vector2.DOWN * 55.0
 			_state.status = FlightState.Status.FLYING
 		_:

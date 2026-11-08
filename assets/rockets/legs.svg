@@ -1,1 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="114" height="70" viewBox="0 0 114 70"><path d="M36 12H23L8 54m70-42h13l15 42" fill="none" stroke="#839eaf" stroke-width="7"/><path d="M35 28L12 55m67-27l23 27" fill="none" stroke="#c1d4de" stroke-width="4"/><path d="M2 58h23v8H2zm87 0h23v8H89z" fill="#e0ae59"/><circle cx="28" cy="13" r="5" fill="#d9ebef"/><circle cx="86" cy="13" r="5" fill="#d9ebef"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="114" height="70" viewBox="0 0 114 70">
+<defs>
+    <linearGradient id="paint" x1="0" x2="1"><stop stop-color="#6b7172"/><stop offset=".17" stop-color="#e2e3dd"/><stop offset=".36" stop-color="#fffdf5"/><stop offset=".66" stop-color="#d8d9d3"/><stop offset=".88" stop-color="#a0a5a3"/><stop offset="1" stop-color="#51585a"/></linearGradient>
+    <linearGradient id="steel" x1="0" x2="1"><stop stop-color="#303638"/><stop offset=".19" stop-color="#8f9595"/><stop offset=".35" stop-color="#e5e5de"/><stop offset=".5" stop-color="#a3a7a4"/><stop offset=".76" stop-color="#585e5e"/><stop offset="1" stop-color="#242a2d"/></linearGradient>
+    <linearGradient id="bell" x1="0" x2="1"><stop stop-color="#181c1e"/><stop offset=".25" stop-color="#656968"/><stop offset=".42" stop-color="#8d9088"/><stop offset=".64" stop-color="#4a4f4d"/><stop offset="1" stop-color="#111517"/></linearGradient>
+    <linearGradient id="copper" x1="0" x2="1"><stop stop-color="#593222"/><stop offset=".26" stop-color="#c08b63"/><stop offset=".48" stop-color="#e0b28a"/><stop offset=".77" stop-color="#946043"/><stop offset="1" stop-color="#40271e"/></linearGradient>
+    <linearGradient id="gold" x1="0" x2="1"><stop stop-color="#62431c"/><stop offset=".2" stop-color="#bd8d3e"/><stop offset=".43" stop-color="#f1d28b"/><stop offset=".65" stop-color="#9b6e2e"/><stop offset=".85" stop-color="#e0bd71"/><stop offset="1" stop-color="#6a4b20"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#536e80"/><stop offset=".45" stop-color="#1d3445"/><stop offset="1" stop-color="#090f15"/></linearGradient>
+    </defs>
+
+<path d="M36 12H24L9 56m69-44h12l15 44" fill="none" stroke="#242b2d" stroke-width="7"/>
+<path d="M35 13H25L10 55m69-42h10l15 42" fill="none" stroke="url(#steel)" stroke-width="4.7"/>
+<path d="M35 28L12 56m67-28 23 28" stroke="#adb4ad" stroke-width="3.7"/>
+<path d="M29 35L17 49m68-14 12 14" stroke="#30393b" stroke-width="5"/>
+<path d="M29 35L17 49m68-14 12 14" stroke="#757e7d" stroke-width="2"/>
+<path d="M2 57h23v8H2zm87 0h23v8H89z" fill="#333a3b" stroke="#11191c" stroke-width="1"/>
+<path d="M4 58h19v3H4zm87 0h19v3H91z" fill="url(#steel)"/>
+<g fill="url(#steel)" stroke="#30393a" stroke-width="1"><circle cx="28" cy="13" r="5"/><circle cx="86" cy="13" r="5"/></g>
+<g fill="#2b3538"><circle cx="28" cy="13" r="1.6"/><circle cx="86" cy="13" r="1.6"/></g>
+</svg>
