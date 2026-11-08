@@ -5,6 +5,8 @@
 [ext_resource type="SpriteFrames" path="res://assets/mission_control/astronaut_wave.tres" id="Astronaut"]
 [ext_resource type="Script" path="res://scripts/ui/debrief_display.gd" id="Display"]
 
+[ext_resource type="Texture2D" path="res://assets/ui/gemini_mark.svg" id="GeminiMark"]
+
 [sub_resource type="StyleBoxFlat" id="FactSlot"]
 content_margin_left = 15.0
 content_margin_top = 7.0
@@ -33,6 +35,108 @@ bg_color = Color(0.11, 0.18, 0.22, 1)
 
 [sub_resource type="StyleBoxFlat" id="ScoreFill"]
 bg_color = Color(0.9, 0.95, 0.94, 1)
+
+[sub_resource type="StyleBoxFlat" id="GeminiSurface"]
+content_margin_left = 24.0
+content_margin_top = 24.0
+content_margin_right = 24.0
+content_margin_bottom = 16.0
+bg_color = Color(0.09, 0.11, 0.16, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.31, 0.36, 0.52, 1)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_left = 26
+corner_radius_bottom_right = 26
+
+[sub_resource type="StyleBoxFlat" id="GeminiReadout"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.13, 0.15, 0.22, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+
+[sub_resource type="StyleBoxFlat" id="GeminiNextStep"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.17, 0.20, 0.33, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+
+[sub_resource type="StyleBoxFlat" id="GeminiAction"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.67, 0.75, 1, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_left = 20
+corner_radius_bottom_right = 20
+
+[sub_resource type="StyleBoxFlat" id="GeminiActionHover"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.78, 0.83, 1, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_left = 20
+corner_radius_bottom_right = 20
+
+[sub_resource type="StyleBoxFlat" id="GeminiActionPressed"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.55, 0.65, 0.93, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_left = 20
+corner_radius_bottom_right = 20
+
+[sub_resource type="StyleBoxFlat" id="GeminiQuiet"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.15, 0.18, 0.25, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_left = 20
+corner_radius_bottom_right = 20
+
+[sub_resource type="StyleBoxFlat" id="GeminiQuietHover"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.21, 0.25, 0.35, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_left = 20
+corner_radius_bottom_right = 20
+
+[sub_resource type="Theme" id="GeminiDialogTheme"]
+AcceptDialog/constants/buttons_min_height = 36
+AcceptDialog/constants/buttons_min_width = 94
+AcceptDialog/styles/panel = SubResource("GeminiSurface")
+Button/styles/normal = SubResource("GeminiQuiet")
+Button/styles/hover = SubResource("GeminiQuietHover")
+Button/styles/pressed = SubResource("GeminiQuiet")
+
 
 [node name="MissionReport" type="Control"]
 layout_mode = 3
@@ -189,6 +293,15 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
+[node name="CoachButton" type="Button" parent="Foreground/Layout/Actions"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(145, 44)
+layout_mode = 2
+text = "Gemini coach"
+icon = ExtResource("GeminiMark")
+theme_override_constants/icon_max_width = 19
+
 [node name="LogButton" type="Button" parent="Foreground/Layout/Actions"]
 unique_name_in_owner = true
 visible = false
@@ -293,3 +406,167 @@ autowrap_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 text = "NASA mission history"
+
+[node name="CoachDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "Mission Control Coach"
+borderless = true
+transparent_bg = true
+theme = SubResource("GeminiDialogTheme")
+min_size = Vector2i(540, 340)
+ok_button_text = "Done"
+
+[node name="CoachLayout" type="VBoxContainer" parent="CoachDialog"]
+theme_override_constants/separation = 16
+
+[node name="CoachHeader" type="HBoxContainer" parent="CoachDialog/CoachLayout"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="GeminiMark" type="TextureRect" parent="CoachDialog/CoachLayout/CoachHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(46, 46)
+layout_mode = 2
+size_flags_vertical = 4
+pivot_offset = Vector2(23, 23)
+mouse_filter = 2
+texture = ExtResource("GeminiMark")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Titles" type="VBoxContainer" parent="CoachDialog/CoachLayout/CoachHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Brand" type="Label" parent="CoachDialog/CoachLayout/CoachHeader/Titles"]
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+theme_override_colors/font_color = Color(0.70, 0.78, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "POWERED BY GEMINI"
+
+[node name="Title" type="Label" parent="CoachDialog/CoachLayout/CoachHeader/Titles"]
+layout_mode = 2
+theme_type_variation = &"DisplayLabel"
+theme_override_font_sizes/font_size = 28
+text = "Mission Control Coach"
+
+[node name="CoachStatus" type="RichTextLabel" parent="CoachDialog/CoachLayout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/default_color = Color(0.73, 0.77, 0.88, 1)
+theme_override_font_sizes/normal_font_size = 16
+scroll_active = false
+
+[node name="AnalysisScroll" type="ScrollContainer" parent="CoachDialog/CoachLayout"]
+custom_minimum_size = Vector2(480, 210)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="AnalysisCards" type="VBoxContainer" parent="CoachDialog/CoachLayout/AnalysisScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Findings" type="HBoxContainer" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Diagnosis" type="PanelContainer" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/Findings"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("GeminiReadout")
+
+[node name="Content" type="VBoxContainer" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/Findings/Diagnosis"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="CoachDiagnosisHeading" type="Label" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/Findings/Diagnosis/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+theme_override_colors/font_color = Color(0.72, 0.79, 1, 1)
+text = "What went wrong"
+
+[node name="CoachDiagnosis" type="Label" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/Findings/Diagnosis/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+
+
+[node name="Evidence" type="PanelContainer" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/Findings"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("GeminiReadout")
+
+[node name="Content" type="VBoxContainer" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/Findings/Evidence"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="Heading" type="Label" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/Findings/Evidence/Content"]
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+theme_override_colors/font_color = Color(0.72, 0.79, 1, 1)
+text = "Flight recorder evidence"
+
+[node name="CoachEvidence" type="Label" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/Findings/Evidence/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 2
+
+
+[node name="NextStep" type="PanelContainer" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("GeminiNextStep")
+
+[node name="Content" type="VBoxContainer" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/NextStep"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="Heading" type="Label" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/NextStep/Content"]
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+theme_override_colors/font_color = Color(0.72, 0.79, 1, 1)
+text = "Next flight · What to try"
+
+[node name="CoachNextStep" type="Label" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/NextStep/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 2
+text = "Run analysis to get a specific change to try."
+
+
+[node name="CoachComparisonCard" type="PanelContainer" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("GeminiReadout")
+
+[node name="CoachComparison" type="Label" parent="CoachDialog/CoachLayout/AnalysisScroll/AnalysisCards/CoachComparisonCard"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 2
+
+
+[node name="AnalyzeFlight" type="Button" parent="CoachDialog/CoachLayout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.08, 0.12, 0.24, 1)
+theme_override_colors/font_hover_color = Color(0.08, 0.12, 0.24, 1)
+theme_override_colors/font_pressed_color = Color(0.08, 0.12, 0.24, 1)
+theme_override_colors/font_focus_color = Color(0.08, 0.12, 0.24, 1)
+theme_override_styles/normal = SubResource("GeminiAction")
+theme_override_styles/hover = SubResource("GeminiActionHover")
+theme_override_styles/pressed = SubResource("GeminiActionPressed")
+text = "Analyze flight"

@@ -4,6 +4,14 @@ signal retry_requested
 signal menu_requested
 signal next_requested(id: String)
 
+const COACH := preload("res://scripts/ui/mission_coach.gd")
+
+var _coach_mission: MissionDefinition
+var _coach_config: RocketConfig
+var _coach_comparison := ""
+var _coach_busy := false
+var _gemini_motion: Tween
+
 var _result: MissionResult
 var _is_sandbox: bool = false
 var _next: MissionDefinition
@@ -18,7 +26,17 @@ func setup(result: MissionResult, is_sandbox: bool = false, next: MissionDefinit
 	_save_notice = save_notice
 
 
+func setup_coach(mission: MissionDefinition, config: RocketConfig, previous: MissionResult) -> void:
+	_coach_mission = mission
+	_coach_config = config.copy() if config != null else null
+	if previous != null:
+		_coach_comparison = COACH.compare(COACH.snapshot(previous), COACH.snapshot(_result))
+
+
 func _ready() -> void:
+	%CoachButton.visible = _coach_mission != null
+	%CoachButton.pressed.connect(_open_coach)
+	%AnalyzeFlight.pressed.connect(_analyze_flight)
 	%Primary.disabled = _result == null
 	%Next.visible = _next != null
 	if _next != null:
@@ -37,6 +55,63 @@ func _ready() -> void:
 		MissionVoiceManager.subtitle_changed.connect(_voice_subtitle)
 		MissionVoiceManager.announce_result(_result)
 		_voice_subtitle(MissionVoiceManager.get_subtitle())
+
+
+func _open_coach() -> void:
+	if %CoachStatus.text.is_empty():
+		%CoachStatus.text = "Analyze this attempt to get one change to test. Gemini uses your mission, build, and flight data."
+		%CoachDiagnosisHeading.text = "What worked" if _result.outcome == MissionResult.Outcome.SUCCESS else "What went wrong"
+		%CoachDiagnosis.text = _result.reason
+		%CoachEvidence.text = "Longest in-band hold · %.2f s" % _result.longest_orbit_hold_s if _result.mission_id == "M02" else "Peak altitude · %.1f km" % (_result.max_altitude_m / 1000.0)
+		%CoachComparison.text = _coach_comparison
+		%CoachComparisonCard.visible = not _coach_comparison.is_empty()
+	%CoachDialog.popup_centered(Vector2i(840, 520))
+	if not _coach_busy:
+		_animate_gemini(false)
+
+
+func _analyze_flight() -> void:
+	if _coach_busy:
+		return
+	_coach_busy = true
+	_animate_gemini(true)
+	%AnalyzeFlight.disabled = true
+	%CoachStatus.text = "Analyzing your flight with Gemini…"
+	var coach := COACH.new()
+	add_child(coach)
+	var analysis: Dictionary = await coach.analyze(_result, _coach_config, _coach_mission)
+	coach.queue_free()
+	_present_coach_analysis(analysis)
+	%AnalyzeFlight.disabled = false
+	_coach_busy = false
+	_animate_gemini(false)
+
+
+func _present_coach_analysis(analysis: Dictionary) -> void:
+	if analysis.has("error"):
+		%CoachStatus.text = analysis.error
+		return
+	%CoachStatus.text = "Analysis complete. Use the next step as a test on your retry."
+	%CoachDiagnosis.text = analysis.diagnosis
+	%CoachEvidence.text = analysis.evidence
+	%CoachNextStep.text = analysis.next_step
+
+
+func _animate_gemini(working: bool) -> void:
+	if _gemini_motion != null:
+		_gemini_motion.kill()
+	var mark: TextureRect = %GeminiMark
+	mark.scale = Vector2(0.78, 0.78)
+	mark.rotation_degrees = -22.0
+	mark.modulate.a = 0.65
+	_gemini_motion = create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+	_gemini_motion.tween_property(mark, "scale", Vector2.ONE, 0.38)
+	_gemini_motion.tween_property(mark, "rotation_degrees", 0.0, 0.38)
+	_gemini_motion.tween_property(mark, "modulate:a", 1.0, 0.38)
+	if working:
+		_gemini_motion.chain().tween_property(mark, "scale", Vector2(1.13, 1.13), 0.32)
+		_gemini_motion.chain().tween_property(mark, "scale", Vector2.ONE, 0.32)
+		_gemini_motion.set_loops()
 
 
 func _render_sandbox() -> void:

@@ -80,12 +80,21 @@ func evaluate(telemetry: FlightTelemetry) -> bool:
 
 
 func _evaluate_orbit(t: FlightTelemetry, rules: Dictionary) -> void:
-	if t.body_id != "earth" or t.status != FlightState.Status.FLYING or not t.has_bound_orbit or t.periapsis_altitude_m < float(rules.min_periapsis_m) or t.apoapsis_altitude_m > float(rules.max_apoapsis_m):
+	if t.body_id != "earth" or t.status != FlightState.Status.FLYING or not t.has_bound_orbit:
+		_orbit_since = -1.0
+		return
+	_result.last_earth_orbit_km = {
+		"last_bound_periapsis_km": t.periapsis_altitude_m / 1000.0,
+		"last_bound_apoapsis_km": t.apoapsis_altitude_m / 1000.0,
+	}
+	if t.periapsis_altitude_m < float(rules.min_periapsis_m) or t.apoapsis_altitude_m > float(rules.max_apoapsis_m):
 		_orbit_since = -1.0
 		return
 	if _orbit_since < 0.0:
 		_orbit_since = t.elapsed_time_s
-	if t.elapsed_time_s - _orbit_since >= float(rules.hold_duration_s):
+	var hold := t.elapsed_time_s - _orbit_since
+	_result.longest_orbit_hold_s = maxf(_result.longest_orbit_hold_s, hold)
+	if hold >= float(rules.hold_duration_s):
 		var band := maxf(1.0, float(rules.max_apoapsis_m) - float(rules.min_periapsis_m))
 		_succeed("Earth orbit held for %.0f seconds." % float(rules.hold_duration_s), 1.0 - (t.apoapsis_altitude_m - t.periapsis_altitude_m) / band)
 

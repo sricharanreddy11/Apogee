@@ -103,3 +103,13 @@ These check valid and malformed mission data, detached mock snapshots and playba
 For rendered campaign VFX captures, run `godot --path . --script res://tests/test_campaign_vfx.gd -- --capture`. Images are saved under `exports/qa/campaign-vfx/`. On Windows systems with native OpenGL resize-driver issues, add `--rendering-driver opengl3_angle` to use Godot's ANGLE Compatibility backend. The VFX suite checks route completion branches, projection/hit alignment at multiple resolutions, actual equipped parts and copy isolation, hover/focus previews, and briefing transitions without writing campaign progress.
 
 Implemented locally on `codex/m1-launchpad-ui`, carrying forward M0. Team agreement on shared interfaces, pushing the branch, and opening a PR remain team handoff steps; no remote changes were made.
+
+## Gemini Coach setup
+
+Each teammate can enable the coach locally by copying `.env.example` to `.env` next to `project.godot` and filling in their own key from [Google AI Studio](https://aistudio.google.com/apikey).
+
+```dotenv
+GEMINI_API_KEY=your_key_here
+```
+
+Run the project in Godot. After First Flight or Orbital Challenge, open **Gemini coach** on the mission report and select **Analyze flight**. The local `.env` is ignored by Git and is read when you request analysis. The exported game reads the process environment, and an existing `GEMINI_API_KEY` environment variable takes priority during development.

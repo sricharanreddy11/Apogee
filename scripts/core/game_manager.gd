@@ -23,6 +23,7 @@ const MOD_CREDITS := 1000000
 var selected_mission_id: String = ""
 var current_rocket_config: RocketConfig
 var last_result: MissionResult
+var _last_coached_attempts: Dictionary = {}
 ## In-memory view of the persisted campaign.
 var agency_credits: int = 0
 var completed_missions: Array[String] = []
@@ -446,6 +447,9 @@ func show_report(result: MissionResult, retry_in_sandbox: bool = false) -> void:
 		next = _next_mission(result.mission_id)
 	var screen := REPORT.instantiate()
 	screen.setup(result, retry_in_sandbox, next, save_notice)
+	if not retry_in_sandbox and result.mission_id in ["M01", "M02"]:
+		screen.setup_coach(_mission, current_rocket_config, _last_coached_attempts.get(result.mission_id))
+		_last_coached_attempts[result.mission_id] = result
 	screen.next_requested.connect(select_mission)
 	if retry_in_sandbox:
 		screen.retry_requested.connect(show_ui_sandbox)
