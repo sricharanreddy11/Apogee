@@ -1,0 +1,122 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/startup.gd" id="Startup"]
+[ext_resource type="Texture2D" path="res://assets/ui/apogee_wordmark.svg" id="Wordmark"]
+[ext_resource type="Shader" path="res://assets/ui/apogee_title_crt.gdshader" id="TitleCRT"]
+[ext_resource type="Texture2D" path="res://assets/ui/boot_splash.png" id="GodotSplash"]
+
+[ext_resource type="FontFile" path="res://assets/ui/fonts/Oxanium.res" id="Oxanium"]
+
+[sub_resource type="FontVariation" id="CreditItalic"]
+base_font = ExtResource("Oxanium")
+variation_opentype = {
+2003265652: 580
+}
+variation_transform = Transform2D(1, 0.22, 0, 1, 0, 0)
+
+[sub_resource type="ShaderMaterial" id="TitleMaterial"]
+shader = ExtResource("TitleCRT")
+
+[node name="Startup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("Startup")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.015, 0.024, 0.04, 1)
+
+[node name="TitleCard" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Wordmark" type="TextureRect" parent="TitleCard"]
+material = SubResource("TitleMaterial")
+layout_mode = 1
+anchor_top = 0.35
+anchor_right = 1.0
+anchor_bottom = 0.6
+offset_left = 40.0
+offset_right = -40.0
+mouse_filter = 2
+accessibility_name = "APOGEE"
+texture = ExtResource("Wordmark")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Credit" type="VBoxContainer" parent="TitleCard"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -148.0
+offset_bottom = -65.0
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Caption" type="Label" parent="TitleCard/Credit"]
+theme_type_variation = &"EyebrowLabel"
+layout_mode = 2
+theme_override_colors/font_color = Color(0.54, 0.72, 0.8, 1)
+text = "A GAME BY"
+horizontal_alignment = 1
+
+[node name="Names" type="HBoxContainer" parent="TitleCard/Credit"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 17
+alignment = 1
+
+[node name="Vaikan" type="Label" parent="TitleCard/Credit/Names"]
+layout_mode = 2
+theme_override_fonts/font = SubResource("CreditItalic")
+theme_override_font_sizes/font_size = 34
+text = "Vaikan"
+
+[node name="Dot1" type="Label" parent="TitleCard/Credit/Names"]
+theme_type_variation = &"DisplayLabel"
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.75, 0.83, 1)
+theme_override_font_sizes/font_size = 23
+text = "•"
+
+[node name="Charan" type="Label" parent="TitleCard/Credit/Names"]
+layout_mode = 2
+theme_override_fonts/font = SubResource("CreditItalic")
+theme_override_font_sizes/font_size = 34
+text = "Charan"
+
+[node name="Dot2" type="Label" parent="TitleCard/Credit/Names"]
+theme_type_variation = &"DisplayLabel"
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.75, 0.83, 1)
+theme_override_font_sizes/font_size = 23
+text = "•"
+
+[node name="Varun" type="Label" parent="TitleCard/Credit/Names"]
+layout_mode = 2
+theme_override_fonts/font = SubResource("CreditItalic")
+theme_override_font_sizes/font_size = 34
+text = "Varun"
+
+[node name="GodotCard" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+accessibility_name = "Godot Game Engine"
+texture = ExtResource("GodotSplash")
+expand_mode = 1
+stretch_mode = 5

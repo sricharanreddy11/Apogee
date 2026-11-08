@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/star_chart_layer.gd" id="2"]
@@ -7,6 +7,12 @@
 [ext_resource type="Texture2D" path="res://assets/mission_control/moon.svg" id="Moon"]
 [ext_resource type="Script" path="res://scripts/ui/cockpit_header_button.gd" id="Gear"]
 [ext_resource type="Script" path="res://scripts/ui/agency_token.gd" id="Token"]
+
+[ext_resource type="Texture2D" path="res://assets/ui/apogee_wordmark.svg" id="Wordmark"]
+[ext_resource type="Shader" path="res://assets/ui/apogee_title_crt.gdshader" id="TitleCRT"]
+
+[sub_resource type="ShaderMaterial" id="TitleMaterial"]
+shader = ExtResource("TitleCRT")
 
 [sub_resource type="StyleBoxFlat" id="ReserveHousing"]
 content_margin_left = 0.2
@@ -120,19 +126,21 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 0
 
-[node name="Heading" type="Label" parent="Margin/Layout/Header/TitleCenter/Logo"]
-theme_type_variation = &"DisplayLabel"
+[node name="Heading" type="TextureRect" parent="Margin/Layout/Header/TitleCenter/Logo"]
 unique_name_in_owner = true
+material = SubResource("TitleMaterial")
+custom_minimum_size = Vector2(345, 88)
 layout_mode = 2
-theme_override_font_sizes/font_size = 68
-text = "APOGEE"
-horizontal_alignment = 1
+mouse_filter = 2
+accessibility_name = "APOGEE"
+texture = ExtResource("Wordmark")
+expand_mode = 1
 
 [node name="Subtitle" type="Label" parent="Margin/Layout/Header/TitleCenter/Logo"]
 theme_type_variation = &"EyebrowLabel"
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "SELECT A MISSION"
+text = "BUILD BEYOND EARTH"
 horizontal_alignment = 1
 
 [node name="Actions" type="PanelContainer" parent="Margin/Layout/Header"]
@@ -259,6 +267,17 @@ mouse_filter = 2
 text = "MOON"
 horizontal_alignment = 1
 
+[node name="MissionPrompt" type="Label" parent="Margin/Layout/CommandCenter/Chart/ChartWorld"]
+theme_type_variation = &"DisplayLabel"
+theme_override_colors/font_color = Color(0.65, 0.8, 0.84, 1)
+theme_override_font_sizes/font_size = 24
+offset_left = 392.0
+offset_top = 105.0
+offset_right = 792.0
+mouse_filter = 2
+text = "SELECT A MISSION"
+horizontal_alignment = 1
+
 [node name="MissionList" type="Control" parent="Margin/Layout/CommandCenter/Chart/ChartWorld"]
 unique_name_in_owner = true
 layout_mode = 0
@@ -359,14 +378,6 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Workshop ›"
 tooltip_text = "Build a rocket from the full parts catalog."
-
-[node name="Showcase" type="Button" parent="Margin/Layout/Footer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.7412, 0.4431, 1)
-text = "Moon flyby demo"
-tooltip_text = "Watch the lunar flyby demonstration."
 
 [node name="Spacer" type="Control" parent="Margin/Layout/Footer"]
 layout_mode = 2

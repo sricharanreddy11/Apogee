@@ -20,7 +20,6 @@ func _ready() -> void:
 	%Exit.pressed.connect(func() -> void: get_tree().quit())
 	CONSOLE.apply(%Tutorial, "primary")
 	CONSOLE.apply(%Workshop, "primary")
-	CONSOLE.apply(%Showcase)
 	CONSOLE.apply(%Exit)
 	CONSOLE.apply(%ResetCampaign, "danger")
 	CONSOLE.apply(%ModCampaign, "preset")
@@ -32,7 +31,6 @@ func _ready() -> void:
 	%ModCampaign.disabled = GameManager.mod_enabled
 	%ModCampaign.text = "Mod: ON" if GameManager.mod_enabled else "Mod"
 	CONSOLE.apply(%SettingsDialog.get_ok_button())
-	%Showcase.pressed.connect(GameManager.show_moon_flyby_showcase)
 	%Workshop.pressed.connect(GameManager.show_workshop)
 	%Tutorial.pressed.connect(TutorialManager.start_tutorial)
 	%MasterVolume.value = db_to_linear(AudioServer.get_bus_volume_db(0)) * 100.0
