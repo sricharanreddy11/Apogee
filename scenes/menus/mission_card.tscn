@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mission_card.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/mission_control/beacon.svg" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/mission_beacon_visual.gd" id="2"]
 
 [sub_resource type="StyleBoxEmpty" id="Empty"]
 
@@ -68,9 +68,9 @@ antialiased = true
 unique_name_in_owner = true
 libraries = {&"": SubResource("BeaconAnimations")}
 
-[node name="Beacon" type="Sprite2D" parent="Visual"]
+[node name="Beacon" type="Node2D" parent="Visual"]
 unique_name_in_owner = true
-texture = ExtResource("2")
+script = ExtResource("2")
 
 [node name="SelectedRing" type="Line2D" parent="Visual"]
 unique_name_in_owner = true

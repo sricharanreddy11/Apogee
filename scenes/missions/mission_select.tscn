@@ -1,8 +1,26 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/mission_select.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/mission_control/starfield.svg" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/missions/mission_projection.tscn" id="3"]
+
+[ext_resource type="Shader" path="res://assets/ui/frosted_glass.gdshader" id="Glass"]
+
+[sub_resource type="ShaderMaterial" id="GlassMaterial"]
+shader = ExtResource("Glass")
+shader_parameter/reveal = 0.0
+
+[sub_resource type="StyleBoxFlat" id="GlassBorder"]
+content_margin_left = 22.0
+content_margin_right = 22.0
+content_margin_top = 20.0
+content_margin_bottom = 20.0
+bg_color = Color(0.02, 0.06, 0.1, 0.08)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.65, 0.72, 0.4)
 
 [sub_resource type="Animation" id="BriefingReveal"]
 resource_name = "acquire_signal"
@@ -52,22 +70,35 @@ theme_override_constants/separation = 22
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Panel" type="PanelContainer" parent="Center/BriefingLayout"]
+[node name="BriefingPanel" type="PanelContainer" parent="Center/BriefingLayout"]
+unique_name_in_owner = true
+accessibility_name = "Mission briefing"
+theme_override_styles/panel = SubResource("GlassBorder")
 custom_minimum_size = Vector2(480, 0)
 layout_mode = 2
 
-[node name="Stack" type="VBoxContainer" parent="Center/BriefingLayout/Panel"]
+[node name="BriefingGlass" type="ColorRect" parent="Center/BriefingLayout/BriefingPanel"]
+unique_name_in_owner = true
+show_behind_parent = true
+layout_mode = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+material = SubResource("GlassMaterial")
+
+[node name="Stack" type="VBoxContainer" parent="Center/BriefingLayout/BriefingPanel"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Section" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+[node name="Section" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack"]
 theme_type_variation = &"EyebrowLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 text = "MISSION BRIEFING"
 
-[node name="Heading" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+[node name="Heading" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack"]
 theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
@@ -75,7 +106,7 @@ theme_override_font_sizes/font_size = 37
 text = "Mission briefing"
 autowrap_mode = 2
 
-[node name="Route" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+[node name="Route" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack"]
 theme_type_variation = &"MutedLabel"
 unique_name_in_owner = true
 layout_mode = 2
@@ -83,16 +114,16 @@ theme_override_font_sizes/font_size = 18
 text = ""
 autowrap_mode = 2
 
-[node name="Divider" type="HSeparator" parent="Center/BriefingLayout/Panel/Stack"]
+[node name="Divider" type="HSeparator" parent="Center/BriefingLayout/BriefingPanel/Stack"]
 layout_mode = 2
 
-[node name="ObjectiveTitle" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+[node name="ObjectiveTitle" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack"]
 theme_type_variation = &"EyebrowLabel"
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 text = "OBJECTIVE"
 
-[node name="Details" type="Label" parent="Center/BriefingLayout/Panel/Stack"]
+[node name="Details" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
@@ -100,58 +131,58 @@ theme_override_colors/font_color = Color(0.91, 0.96, 1, 1)
 text = "Choose a mission from the main menu."
 autowrap_mode = 2
 
-[node name="Credits" type="HBoxContainer" parent="Center/BriefingLayout/Panel/Stack"]
+[node name="Credits" type="HBoxContainer" parent="Center/BriefingLayout/BriefingPanel/Stack"]
 layout_mode = 2
 theme_override_constants/separation = 38
 
-[node name="BudgetInfo" type="VBoxContainer" parent="Center/BriefingLayout/Panel/Stack/Credits"]
+[node name="BudgetInfo" type="VBoxContainer" parent="Center/BriefingLayout/BriefingPanel/Stack/Credits"]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/BudgetInfo"]
+[node name="Title" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack/Credits/BudgetInfo"]
 theme_type_variation = &"MutedLabel"
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "BUILD BUDGET"
 
-[node name="Budget" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/BudgetInfo"]
+[node name="Budget" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack/Credits/BudgetInfo"]
 theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = ""
 
-[node name="RewardInfo" type="VBoxContainer" parent="Center/BriefingLayout/Panel/Stack/Credits"]
+[node name="RewardInfo" type="VBoxContainer" parent="Center/BriefingLayout/BriefingPanel/Stack/Credits"]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/RewardInfo"]
+[node name="Title" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack/Credits/RewardInfo"]
 theme_type_variation = &"MutedLabel"
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "MISSION REWARD"
 
-[node name="Reward" type="Label" parent="Center/BriefingLayout/Panel/Stack/Credits/RewardInfo"]
+[node name="Reward" type="Label" parent="Center/BriefingLayout/BriefingPanel/Stack/Credits/RewardInfo"]
 theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = ""
 
-[node name="Actions" type="HBoxContainer" parent="Center/BriefingLayout/Panel/Stack"]
+[node name="Actions" type="HBoxContainer" parent="Center/BriefingLayout/BriefingPanel/Stack"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Secondary" type="Button" parent="Center/BriefingLayout/Panel/Stack/Actions"]
+[node name="Secondary" type="Button" parent="Center/BriefingLayout/BriefingPanel/Stack/Actions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(148, 46)
 layout_mode = 2
 text = "‹ Missions"
 
-[node name="Spacer" type="Control" parent="Center/BriefingLayout/Panel/Stack/Actions"]
+[node name="Spacer" type="Control" parent="Center/BriefingLayout/BriefingPanel/Stack/Actions"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Primary" type="Button" parent="Center/BriefingLayout/Panel/Stack/Actions"]
+[node name="Primary" type="Button" parent="Center/BriefingLayout/BriefingPanel/Stack/Actions"]
 theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(184, 46)

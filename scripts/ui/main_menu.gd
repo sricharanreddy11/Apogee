@@ -3,6 +3,7 @@ extends Control
 const MISSION_CARD := preload("res://scenes/menus/mission_card.tscn")
 const CONSOLE := preload("res://scripts/ui/console_button.gd")
 const CHART_SIZE := Vector2(1184, 500)
+const HOLOGRAM := preload("res://scripts/ui/campaign_hologram.gd")
 
 var _cards: Dictionary = {}
 var _signals: Dictionary = {}
@@ -28,11 +29,16 @@ func _ready() -> void:
 	%MasterVolume.value_changed.connect(_set_master_volume)
 	GameManager.navigation_error.connect(_show_error)
 	_build_mission_beacons()
+	%RocketTurntable.setup(GameManager.current_rocket_config)
 	_reveal_beacons()
 
 
 func _fit_chart() -> void:
-	%ChartWorld.scale = %Chart.size / CHART_SIZE
+	var fit := minf(%Chart.size.x / CHART_SIZE.x, %Chart.size.y / CHART_SIZE.y)
+	%ChartWorld.scale = Vector2.ONE * fit
+	%ChartWorld.position = (%Chart.size - CHART_SIZE * fit) * 0.5
+	%Earth.position = HOLOGRAM.project(Vector2(245, 112))
+	%Moon.position = HOLOGRAM.project(Vector2(910, 126))
 
 
 func _reveal_beacons() -> void:
@@ -60,7 +66,7 @@ func _build_mission_beacons() -> void:
 	for mission in missions:
 		titles[mission.id] = mission.title
 	var released := missions.filter(func(mission: MissionDefinition) -> bool: return mission.released)
-	var route := Curve2D.new()
+	var points: Dictionary = {}
 	for mission: MissionDefinition in released:
 		var card := MISSION_CARD.instantiate() as MissionCard
 		card.name = mission.id
@@ -75,8 +81,8 @@ func _build_mission_beacons() -> void:
 		%MissionList.add_child(card)
 		var index := _cards.size()
 		var progress := float(index) / maxi(released.size() - 1, 1)
-		var point := Vector2(lerpf(0.15, 0.85, progress), 0.69 if index % 2 == 0 else 0.46)
-		route.add_point(point * CHART_SIZE)
+		var point: Vector2 = HOLOGRAM.project(Vector2(lerpf(0.14, 0.86, progress), 0.66 if index % 2 == 0 else 0.44) * CHART_SIZE) / CHART_SIZE
+		points[mission.id] = point * CHART_SIZE
 		card.anchor_left = point.x
 		card.anchor_right = point.x
 		card.anchor_top = point.y
@@ -90,10 +96,7 @@ func _build_mission_beacons() -> void:
 			"title": mission.title,
 			"details": mission.objective_text if card.is_selectable else unlock_text,
 		}
-	%TransferRoute.points = route.get_baked_points()
-	if route.point_count > 1:
-		%TrackingPath.curve = route
-		%RouteAnimation.play(&"track")
+	%CampaignHologram.configure(released, points, GameManager.completed_missions)
 	if not _cards.is_empty():
 		var active := GameManager.selected_mission_id
 		_show_signal(active if _cards.has(active) else _cards.keys()[0])
@@ -114,11 +117,25 @@ func _show_signal(id: String) -> void:
 	%SignalID.text = "%s  /  BRIEFING" % id
 	%SignalTitle.text = briefing.title
 	%SignalDetails.text = briefing.details
+	_animate_signal.call_deferred()
+
+
+func _animate_signal() -> void:
 	if _signal_tween != null:
 		_signal_tween.kill()
 	%SignalDetails.modulate.a = 0.55
 	%SignalLight.modulate.a = 1.0
+	# Wait for the layout before changing offsets: the initial minimum size can
+	# otherwise become permanent negative margins on an anchored panel.
+	%SignalHousing.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	%SignalHousing.position = Vector2(0, 22)
+	%SignalHousing.modulate.a = 0.45
+	var glass := %SignalGlass.material as ShaderMaterial
+	glass.set_shader_parameter("reveal", 0.0)
 	_signal_tween = create_tween().set_parallel().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_signal_tween.tween_property(%SignalHousing, "position:y", 0.0, 0.26)
+	_signal_tween.tween_property(%SignalHousing, "modulate:a", 1.0, 0.20)
+	_signal_tween.tween_method(func(value: float) -> void: glass.set_shader_parameter("reveal", value), 0.0, 1.0, 0.24)
 	_signal_tween.tween_property(%SignalDetails, "modulate:a", 1.0, 0.22)
 	_signal_tween.tween_property(%SignalLight, "modulate:a", 0.45, 0.45)
 
@@ -138,3 +155,8 @@ func _show_error(message: String) -> void:
 func _set_master_volume(value: float) -> void:
 	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(value / 100.0, 0.0001)))
 	%VolumeValue.text = "%d%%" % roundi(value)
+
+
+func _process(delta: float) -> void:
+	%Earth.rotation += delta * 0.018
+	%Moon.rotation += delta * 0.009
