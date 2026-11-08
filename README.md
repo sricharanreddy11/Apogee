@@ -2,7 +2,11 @@
 
 Milestones 0–1 for Member 3 (missions, map, and UI) of the 2D rocket-building game. Import `project.godot` in the standard Godot 4.7.2 editor and press **F5**. The project uses typed GDScript and the Compatibility renderer.
 
-The integrated flow is **Campaign star chart → Mission briefing → Rocket Lab → Preflight → Launch request**. M01 is available initially; M02–M04 are visible and locked. Mission beacons are generated from JSON. Select an active beacon to open its briefing, and use **Replay track** to watch the mission projection again. The briefing shows the objective, route, build budget, and reward before you assemble the rocket. The launchpad shows your selected parts, calculated cost, mass, and fuel. Launch emits a single integration request while retaining the same preview scene and rocket; real flight is connected later.
+The integrated flow is **Campaign star chart → Mission briefing → Rocket Lab → Preflight → Active flight → Mission report**. M01 is available initially; M02–M04 are visible and locked. Mission beacons are generated from JSON. Select an active beacon to open its briefing, and use **Replay track** to watch the mission projection again. The briefing shows the objective, route, build budget, and reward before you assemble the rocket. The launchpad shows your selected parts, calculated cost, mass, and fuel. Launch emits the integration signal once and then opens the authoritative flight simulation with the exact configured rocket.
+
+Active flight has two interchangeable views. **Normal view** holds the rocket at a fixed center framing while keeping the active planet visible as a launch/landing reference; click the active engine to ignite/cut off or the separator to stage. **Orbit view** is a clean pannable Earth/Moon schematic with a constant-size triangular rocket marker, the Moon's faint orbit, the flown trail, and a complete ballistic projection. Earth and the moving Moon both pull on the rocket, including during projection, so a close lunar approach curves naturally. Velocity-Verlet integration preserves elliptical-orbit energy well enough for gameplay, so the rocket travels fastest at periapsis and slowest at apoapsis. Drag to pan, use the wheel to zoom, and right-click to recenter. Keyboard controls are W/S throttle, A/D steering, X cutoff, Space stage, L landing legs, Tab view toggle, and 1/5/3/4 for 1x/5x/25x/50x fast-forward. The detailed Member 1 checklist is in [Member 1 flight tasks](docs/MEMBER_1_FLIGHT_TASKS.md).
+
+Use **Moon flyby demo** on the main menu for an automatic 25x showcase. It opens directly in an auto-framed orbit view with a safe close approach and the projected lunar-gravity bend already visible; manual pan or zoom releases the automatic framing.
 
 **Start here:** [Milestone 1 beginner guide](docs/MILESTONE_1_GUIDE.md) explains how to build a rocket and where to change missions, prerequisites, budgets, cards, and preflight labels. [Shared interfaces](docs/INTERFACES.md) records field names, units, ownership, and integration APIs for team review.
 
@@ -52,6 +56,7 @@ godot --headless --path . --script res://tests/test_menu_flow.gd
 godot --headless --path . --script res://tests/test_rocket_lab_flow.gd
 godot --headless --path . --script res://tests/test_mock_telemetry.gd
 godot --headless --path . --script res://tests/test_m0_flow.gd
+godot --headless --path . --script res://tests/test_flight_simulator.gd
 ```
 
 These check valid and malformed mission data, detached mock snapshots and playback, the M0 screen flow, retry resets, direct scene startup, and invalid sample recovery. The original smoke check still covers the builder/flight preview, reference budget, launch telemetry, and reserved map input. The beginner guide includes the full PowerShell command for the Godot executable on this computer.

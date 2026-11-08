@@ -8,7 +8,11 @@
     "moon": {
       "radius_m": 100000,
       "surface_gravity_mps2": 1.62,
-      "mu_m3_s2": 16200000000
+      "mu_m3_s2": 16200000000,
+      "primary_id": "earth",
+      "orbit_radius_m": 1800000,
+      "orbit_period_s": 8100,
+      "orbit_phase_rad": 0
     },
     "mars": {
       "radius_m": 250000,

@@ -1,82 +1,82 @@
 {
   "parts": [
-    {
-      "id": "POD_A",
-      "name": "Command pod",
-      "type": "pod",
-      "dry_mass_kg": 600,
-      "fuel_capacity_kg": 0,
-      "cost_credits": 300
-    },
-    {
-      "id": "TANK_S",
-      "name": "Small tank",
-      "type": "tank",
-      "dry_mass_kg": 100,
-      "fuel_capacity_kg": 900,
-      "cost_credits": 250
-    },
-    {
-      "id": "TANK_L",
-      "name": "Large tank",
-      "type": "tank",
-      "dry_mass_kg": 200,
-      "fuel_capacity_kg": 2200,
-      "cost_credits": 600
-    },
-    {
-      "id": "ENG_L",
-      "name": "Launch engine",
-      "type": "engine",
-      "dry_mass_kg": 600,
-      "fuel_capacity_kg": 0,
-      "thrust_n": 100000,
-      "isp_s": 230,
-      "cost_credits": 700
-    },
-    {
-      "id": "ENG_S",
-      "name": "Compact engine",
-      "type": "engine",
-      "dry_mass_kg": 300,
-      "fuel_capacity_kg": 0,
-      "cost_credits": 400,
-      "thrust_n": 28000,
-      "isp_s": 260
-    },
-    {
-      "id": "ENG_V",
-      "name": "Vacuum engine",
-      "type": "engine",
-      "dry_mass_kg": 250,
-      "fuel_capacity_kg": 0,
-      "cost_credits": 600,
-      "thrust_n": 18000,
-      "isp_s": 340
-    },
-    {
-      "id": "DECOUPLER",
-      "name": "Stage separator",
-      "type": "decoupler",
-      "dry_mass_kg": 80,
-      "fuel_capacity_kg": 0,
-      "cost_credits": 100
-    },
-    {
-      "id": "LEGS",
-      "name": "Landing legs",
-      "type": "legs",
-      "dry_mass_kg": 150,
-      "fuel_capacity_kg": 0,
-      "cost_credits": 200
-    },
-    {
-      "id": "PROBE",
-      "name": "Science payload",
-      "type": "payload",
-      "dry_mass_kg": 100,
-      "fuel_capacity_kg": 0,
-      "cost_credits": 150
-    }
+	{
+	  "id": "POD_A",
+	  "name": "Command pod",
+	  "type": "pod",
+	  "dry_mass_kg": 600,
+	  "fuel_capacity_kg": 0,
+	  "cost_credits": 300
+	},
+	{
+	  "id": "TANK_S",
+	  "name": "Small tank",
+	  "type": "tank",
+	  "dry_mass_kg": 100,
+	  "fuel_capacity_kg": 900,
+	  "cost_credits": 250
+	},
+	{
+	  "id": "TANK_L",
+	  "name": "Large tank",
+	  "type": "tank",
+	  "dry_mass_kg": 200,
+	  "fuel_capacity_kg": 2200,
+	  "cost_credits": 600
+	},
+	{
+	  "id": "ENG_L",
+	  "name": "Launch engine",
+	  "type": "engine",
+	  "dry_mass_kg": 600,
+	  "fuel_capacity_kg": 0,
+	  "thrust_n": 145000,
+	  "isp_s": 3600,
+	  "cost_credits": 700
+	},
+	{
+	  "id": "ENG_S",
+	  "name": "Compact engine",
+	  "type": "engine",
+	  "dry_mass_kg": 300,
+	  "fuel_capacity_kg": 0,
+	  "cost_credits": 400,
+	  "thrust_n": 45000,
+	  "isp_s": 4000
+	},
+	{
+	  "id": "ENG_V",
+	  "name": "Vacuum engine",
+	  "type": "engine",
+	  "dry_mass_kg": 250,
+	  "fuel_capacity_kg": 0,
+	  "cost_credits": 600,
+	  "thrust_n": 32000,
+	  "isp_s": 5200
+	},
+	{
+	  "id": "DECOUPLER",
+	  "name": "Stage separator",
+	  "type": "decoupler",
+	  "dry_mass_kg": 80,
+	  "fuel_capacity_kg": 0,
+	  "cost_credits": 100
+	},
+	{
+	  "id": "LEGS",
+	  "name": "Landing legs",
+	  "type": "legs",
+	  "dry_mass_kg": 150,
+	  "fuel_capacity_kg": 0,
+	  "cost_credits": 200
+	},
+	{
+	  "id": "PROBE",
+	  "name": "Science payload",
+	  "type": "payload",
+	  "dry_mass_kg": 100,
+	  "fuel_capacity_kg": 0,
+	  "cost_credits": 150
+	}
   ]
 }

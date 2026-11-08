@@ -132,11 +132,10 @@ and `configuration_confirmed(config)`. GameManager handles screen changes.
 are retained and rejected; loading a multi-stage or multi-tank design must not
 silently discard parts to make it fit the current three-mount editor.
 
-Member 1's later flight adapter can listen for
-`GameManager.flight_launch_requested(config, mission_id)`. M1 leaves the same
-rocket node and scene in place when Launch is requested. The reusable
-`PreflightPanel` can then be attached to the authoritative Flight scene. There is
-no second simulator inside this preview.
+Member 1's flight integration preserves
+`GameManager.flight_launch_requested(config, mission_id)` for observers and then
+opens the authoritative Flight scene with a separate copied configuration. There
+is no simulator inside the preflight preview.
 
 ## Run checks after editing
 

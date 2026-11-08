@@ -24,6 +24,7 @@ func setup(config: RocketConfig) -> void:
 	_active = 0
 	_throttle = 0.0
 	height_px = 0.0
+	set_meta("config_stages", config.stages.duplicate() if config != null else [])
 	if _catalog.is_empty():
 		_catalog = JsonData.read_object(MANIFEST).get("parts", {})
 	if config == null:
@@ -94,8 +95,44 @@ func _texture(path: String) -> Texture2D:
 func _sprite(parent: Node2D, path: String) -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.texture = _texture(path)
+	sprite.set_meta("asset_path", path)
 	parent.add_child(sprite)
 	return sprite
+
+
+## Returns the interactive flight component under a point in rig-local space.
+## Only the active engine and the separator are controls; artwork remains passive.
+func hit_test_flight_component(local_point: Vector2) -> String:
+	if _active >= 0 and _active < _stages.size() and _config_stage_exists(_active):
+		var stage_config: StageConfig = get_meta("config_stages")[_active]
+		var definition: Dictionary = _catalog.get(stage_config.engine_id, {})
+		var engine_path := String(definition.get("sprite", ""))
+		if not engine_path.is_empty() and _point_hits_asset(_stages[_active], local_point, engine_path):
+			return "engine"
+	if _active == 0 and _point_hits_asset(_stages[0] if not _stages.is_empty() else null, local_point, "res://assets/rockets/decoupler.svg"):
+		return "stage"
+	return ""
+
+
+func _config_stage_exists(index: int) -> bool:
+	var stages: Array = get_meta("config_stages", [])
+	return index >= 0 and index < stages.size() and stages[index] != null
+
+
+func _point_hits_asset(parent: Node2D, local_point: Vector2, asset_path: String) -> bool:
+	if parent == null:
+		return false
+	var point_in_stage := local_point - parent.position
+	for child in parent.get_children():
+		if child is Sprite2D and child.get_meta("asset_path", "") == asset_path:
+			var sprite := child as Sprite2D
+			if sprite.texture == null:
+				continue
+			var sprite_size := sprite.texture.get_size() * sprite.scale
+			var top_left := sprite.position - (sprite_size * 0.5 if sprite.centered else Vector2.ZERO)
+			if Rect2(top_left, sprite_size).grow(8.0).has_point(point_in_stage):
+				return true
+	return false
 
 
 ## Presentation only. The caller supplies the active stage, throttle and leg state.

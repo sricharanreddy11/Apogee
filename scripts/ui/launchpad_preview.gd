@@ -81,8 +81,8 @@ func _request_launch() -> void:
 		return
 	session_phase = SessionPhase.LAUNCH_REQUESTED
 	%PreflightPanel.mark_launch_requested()
-	%SessionNote.text = "Launch requested · Active flight will connect in a later milestone."
-	# Keep this same scene and rocket. A later adapter starts the simulator here.
+	%SessionNote.text = "Launch committed · Opening active flight."
+	# GameManager preserves this integration event, then opens active flight.
 	launch_requested.emit(_config.copy())
 
 

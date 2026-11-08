@@ -117,6 +117,13 @@ func show_workshop() -> void:
 	_switch_screen(screen)
 
 
+func show_moon_flyby_showcase() -> void:
+	var screen := FLIGHT.instantiate()
+	screen.setup_showcase()
+	screen.showcase_exit_requested.connect(show_main_menu)
+	_switch_screen(screen)
+
+
 func show_builder() -> void:
 	if _mission == null:
 		show_main_menu()
@@ -185,6 +192,9 @@ func show_preflight() -> bool:
 
 func _relay_launch_request(config: RocketConfig) -> void:
 	flight_launch_requested.emit(config.copy(), selected_mission_id)
+	# The signal remains available to analytics/tests, then the authoritative flight
+	# scene takes ownership of one copied configuration on the next idle turn.
+	call_deferred("start_flight", config.copy())
 
 
 func start_flight(config: RocketConfig) -> void:

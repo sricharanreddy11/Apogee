@@ -266,6 +266,14 @@ layout_mode = 2
 text = "Workshop"
 tooltip_text = "Build and test-fire any part in the hangar."
 
+[node name="Showcase" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.7412, 0.4431, 1)
+text = "Moon flyby demo"
+tooltip_text = "Open an automatic orbit-view demonstration of lunar gravity and trajectory projection."
+
 [node name="Sandbox" type="Button" parent="Margin/Layout/Footer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)

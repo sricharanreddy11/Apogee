@@ -52,12 +52,12 @@ func _run() -> void:
 	game.start_flight(config)
 	await process_frame
 	await process_frame
-	var toggle := current_scene.get_node("%Secondary") as Button
+	var toggle := current_scene.get_node("%ViewButton") as Button
 	var map_view := current_scene.get_node("%Map") as Control
 	toggle.pressed.emit()
 	_check(map_view.visible, "The map preview toggles on.")
 	for expected: String in ["MissionReport", "RocketBuilder"]:
-		var action := "%Primary"
+		var action := "%EndFlight" if expected == "MissionReport" else "%Primary"
 		var button := current_scene.get_node_or_null(action) as Button
 		if button == null or button.disabled:
 			_check(false, "Navigation button is enabled before %s." % expected)
