@@ -17,6 +17,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var game := root.get_node("GameManager")
+	game.mod_enabled = false
 	game.completed_missions.clear()
 	game.agency_credits = 0
 	game.flight_launch_requested.connect(_on_launch)
