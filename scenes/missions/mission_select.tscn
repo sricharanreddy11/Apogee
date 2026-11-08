@@ -154,7 +154,7 @@ mouse_filter = 2
 [node name="Primary" type="Button" parent="Center/BriefingLayout/Panel/Stack/Actions"]
 theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
-custom_minimum_size = Vector2(180, 48)
+custom_minimum_size = Vector2(220, 54)
 layout_mode = 2
 text = "Build rocket  →"
 

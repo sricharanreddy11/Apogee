@@ -11,6 +11,8 @@ func setup(mission: MissionDefinition) -> void:
 
 
 func _ready() -> void:
+	preload("res://scripts/ui/console_button.gd").apply(%Primary, "primary")
+	preload("res://scripts/ui/console_button.gd").apply(%Secondary)
 	%Primary.disabled = _mission == null
 	if _mission != null:
 		%Section.text = "MISSION BRIEFING  /  %s" % _mission.id

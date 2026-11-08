@@ -270,7 +270,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Workshop"
-tooltip_text = "Build and test-fire any part in the hangar."
+tooltip_text = "Build a rocket from the full parts catalog."
 
 [node name="Showcase" type="Button" parent="Margin/Layout/Footer"]
 unique_name_in_owner = true

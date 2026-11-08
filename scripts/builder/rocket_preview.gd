@@ -2,10 +2,12 @@ extends Control
 
 signal part_dropped(slot: String, part_id: String)
 signal part_removed(slot: String)
+signal part_previewed(slot: String, part_id: String)
 
 const CYAN := Color("#69d9f6")
 const GREEN := Color("#78f2b6")
 const RED := Color("#ff7e89")
+const COMPONENT_FX := preload("res://scripts/effects/component_effect.gd")
 
 var accepts_part: Callable
 var _mounts: Array[Dictionary] = []
@@ -20,6 +22,9 @@ var _drag_texture: Texture2D
 var _hover := ""
 var _snap_tween: Tween
 var _test_tween: Tween
+var _equipped_ids: Dictionary = {}
+var _system_ready := false
+var _activation: Tween
 
 
 func _ready() -> void:
@@ -28,6 +33,8 @@ func _ready() -> void:
 
 
 func show_assembly(mounts: Array[Dictionary], artwork: Dictionary, legs_available: bool, legs_id: String) -> void:
+	if mounts == _mounts and legs_id == _legs_id and legs_available == _legs_available:
+		return
 	_stop_test()
 	_mounts = mounts
 	_artwork = artwork
@@ -79,22 +86,73 @@ func _sync_sprites() -> void:
 	if _snap_tween != null:
 		_snap_tween.kill()
 		_snap_tween = null
-	for child in %Assembly.get_children():
-		%Assembly.remove_child(child)
-		child.queue_free()
-	_pieces.clear()
+	var installed: Dictionary = {}
 	for mount in _mounts:
 		var texture: Texture2D = _artwork.get(mount.id)
 		if texture != null:
 			_add_piece(mount.key, texture, _rects[mount.key])
+			_attach_effect(mount.key, String(mount.id), String(mount.kind), _equipped_ids.get(mount.key, "") != mount.id)
+			installed[mount.key] = mount.id
 	var legs: Texture2D = _artwork.get(_legs_id)
 	if legs != null:
 		var base: Rect2 = _rects.get("engine_1", _rects.get("engine", Rect2()))
 		var rect := Rect2(base.get_center().x - base.size.x * 0.9, base.position.y - base.size.y * 0.36, base.size.x * 1.8, base.size.y * 1.3)
 		_add_piece("legs", legs, rect)
+		_attach_effect("legs", _legs_id, "legs", _equipped_ids.get("legs", "") != _legs_id)
+		installed["legs"] = _legs_id
+	for key: String in _pieces.keys():
+		if not installed.has(key):
+			var removed: Sprite2D = _pieces[key]
+			%Assembly.remove_child(removed)
+			removed.queue_free()
+			_pieces.erase(key)
+	_equipped_ids = installed
+
+
+func _attach_effect(key: String, id: String, kind: String, newly_equipped: bool) -> void:
+	var sprite: Sprite2D = _pieces[key]
+	var previous := sprite.get_node_or_null("ComponentFX")
+	if previous != null:
+		if previous.part_id == id:
+			return
+		sprite.remove_child(previous)
+		previous.queue_free()
+	var effect := COMPONENT_FX.new()
+	effect.configure(kind, id, sprite.texture.get_size(), "builder", COMPONENT_FX.power_for(id))
+	sprite.add_child(effect)
+	if newly_equipped:
+		effect.pulse(true)
+
+
+func set_system_ready(ready: bool) -> void:
+	if ready and not _system_ready:
+		if _activation != null:
+			_activation.kill()
+		_activation = create_tween()
+		for kind: String in ["pod", "tank", "engine", "payload", "decoupler", "legs"]:
+			_activation.tween_callback(_pulse_kind.bind(kind))
+			_activation.tween_interval(0.16)
+	elif not ready and _activation != null:
+		_activation.kill()
+	_system_ready = ready
+
+
+func _pulse_kind(kind: String) -> void:
+	for sprite: Sprite2D in _pieces.values():
+		var effect := sprite.get_node_or_null("ComponentFX")
+		if effect != null and effect.kind == kind:
+			effect.pulse()
 
 
 func _add_piece(key: String, texture: Texture2D, rect: Rect2) -> void:
+	if _pieces.has(key):
+		var existing: Sprite2D = _pieces[key]
+		if existing.texture == texture:
+			existing.position = rect.get_center()
+			existing.scale = Vector2.ONE * (rect.size.y / texture.get_height())
+			return
+		%Assembly.remove_child(existing)
+		existing.queue_free()
 	var sprite := Sprite2D.new()
 	sprite.texture = texture
 	sprite.position = rect.get_center()
@@ -112,6 +170,7 @@ func _notification(what: int) -> void:
 		set_process(not _drag_id.is_empty())
 		queue_redraw()
 	elif what == NOTIFICATION_DRAG_END:
+		part_previewed.emit("", "")
 		_drag_id = ""
 		_drag_texture = null
 		_hover = ""
@@ -123,6 +182,10 @@ func _notification(what: int) -> void:
 
 func _process(_delta: float) -> void:
 	_hover = _slot_at(get_local_mouse_position())
+	if _test_tween == null and _fits(_hover, _drag_id):
+		part_previewed.emit(_hover, _drag_id)
+	else:
+		part_previewed.emit("", "")
 	for key: String in _pieces:
 		var sprite: Sprite2D = _pieces[key]
 		sprite.modulate = Color.WHITE if key != _hover else (Color(0.65, 1.0, 0.75, 0.28) if _fits(key, _drag_id) else RED)
@@ -136,7 +199,14 @@ func _part_id(data: Variant) -> String:
 
 
 func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
-	return _test_tween == null and _fits(_slot_at(at_position), _part_id(data))
+	var slot := _slot_at(at_position)
+	var part_id := _part_id(data)
+	var accepted := _test_tween == null and _fits(slot, part_id)
+	if accepted:
+		part_previewed.emit(slot, part_id)
+	else:
+		part_previewed.emit("", "")
+	return accepted
 
 
 func _fits(slot: String, part_id: String) -> bool:
@@ -199,6 +269,13 @@ func _draw() -> void:
 		draw_circle(center, 11.0 if hovered else 6.0, color, false, 1.4, true)
 		draw_line(center - Vector2(3, 0), center + Vector2(3, 0), color, 1.0)
 		draw_line(center - Vector2(0, 3), center + Vector2(0, 3), color, 1.0)
+		if not _pieces.has(key) and not _auxiliary.has(key):
+			var mount_label := ""
+			for mount in _mounts:
+				if mount.key == key:
+					mount_label = String(mount.kind).to_upper()
+					break
+			draw_string(get_theme_default_font(), center + Vector2(22, 5), mount_label, HORIZONTAL_ALIGNMENT_LEFT, 100, 13, color)
 		if hovered and matches and _drag_texture != null:
 			var preview_size := Vector2(1.0 / float(_drag_texture.get_height()), 1) * rect.size.y
 			preview_size.x *= _drag_texture.get_width()

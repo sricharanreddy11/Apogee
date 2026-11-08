@@ -16,10 +16,18 @@ var _body: Dictionary = {}
 var _workshop := false
 var _config: RocketConfig
 var _catalog_error: String = ""
+var _last_part_ids: Array[String] = []
+var _last_stats: Dictionary = {}
+var _previous_stats: Dictionary = {}
+var _comparison_key := ""
 
 
 func setup(mission: MissionDefinition, workshop: bool = false) -> void:
 	_mission = mission
+	_last_part_ids.clear()
+	_last_stats.clear()
+	_previous_stats.clear()
+	_comparison_key = ""
 	_parts.clear()
 	_artwork.clear()
 	_catalog_error = ""
@@ -42,7 +50,7 @@ func setup(mission: MissionDefinition, workshop: bool = false) -> void:
 		var art_path := "res://assets/rockets/%s.svg" % part_id.to_lower()
 		if ResourceLoader.exists(art_path):
 			_artwork[part_id] = load(art_path)
-	_reset_assembly()
+	_start_empty()
 
 
 func load_config(config: RocketConfig) -> void:
@@ -50,7 +58,7 @@ func load_config(config: RocketConfig) -> void:
 	# validator can explain them instead of silently flattening the chosen rocket.
 	_config = config.copy() if config != null else null
 	if _config == null:
-		_reset_assembly()
+		_start_empty()
 	if is_node_ready():
 		%RocketName.text = _config.rocket_name
 		_refresh_build()
@@ -58,7 +66,7 @@ func load_config(config: RocketConfig) -> void:
 
 func build_config() -> RocketConfig:
 	if _config == null:
-		_reset_assembly()
+		_start_empty()
 	return _config.copy()
 
 
@@ -204,16 +212,24 @@ func _part_ids(config: RocketConfig) -> Array[String]:
 
 
 func _ready() -> void:
+	var console := preload("res://scripts/ui/console_button.gd")
+	console.apply(%Primary, "primary")
+	console.apply(%Secondary)
+	console.apply(%Clear, "danger")
+	console.apply(%Reset, "preset")
+	console.apply(%Pioneer, "preset")
+	console.apply(%AddStage, "utility")
+	console.apply(%RemoveStage, "utility")
 	%RocketName.text = build_config().rocket_name
 	%RocketName.text_changed.connect(_on_name_changed)
 	%RocketPreview.accepts_part = _accepts_part
 	%RocketPreview.part_dropped.connect(install_part)
 	%RocketPreview.part_removed.connect(remove_part)
+	%RocketPreview.part_previewed.connect(_preview_part)
 	%Reset.pressed.connect(_reset_assembly)
 	%AddStage.pressed.connect(add_stage)
 	%RemoveStage.pressed.connect(_remove_stage)
 	%Pioneer.pressed.connect(_load_pioneer)
-	%TestFire.pressed.connect(func() -> void: %RocketPreview.fire_test(build_config()))
 	%Primary.visible = not _workshop
 	if _workshop:
 		%Secondary.text = "↶ Chart"
@@ -225,10 +241,43 @@ func _ready() -> void:
 
 
 func _populate_catalog() -> void:
+	%Carousel.impact_provider = part_impact
 	for part_id: String in _parts:
 		if _is_allowed(part_id):
 			var part: Dictionary = _parts[part_id]
 			%Carousel.add_part(part, _artwork.get(part_id), _part_spec(part))
+
+
+func part_impact(part_id: String) -> Dictionary:
+	# Hover chooses an empty compatible mount first, then previews replacement.
+	# The chosen action is explicit because a part can fit more than one stage.
+	var candidates := _mounts()
+	candidates.append(_mount("legs"))
+	var chosen: Dictionary = {}
+	for mount in candidates:
+		if not _accepts_part(String(mount.get("key", "legs")), part_id):
+			continue
+		if chosen.is_empty():
+			chosen = mount
+		if String(mount.id).is_empty():
+			chosen = mount
+			break
+	if chosen.is_empty() or _mission == null:
+		return {"action": "No compatible mount · add a stage if needed"}
+	var desired := build_config()
+	_apply_part(desired, chosen, part_id)
+	var result := validate(desired, _mission)
+	var location := String(chosen.kind)
+	if chosen.has("stage"):
+		location = "stage %d %s" % [int(chosen.stage) + 1, location]
+	return {
+		"action": ("ADD · " if String(chosen.id).is_empty() else "REPLACE · ") + location,
+		"before": calculate(build_config()), "after": calculate(desired),
+		"budget": _mission.budget_credits,
+		"thrust_target": 1.0 if _mission.scenario.get("spawn_profile") == "surface_north" else 0.0,
+		"range_target": _minimum_delta_v(_mission),
+		"note": String(result.errors[0]) if not result.valid else (String(result.warnings[0]) if not result.warnings.is_empty() else "Ready to fit · drag to choose a different mount"),
+	}
 
 
 func _part_spec(part: Dictionary) -> String:
@@ -284,22 +333,26 @@ func install_part(slot: String, part_id: String) -> bool:
 	if not _accepts_part(slot, part_id):
 		return false
 	var mount := _mount(slot)
+	_apply_part(_config, mount, part_id)
+	_refresh_build()
+	return true
+
+
+func _apply_part(config: RocketConfig, mount: Dictionary, part_id: String) -> void:
 	match mount.kind:
 		"pod":
-			_config.command_pod_id = part_id
+			config.command_pod_id = part_id
 		"engine":
-			_editable_stage(mount.stage).engine_id = part_id
+			_ensure_stage(config, mount.stage).engine_id = part_id
 		"tank":
-			var tanks := _editable_stage(mount.stage).tank_ids
+			var tanks := _ensure_stage(config, mount.stage).tank_ids
 			if mount.tank == tanks.size():
 				tanks.append(part_id)
 			else:
 				tanks[mount.tank] = part_id
 		_:
-			_config.attachment_ids.erase(String(mount.id))
-			_config.attachment_ids.append(part_id)
-	_refresh_build()
-	return true
+			config.attachment_ids.erase(String(mount.id))
+			config.attachment_ids.append(part_id)
 
 
 func remove_part(slot: String) -> void:
@@ -321,11 +374,15 @@ func remove_part(slot: String) -> void:
 
 
 func _editable_stage(index: int) -> StageConfig:
-	if _config.stages.is_empty():
-		_config.stages.append(StageConfig.new())
-	if _config.stages[index] == null:
-		_config.stages[index] = StageConfig.new()
-	return _config.stages[index]
+	return _ensure_stage(_config, index)
+
+
+func _ensure_stage(config: RocketConfig, index: int) -> StageConfig:
+	while config.stages.size() <= index:
+		config.stages.append(StageConfig.new())
+	if config.stages[index] == null:
+		config.stages[index] = StageConfig.new()
+	return config.stages[index]
 
 
 func add_stage() -> bool:
@@ -355,6 +412,15 @@ func _clear_assembly() -> void:
 	_refresh_build()
 
 
+func _start_empty() -> void:
+	_config = RocketConfig.new()
+	_config.rocket_name = "Untitled rocket"
+	_config.stages.append(StageConfig.new())
+	if is_node_ready():
+		%RocketName.text = _config.rocket_name
+		_refresh_build()
+
+
 func _reset_assembly() -> void:
 	_config = RocketConfig.new()
 	_config.rocket_name = "Sparrow I"
@@ -370,6 +436,7 @@ func _reset_assembly() -> void:
 
 
 func _load_pioneer() -> void:
+	var before := calculate(build_config())
 	_reset_assembly()
 	if not add_stage():
 		return
@@ -378,6 +445,8 @@ func _load_pioneer() -> void:
 	install_part("decoupler", "DECOUPLER")
 	_config.rocket_name = "Pioneer II"
 	%RocketName.text = _config.rocket_name
+	# Loading a preset is one user edit, regardless of its internal assembly steps.
+	_previous_stats = before
 	_refresh_build()
 
 
@@ -389,6 +458,7 @@ func _refresh_build() -> void:
 	if not is_node_ready():
 		return
 	var config := build_config()
+	%EmptyHint.visible = config.command_pod_id.is_empty() and calculate(config).wet_mass_kg == 0.0
 	%RocketPreview.show_assembly(_mounts(), _artwork, _is_allowed("LEGS"), _attachment("legs"))
 	if _mission == null:
 		%MissionTag.text = "OFFLINE"
@@ -397,28 +467,88 @@ func _refresh_build() -> void:
 		%Primary.disabled = true
 		return
 	var stats := calculate(config)
-	var cost := int(stats.cost_credits)
+	var ids := _part_ids(config)
+	if not _last_stats.is_empty() and ids != _last_part_ids:
+		_previous_stats = _last_stats.duplicate()
+	_last_part_ids = ids
+	_last_stats = stats.duplicate()
+	_comparison_key = ""
 	%MissionTag.text = _mission.id
 	%MissionBriefing.text = _mission.objective_text
-	%BudgetValue.text = "%d / %d CR" % [cost, _mission.budget_credits]
-	%BudgetBar.max_value = maxi(1, _mission.budget_credits)
-	%BudgetBar.value = cost
-	%BudgetBar.theme_type_variation = &"OverBudget" if cost > _mission.budget_credits else &""
-	%Details.text = "WET   %.0f kg\nFUEL  %.0f kg\nTWR   %.2f\nΔv    %.2f km/s" % [
-		stats.wet_mass_kg, stats.fuel_kg, stats.launch_twr, float(stats.delta_v_mps) / 1000.0,
-	]
+	_render_metrics(stats, _previous_stats)
 	var validation := validate(config, _mission)
 	%Primary.disabled = not validation.valid or _workshop
-	%BuildStatus.text = "GO" if validation.valid else validation.errors[0]
-	if validation.valid and not validation.warnings.is_empty():
-		%BuildStatus.text = validation.warnings[0]
-	%BuildStatus.tooltip_text = "\n".join(validation.errors + validation.warnings)
-	%BuildStatus.theme_type_variation = &"SuccessLabel" if validation.valid and validation.warnings.is_empty() else &"WarningLabel"
+	%LabAtmosphere.set_build_state(_part_ids(config).filter(func(id: String) -> bool: return not id.is_empty()).size(), validation.valid)
+	%RocketPreview.set_system_ready(validation.valid and not config.attachment_ids.is_empty())
+	_render_status(validation)
 	%AddStage.visible = _is_allowed("DECOUPLER")
 	%AddStage.disabled = config.stages.size() >= MAX_STAGES
 	%RemoveStage.visible = config.stages.size() > 1
 	%Pioneer.visible = _is_allowed("DECOUPLER") and _is_allowed("ENG_V")
-	%TestFire.disabled = not validation.valid
+
+
+func _render_status(validation: Dictionary, preview: bool = false) -> void:
+	%BuildStatus.text = "GO" if validation.valid else validation.errors[0]
+	if validation.valid and not validation.warnings.is_empty():
+		%BuildStatus.text = validation.warnings[0]
+	if preview:
+		%BuildStatus.text = "PREVIEW · " + %BuildStatus.text
+	%BuildStatus.tooltip_text = "\n".join(validation.errors + validation.warnings)
+	%BuildStatus.theme_type_variation = &"SuccessLabel" if validation.valid and validation.warnings.is_empty() else &"WarningLabel"
+
+
+func _preview_part(slot: String, part_id: String) -> void:
+	if _mission == null or not is_node_ready():
+		return
+	if not _accepts_part(slot, part_id):
+		if not _comparison_key.is_empty():
+			_comparison_key = ""
+			_render_metrics(_last_stats, _previous_stats)
+			_render_status(validate(build_config(), _mission))
+		return
+	var key := slot + ":" + part_id
+	if key == _comparison_key:
+		return
+	_comparison_key = key
+	var desired := build_config()
+	_apply_part(desired, _mount(slot), part_id)
+	_render_metrics(calculate(desired), _last_stats, true)
+	var result := validate(desired, _mission)
+	_render_status(result, true)
+	%ComparisonLegend.tooltip_text = "Preview only; release to install.\n" + "\n".join(result.errors + result.warnings)
+
+
+func _render_metrics(stats: Dictionary, before: Dictionary, preview: bool = false) -> void:
+	if stats.is_empty():
+		return
+	%ComparisonLegend.text = "PART PREVIEW · release to fit" if preview else ("LIVE BUILD · vs previous edit" if not before.is_empty() else "LIVE BUILD · edit to compare")
+	%ComparisonLegend.modulate = Color("ffd18a") if preview else Color.WHITE
+	%ComparisonLegend.tooltip_text = "Filled bars show this build. Pale ticks show the previous build; diamonds mark mission minimums. Hover a part over a compatible mount to compare before fitting."
+	var largest_tank := 1.0
+	for part_id: String in _parts:
+		if _is_allowed(part_id) and _parts[part_id].type == "tank":
+			largest_tank = maxf(largest_tank, float(_parts[part_id].get("fuel_capacity_kg", 0.0)))
+	var fuel_scale := largest_tank * MAX_TANKS * maxi(1, _config.stages.size())
+	fuel_scale = maxf(fuel_scale, maxf(float(stats.fuel_kg), float(before.get("fuel_kg", 0.0))))
+	var mass_scale := maxf(1.0, maxf(float(stats.wet_mass_kg), float(before.get("wet_mass_kg", 0.0))))
+	var thrust_scale := maxf(2.0, maxf(float(stats.launch_twr), float(before.get("launch_twr", 0.0)))) * 1.15
+	var goal := _minimum_delta_v(_mission)
+	var range_scale := maxf(1.0, maxf(goal, maxf(float(stats.delta_v_mps), float(before.get("delta_v_mps", 0.0))))) * 1.15
+	%FuelMetric.present("fuel", stats, before, 0.0, fuel_scale)
+	%MassMetric.present("mass", stats, before, 0.0, mass_scale)
+	%ThrustMetric.present("thrust", stats, before, 1.0 if _mission.scenario.get("spawn_profile") == "surface_north" else 0.0, thrust_scale)
+	%RangeMetric.present("range", stats, before, goal, range_scale)
+	var cost := int(stats.cost_credits)
+	var budget := _mission.budget_credits
+	%BudgetValue.text = "%d / %d CR" % [cost, budget]
+	%BudgetBar.max_value = maxi(1, budget)
+	%BudgetBar.value = cost
+	%BudgetBar.theme_type_variation = &"OverBudget" if cost > budget else &""
+	var change := cost - int(before.get("cost_credits", cost))
+	var balance := "%d CR left" % (budget - cost) if cost <= budget else "%d CR over budget" % (cost - budget)
+	%BudgetDelta.text = balance + ("   ·   %s%d CR" % ["+" if change >= 0 else "−", absi(change)] if not before.is_empty() else "")
+	%BudgetDelta.modulate = Color("ff8e96") if cost > budget else Color("93afc0")
+	%BudgetBar.tooltip_text = "%d credits used of %d. %s." % [cost, budget, balance]
 
 
 func _on_name_changed(value: String) -> void:

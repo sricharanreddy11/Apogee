@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/builder/builder_controller.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/builder/rocket_preview.gd" id="2"]
@@ -9,6 +9,29 @@
 [ext_resource type="Texture2D" path="res://assets/rockets/tank_s.svg" id="7"]
 [ext_resource type="Texture2D" path="res://assets/rockets/eng_l.svg" id="8"]
 [ext_resource type="Texture2D" path="res://assets/rockets/decoupler.svg" id="9"]
+[ext_resource type="Script" path="res://scripts/builder/metric_card.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/builder/lab_atmosphere.gd" id="11"]
+
+[sub_resource type="StyleBoxFlat" id="TelemetryPanel"]
+bg_color = Color(0.035, 0.067, 0.106, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.31, 0.39, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_left = 12
+corner_radius_bottom_right = 12
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 14.0
+content_margin_bottom = 14.0
+
+[sub_resource type="StyleBoxEmpty" id="RocketNameStyle"]
+content_margin_left = 0.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
 
 [sub_resource type="Animation" id="CraneTravel"]
 resource_name = "gantry"
@@ -57,11 +80,20 @@ mouse_filter = 2
 texture = ExtResource("4")
 expand_mode = 1
 
+[node name="LabAtmosphere" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("11")
+
 [node name="Crane" type="Node2D" parent="."]
 position = Vector2(433, 99)
 
 [node name="RailCart" type="Polygon2D" parent="Crane"]
-color = Color(0.84, 0.58, 0.3, 1)
+color = Color(0.19, 0.3, 0.39, 1)
 polygon = PackedVector2Array(-34, -12, 34, -12, 34, 7, 24, 16, -24, 16, -34, 7)
 
 [node name="Cable" type="Line2D" parent="Crane"]
@@ -98,7 +130,7 @@ polygon = PackedVector2Array(-112, 10, -69, -9, 69, -9, 112, 10, 112, 27, -112, 
 [node name="DeckLip" type="Line2D" parent="RocketPreview/Pad"]
 points = PackedVector2Array(-112, 11, 112, 11)
 width = 3.0
-default_color = Color(0.86, 0.63, 0.33, 1)
+default_color = Color(0.35, 0.86, 0.93, 1)
 
 [node name="Assembly" type="Node2D" parent="RocketPreview"]
 unique_name_in_owner = true
@@ -128,8 +160,8 @@ color = Color(0.48, 0.97, 0.77, 1)
 unique_name_in_owner = true
 layout_mode = 1
 anchor_bottom = 1.0
-offset_left = 38.0
-offset_right = 425.0
+offset_left = 28.0
+offset_right = 378.0
 mouse_filter = 2
 script = ExtResource("3")
 
@@ -186,7 +218,7 @@ theme_type_variation = &"DisplayLabel"
 offset_left = 39.0
 offset_top = 21.0
 theme_override_font_sizes/font_size = 36
-text = "HANGAR  /  01"
+text = "ROCKET LAB / 01"
 
 [node name="MissionTag" type="Label" parent="."]
 theme_type_variation = &"EyebrowLabel"
@@ -199,44 +231,126 @@ text = "M01"
 unique_name_in_owner = true
 visible = false
 
-[node name="Telemetry" type="VBoxContainer" parent="."]
+[node name="Telemetry" type="PanelContainer" parent="."]
 layout_mode = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -198.0
-offset_top = 130.0
-offset_right = -32.0
-theme_override_constants/separation = 10
+offset_left = -378.0
+offset_top = 92.0
+offset_right = -28.0
+offset_bottom = 620.0
+theme_override_styles/panel = SubResource("TelemetryPanel")
 
-[node name="RocketName" type="LineEdit" parent="Telemetry"]
+[node name="StorageTitle" type="Label" parent="."]
+offset_left = 44.0
+offset_top = 106.0
+theme_override_font_sizes/font_size = 11
+text = "PARTS / STORAGE"
+
+[node name="EmptyHint" type="Label" parent="."]
+unique_name_in_owner = true
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_right = 200.0
+offset_top = 291.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 15
+text = "BUILD YOUR ROCKET\nDrag parts from storage onto the mounts"
+mouse_filter = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Telemetry"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Readouts" type="VBoxContainer" parent="Telemetry/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Eyebrow" type="Label" parent="Telemetry/Scroll/Readouts"]
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+theme_override_font_sizes/font_size = 11
+text = "VEHICLE / LIVE ANALYSIS"
+
+[node name="RocketName" type="LineEdit" parent="Telemetry/Scroll/Readouts"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 38)
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("RocketNameStyle")
 text = "Sparrow I"
 max_length = 60
 tooltip_text = "Rename rocket"
 
-[node name="BudgetValue" type="Label" parent="Telemetry"]
+[node name="ComparisonLegend" type="Label" parent="Telemetry/Scroll/Readouts"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.77, 0.84, 1)
+theme_override_font_sizes/font_size = 12
+text = "LIVE BUILD   ·   edit to compare"
+
+[node name="Metrics" type="GridContainer" parent="Telemetry/Scroll/Readouts"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="FuelMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("10")
+
+[node name="MassMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("10")
+
+[node name="ThrustMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("10")
+
+[node name="RangeMetric" type="Control" parent="Telemetry/Scroll/Readouts/Metrics"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("10")
+
+[node name="MarkerLegend" type="Label" parent="Telemetry/Scroll/Readouts"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.77, 0.84, 1)
+theme_override_font_sizes/font_size = 11
+text = "│ before    ◆ mission min    ↑↓ change"
+
+[node name="BudgetHeading" type="HBoxContainer" parent="Telemetry/Scroll/Readouts"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Telemetry/Scroll/Readouts/BudgetHeading"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "BUDGET"
+
+[node name="BudgetValue" type="Label" parent="Telemetry/Scroll/Readouts/BudgetHeading"]
 theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 15
 text = "1600 / 2000 CR"
 
-[node name="BudgetBar" type="ProgressBar" parent="Telemetry"]
+[node name="BudgetBar" type="ProgressBar" parent="Telemetry/Scroll/Readouts"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(0, 5)
+custom_minimum_size = Vector2(0, 6)
 show_percentage = false
 
-[node name="Details" type="Label" parent="Telemetry"]
-theme_type_variation = &"TelemetryLabel"
+[node name="BudgetDelta" type="Label" parent="Telemetry/Scroll/Readouts"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 17
-text = ""
+theme_override_font_sizes/font_size = 11
 
-[node name="BuildStatus" type="Label" parent="Telemetry"]
+[node name="BuildStatus" type="Label" parent="Telemetry/Scroll/Readouts"]
 theme_type_variation = &"SuccessLabel"
 unique_name_in_owner = true
 layout_mode = 2
@@ -277,7 +391,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 32.0
 offset_right = -32.0
-offset_top = -67.0
+offset_top = -80.0
 offset_bottom = -22.0
 theme_override_constants/separation = 8
 
@@ -310,16 +424,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="TestFire" type="Button" parent="Actions"]
-unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(108, 44)
-text = "Test fire"
-tooltip_text = "Preview exhaust, separation and leg deployment"
-
 [node name="Primary" type="Button" parent="Actions"]
 theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(162, 44)
+custom_minimum_size = Vector2(220, 54)
 text = "Prepare Launch"

@@ -1,13 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><defs><linearGradient id="wall" x2="0" y2="1"><stop stop-color="#0b1524"/><stop offset="1" stop-color="#263745"/></linearGradient><radialGradient id="bay"><stop stop-color="#365466"/><stop offset="1" stop-color="#121e2b"/></radialGradient><linearGradient id="floor" x2="0" y2="1"><stop stop-color="#293741"/><stop offset="1" stop-color="#0a111c"/></linearGradient><linearGradient id="glass" x2="0" y2="1"><stop stop-color="#253c53"/><stop offset="1" stop-color="#0d1b2a"/></linearGradient></defs>
-<path d="M0 0h1280v720H0z" fill="url(#wall)"/><path d="M352 78h576l103 72v409H249V150z" fill="url(#bay)" stroke="#435664" stroke-width="4"/>
-<path d="M379 94h522l103 75v385H276V169z" fill="url(#glass)" stroke="#1c2d3c" stroke-width="9"/>
-<path d="M287 519l88-51h531l85 51v38H287z" fill="#172738"/><path d="M303 531h674M354 506h566M396 481h482" stroke="#385264" stroke-width="2" opacity=".7"/>
-<path d="M465 99v453m350-453v453M640 99v453" stroke="#334d60" stroke-width="3" opacity=".52"/>
-<path d="M0 71h1280v23H0zm0 435h256v27H0zm1022 0h258v27h-258z" fill="#192634" stroke="#4b5861" stroke-width="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<defs>
+ <linearGradient id="wall" x2="0" y2="1"><stop stop-color="#070c17"/><stop offset="1" stop-color="#172130"/></linearGradient>
+ <radialGradient id="bay"><stop stop-color="#142e46"/><stop offset="1" stop-color="#080e1c"/></radialGradient>
+ <linearGradient id="floor" x2="0" y2="1"><stop stop-color="#172238"/><stop offset="1" stop-color="#070b14"/></linearGradient>
+ <linearGradient id="glass" x2="1" y2="1"><stop stop-color="#152d42" stop-opacity=".55"/><stop offset="1" stop-color="#262342" stop-opacity=".18"/></linearGradient>
+ <pattern id="hazard" width="24" height="16" patternUnits="userSpaceOnUse"><rect width="24" height="16" fill="#182532"/><path d="M-4 16L12 0h8L4 16zm24 0L36 0h8L28 16z" fill="#a58b50"/></pattern>
+</defs>
+<rect width="1280" height="720" fill="url(#wall)"/>
+<!-- Recessed bulkhead and the deep-space observation gate. -->
+<path d="M390 85h500l77 72v394H313V157z" fill="#111b2b" stroke="#2c4155" stroke-width="3"/>
+<path d="M440 104h400l58 64v343H382V168z" fill="url(#bay)" stroke="#3d5867" stroke-width="2"/>
+<path d="M450 118h380l54 57v321H396V175z" fill="#080e20"/>
+<g fill="#aadce8" opacity=".66">
+ <circle cx="472" cy="145" r="1"/><circle cx="515" cy="273" r="1"/><circle cx="811" cy="151" r="1.2"/>
+ <circle cx="844" cy="290" r="1"/><circle cx="736" cy="136" r=".7"/><circle cx="786" cy="351" r=".9"/>
+ <circle cx="438" cy="303" r="1"/><circle cx="710" cy="276" r="1"/><circle cx="549" cy="388" r=".9"/>
+ <circle cx="483" cy="434" r=".8"/><circle cx="818" cy="447" r="1"/><circle cx="570" cy="151" r=".8"/>
+ <circle cx="750" cy="462" r=".8"/><circle cx="423" cy="201" r=".8"/><circle cx="865" cy="400" r=".8"/>
+</g>
+<circle cx="807" cy="280" r="29" fill="#18283e"/><path d="M818 253a29 29 0 0 1 3 51 29 29 0 0 0-3-51z" fill="#32506a"/>
+<path d="M450 118h380l54 57v321H396V175z" fill="url(#glass)"/>
+<path d="M406 176l50-48m368 0 50 48M405 491h470" fill="none" stroke="#55ddf6" stroke-width="7" opacity=".08"/>
+<path d="M406 176l50-48m368 0 50 48M405 491h470" fill="none" stroke="#55ddf6" stroke-width="2" opacity=".65"/>
+<!-- Symmetric equipment conduits and service cables. -->
+<g fill="none" stroke-linejoin="round">
+ <path d="M408 92v38l-23 25v307l26 27v42m461-439v38l23 25v307l-26 27v42" stroke="#283746" stroke-width="11"/>
+ <path d="M408 92v38l-23 25v307l26 27v42" stroke="#557b8a" stroke-width="2"/>
+ <path d="M872 92v38l23 25v307l-26 27v42" stroke="#736494" stroke-width="2"/>
+ <path d="M421 92v49l-22 23v292m460-364v49l22 23v292" stroke="#080d17" stroke-width="5"/>
+ <path d="M425 163v90m430-90v90" stroke="#3acde6" stroke-width="2" opacity=".45"/>
+ <path d="M395 501h40v33m450-33h-40v33" stroke="#7a64b4" stroke-width="3" opacity=".75"/>
+</g>
+<!-- Gantry rail, ceiling strip lights, and service housings. -->
+<rect y="71" width="1280" height="23" fill="#111b29" stroke="#293c50"/>
+<path d="M397 83h125m236 0h125" stroke="#49daf5" stroke-width="9" opacity=".1"/>
+<path d="M397 83h125m236 0h125" stroke="#69e5fc" stroke-width="2" opacity=".85"/>
+<g fill="#172737" stroke="#324c61"><rect x="395" y="279" width="31" height="52" rx="3"/><rect x="854" y="279" width="31" height="52" rx="3"/></g>
+<g stroke="#6ae4e7" opacity=".7"><path d="M403 290h15m-15 8h15m-15 8h9"/><path d="M861 290h17m-17 8h8m-8 8h13"/></g>
+<g fill="#5b7590"><circle cx="405" cy="320" r="2"/><circle cx="865" cy="320" r="2"/></g>
+<!-- Low-contrast perspective floor and a dedicated assembly plinth. -->
 <path d="M0 539h1280v181H0z" fill="url(#floor)"/>
-<path d="M0 557h1280M0 596h1280M0 654h1280M83 720l340-181M399 720l146-181M882 720L735 539m461 181L855 539" fill="none" stroke="#435664" opacity=".42" stroke-width="2"/>
-<path d="M17 110h203v365H17zm1043 0h203v365h-203z" fill="#1a2b3a" stroke="#364858" stroke-width="3"/>
-<path d="M35 132h167v317H35zm1043 0h167v317h-167z" fill="#11202f" stroke="#2e4051" stroke-width="2"/>
-<path d="M35 160h167m-167 278h167m876-278h167m-167 278h167" stroke="#526473" stroke-width="2"/>
-<path d="M238 119h14v401h-14zm790 0h14v401h-14z" fill="#596a70"/><path d="M242 174v268m790-268v268" stroke="#e6ad5b" stroke-width="3" opacity=".85"/>
-<path d="M371 105h147m245 0h147" stroke="#a4d7e3" stroke-width="4" opacity=".62"/><path d="M0 690h1280" stroke="#111e2b" stroke-width="21"/></svg>
+<g fill="none" stroke="#30415c" opacity=".5"><path d="M0 566h1280M0 607h1280M0 665h1280M110 720l363-181M430 720l137-181M850 720L713 539m460 181L807 539"/></g>
+<ellipse cx="640" cy="554" rx="156" ry="29" fill="#0a1424" stroke="#2a3d56" stroke-width="2"/>
+<ellipse cx="640" cy="554" rx="140" ry="22" fill="none" stroke="#37d9e8" stroke-width="10" opacity=".06"/>
+<ellipse cx="640" cy="554" rx="140" ry="22" fill="none" stroke="#42cee2" stroke-width="1.5" opacity=".6"/>
+<path d="M529 545h222v9H529z" fill="url(#hazard)"/>
+<path d="M452 582l32-10m344 10-32-10" stroke="#ae76f1" stroke-width="3" opacity=".6"/>
+<path d="M372 105h43m450 0h43" stroke="#8b6ed3" stroke-width="2"/>
+<g fill="#968551" opacity=".6"><path d="M475 589l13-7h9l-13 7zm20 0 13-7h9l-13 7zm20 0 13-7h9l-13 7z"/><path d="M743 589l-13-7h9l13 7zm20 0-13-7h9l13 7zm20 0-13-7h9l13 7z"/></g>
+<path d="M0 700h1280" stroke="#070c16" stroke-width="21"/>
+</svg>
