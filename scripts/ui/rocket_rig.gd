@@ -8,6 +8,8 @@ var _textures: Dictionary = {}
 var _stages: Array[Node2D] = []
 var _flames: Array[Sprite2D] = []
 var _legs: Sprite2D
+var _legs_stowed_y := 0.0
+var _legs_deployed := false
 var _active := 0
 var _throttle := 0.0
 var _clock := 0.0
@@ -21,6 +23,7 @@ func setup(config: RocketConfig) -> void:
 	_stages.clear()
 	_flames.clear()
 	_legs = null
+	_legs_deployed = false
 	_active = 0
 	_throttle = 0.0
 	height_px = 0.0
@@ -45,7 +48,8 @@ func setup(config: RocketConfig) -> void:
 		var local_y := _stack_part(stage_art, engine_id, 0.0)
 		if upper and config.attachment_ids.has("LEGS"):
 			_legs = _sprite(stage_art, "res://assets/rockets/legs_folded.svg")
-			_legs.position.y = local_y
+			_legs_stowed_y = local_y
+			_legs.position.y = _legs_stowed_y
 		for tank_id in stage_config.tank_ids:
 			local_y = _stack_part(stage_art, tank_id, local_y)
 		if stage_index == 0 and config.stages.size() > 1 and config.attachment_ids.has("DECOUPLER"):
@@ -56,6 +60,31 @@ func setup(config: RocketConfig) -> void:
 	cursor = _stack_part(self, config.command_pod_id, cursor)
 	height_px = -cursor
 	_apply_flame()
+
+
+## Length of the surviving stack, measured along its centerline.
+func get_active_stack_height_px() -> float:
+	var base_y := _stages[_active].position.y if not _stages.is_empty() else 0.0
+	return height_px + base_y
+
+
+func get_active_stack_center() -> Vector2:
+	return Vector2(0.0, -height_px + get_active_stack_height_px() * 0.5)
+
+
+## Furthest-down point in the local surface frame, relative to the stack midpoint.
+func get_contact_depth_px(heading: float) -> float:
+	var pivot := get_active_stack_center()
+	var base_y := _stages[_active].position.y if not _stages.is_empty() else 0.0
+	var depth := 0.0
+	for x: float in [-27.0, 27.0]:
+		depth = maxf(depth, (Vector2(x, base_y) - pivot).rotated(heading).y)
+		depth = maxf(depth, (Vector2(x, -height_px) - pivot).rotated(heading).y)
+	if _legs_deployed:
+		for x: float in [-53.0, 53.0]:
+			var foot := Vector2(x, _stages[-1].position.y + _legs.position.y + 31.0)
+			depth = maxf(depth, (foot - pivot).rotated(heading).y)
+	return depth
 
 
 func _stack_part(parent: Node2D, part_id: String, y: float) -> float:
@@ -146,6 +175,8 @@ func apply_flight(active_stage: int, throttle: float, legs_deployed: bool) -> vo
 	_active = active_stage
 	_throttle = clampf(throttle, 0.0, 1.0)
 	if _legs != null:
+		_legs_deployed = legs_deployed
+		_legs.position.y = -25.0 if legs_deployed else _legs_stowed_y
 		_legs.texture = _texture("res://assets/rockets/legs.svg" if legs_deployed else "res://assets/rockets/legs_folded.svg")
 	_apply_flame()
 
@@ -190,24 +221,3 @@ func _apply_flame() -> void:
 		flame.visible = index == _active and _throttle > 0.0 and flame.get_meta("fitted")
 		if flame.visible:
 			flame.scale = Vector2(0.5 + _throttle * 0.45, (0.3 + _throttle * 0.7) * (0.9 + sin(_clock * 71.0) * 0.10))
-
-
-func lunar_touchdown() -> void:
-	var dust := CPUParticles2D.new()
-	dust.emitting = false
-	dust.one_shot = true
-	dust.amount = 28
-	dust.explosiveness = 0.9
-	dust.lifetime = 0.9
-	dust.spread = 170.0
-	dust.direction = Vector2.UP
-	dust.gravity = Vector2(0, 37)
-	dust.initial_velocity_min = 28
-	dust.initial_velocity_max = 84
-	dust.scale_amount_min = 3
-	dust.scale_amount_max = 7
-	dust.color = Color(0.73, 0.77, 0.84, 0.72)
-	dust.position.y = _stages[_active].position.y if not _stages.is_empty() else 0.0
-	add_child(dust)
-	dust.finished.connect(dust.queue_free)
-	dust.emitting = true

@@ -5,6 +5,7 @@ extends RefCounted
 var position_m: Vector2 = Vector2.ZERO
 var velocity_mps: Vector2 = Vector2.ZERO
 var heading_rad: float = 0.0
+var angular_velocity_rad_s: float = 0.0
 var throttle: float = 0.0
 var elapsed_time_s: float = 0.0
 var active_stage: int = 0
@@ -24,7 +25,7 @@ var predicted_impact: bool = false
 var status: FlightState.Status = FlightState.Status.READY
 var pod_intact: bool = true
 var legs_deployed: bool = false
-## Earth-centered positions used only by the schematic map. The active body's
+## Earth-centered positions shared by both flight views. The active body's
 ## position and velocity define the frame for altitude and orbital readouts.
 var central_body_position_m: Vector2 = Vector2.ZERO
 var central_body_velocity_mps: Vector2 = Vector2.ZERO

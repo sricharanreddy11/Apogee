@@ -39,9 +39,20 @@ func _run() -> void:
 	_check(powered.moon_position_m != first_moon_position and powered.earth_position_m == Vector2.ZERO, "Earth stays fixed while the Moon revolves.")
 
 	simulator.set_steering(1.0)
-	simulator.step(0.25)
-	_check(simulator.get_telemetry().heading_rad > 0.45, "Responsive steering rotates the vehicle clockwise at the tuned rate.")
+	simulator.step(1.0 / 60.0)
+	var initial_turn := simulator.get_telemetry().heading_rad
+	_check(initial_turn > 0.0 and initial_turn < FlightSimulator.TURN_RATE_RAD_S / 120.0, "Steering eases into motion on the first tick.")
+	simulator.step(0.6)
+	var release_heading := simulator.get_telemetry().heading_rad
+	_check(is_equal_approx(simulator.get_telemetry().angular_velocity_rad_s, FlightSimulator.TURN_RATE_RAD_S), "Holding steering builds to the capped turn rate.")
 	simulator.set_steering(0.0)
+	simulator.step(0.2)
+	_check(simulator.get_telemetry().angular_velocity_rad_s > 0.1, "A short release still has angular momentum.")
+	simulator.step(0.4)
+	var settled_heading := simulator.get_telemetry().heading_rad
+	_check(settled_heading > release_heading and settled_heading - release_heading < 0.16, "Steering carries a controlled amount of follow-through.")
+	simulator.step(0.15)
+	_check(is_equal_approx(simulator.get_telemetry().heading_rad, settled_heading), "The heading stops drifting after steering settles.")
 	simulator.set_throttle(0.0)
 	var cutoff_fuel := simulator.get_telemetry().fuel_remaining_kg
 	simulator.step(0.5)

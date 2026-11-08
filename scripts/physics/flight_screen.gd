@@ -69,6 +69,7 @@ func _ready() -> void:
 	%Throttle.value_changed.connect(_on_throttle_changed)
 	%FlightArtwork.engine_pressed.connect(_toggle_engine)
 	%FlightArtwork.stage_pressed.connect(_request_stage)
+	%FlightArtwork.legs_pressed.connect(_toggle_legs)
 	if not _configured:
 		_configure_direct_preview()
 	%EndFlight.disabled = not _configured
@@ -80,7 +81,7 @@ func _ready() -> void:
 			_mission_comms = _comms.get(_mission_id, {})
 			_say(String(_mission_comms.get("intro", "")))
 		%FlightArtwork.setup(_rocket_config)
-		%FlightArtwork.set_body(String(_scenario.get("body_id", "earth")))
+		%FlightArtwork.landing_mode = _mission_id == "M04"
 		%Map.reset_path()
 		%Map.show_landing_site = _mission_id == "M04"
 		_update_views(_simulator.get_telemetry())
@@ -102,7 +103,8 @@ func _physics_process(delta: float) -> void:
 	var throttle_axis := Input.get_axis("throttle_down", "throttle_up")
 	var steering := Input.get_axis("steer_left", "steer_right")
 	if not is_zero_approx(throttle_axis):
-		_set_throttle(_commanded_throttle + throttle_axis * delta * 1.5)
+		var rate := 0.20 if _mission_id == "M04" else 1.5
+		_set_throttle(_commanded_throttle + throttle_axis * delta * rate)
 	if not is_zero_approx(steering) and _time_warp > 1.0:
 		_set_time_warp(1.0)
 	_simulator.set_steering(steering)
@@ -156,7 +158,7 @@ func _exit_tree() -> void:
 
 
 func _can_warp(telemetry: FlightTelemetry) -> bool:
-	return telemetry.throttle <= 0.0 and (
+	return telemetry.throttle <= 0.0 and absf(telemetry.angular_velocity_rad_s) < 0.01 and (
 		telemetry.status == FlightState.Status.READY or
 		(telemetry.status == FlightState.Status.FLYING and (telemetry.altitude_m >= 1000.0 or telemetry.radial_speed_mps >= 0.0))
 	)
@@ -168,6 +170,7 @@ func _toggle_pause() -> void:
 	_paused = not _paused
 	%PauseFlight.text = "RESUME" if _paused else "PAUSE"
 	%ControlStatus.text = "FLIGHT PAUSED" if _paused else "FLIGHT RESUMED"
+	_update_control_state(_simulator.get_telemetry())
 
 
 func _say(line: String) -> void:
@@ -246,8 +249,38 @@ func _start_showcase() -> void:
 
 func _update_views(telemetry: FlightTelemetry) -> void:
 	%HUD.update_from_telemetry(telemetry)
+	_update_landing_guidance(telemetry)
 	%FlightArtwork.update_visuals(telemetry)
 	%Map.update_from_telemetry(telemetry)
+
+
+func _update_landing_guidance(telemetry: FlightTelemetry) -> void:
+	var visible := _mission_id == "M04" and telemetry.body_id == "moon" and telemetry.altitude_m < 1000.0
+	%LandingGuidance.visible = visible
+	if not visible:
+		return
+	var rules := _mission.definition.win_conditions
+	var radial := telemetry.radial_speed_mps
+	var lateral := telemetry.tangential_speed_mps
+	var normal := telemetry.position_m - telemetry.central_body_position_m
+	var tilt := absf(rad_to_deg(wrapf(telemetry.heading_rad - normal.angle() - PI * 0.5, -PI, PI)))
+	if not telemetry.contact_body_id.is_empty():
+		radial = telemetry.impact_radial_speed_mps
+		lateral = telemetry.impact_tangential_speed_mps
+		tilt = rad_to_deg(telemetry.impact_tilt_rad)
+	var descending := radial < 0.0
+	var safe := (
+		absf(radial) <= float(rules.max_vertical_speed_mps)
+		and lateral <= float(rules.max_horizontal_speed_mps)
+		and tilt <= float(rules.max_orientation_deg)
+		and telemetry.legs_deployed
+	)
+	%LandingGuidance.text = "VERT %s %.1f / %.0f m/s\nSIDE   %.1f / %.0f m/s\nTILT   %.1f / %.0f°\n%s" % [
+		"↓" if descending else "↑", absf(radial), rules.max_vertical_speed_mps,
+		lateral, rules.max_horizontal_speed_mps, tilt, rules.max_orientation_deg,
+		"LEGS UP" if not telemetry.legs_deployed else ("TOUCHDOWN READY" if safe else "CORRECT APPROACH"),
+	]
+	%LandingGuidance.modulate = Color("#a3f1c4") if safe else Color("#ffcc8b")
 
 
 func _toggle_engine() -> void:
@@ -319,7 +352,7 @@ func _update_control_state(telemetry: FlightTelemetry) -> void:
 	_updating_controls = false
 	for button: Button in [%Warp5, %Warp25, %Warp50]:
 		button.disabled = not _can_warp(telemetry)
-	%ThrottleValue.text = "%d%%" % roundi(telemetry.throttle * 100.0)
+	%ThrottleValue.text = ("%.1f%%" if _mission_id == "M04" else "%.0f%%") % (telemetry.throttle * 100.0)
 	%EngineButton.text = "CUTOFF  [X]" if telemetry.throttle > 0.0 else "IGNITE"
 	var terminal := telemetry.status in [FlightState.Status.LANDED, FlightState.Status.CRASHED]
 	%Throttle.editable = not terminal
@@ -327,6 +360,10 @@ func _update_control_state(telemetry: FlightTelemetry) -> void:
 	%StageButton.disabled = terminal or _rocket_config == null or telemetry.active_stage + 1 >= _rocket_config.stages.size()
 	%LegsButton.disabled = terminal or _rocket_config == null or not _rocket_config.attachment_ids.has("LEGS")
 	%LegsButton.text = "RETRACT  [L]" if telemetry.legs_deployed else "LEGS  [L]"
+	%FlightArtwork.set_vehicle_controls(
+		not _paused and not _finished and not %StageButton.disabled,
+		not _paused and not _finished and not %LegsButton.disabled
+	)
 	if telemetry.status == FlightState.Status.CRASHED:
 		%ControlStatus.text = "POD LOST"
 	elif telemetry.status == FlightState.Status.LANDED:
@@ -337,20 +374,25 @@ func _finish_attempt() -> void:
 	if _report_sent:
 		return
 	var result := _mission.finalize_result()
-	if not result.discovery_ids.has("APOLLO_TRIBUTE") or GameManager.discovered_ids.has("APOLLO_TRIBUTE"):
+	if _mission_id != "M04" or result.contact_body_id != "moon":
 		_request_report()
 		return
 	_set_orbit_view(false)
 	%ViewButton.disabled = true
 	%PauseFlight.disabled = true
-	var craft := %FlightArtwork.get_node("RocketRig") as Node2D
-	%LunarVisitor.position = craft.position + Vector2(-150.0, -20.0)
+	%EndFlight.text = "REPORT"
+	if not result.discovery_ids.has("APOLLO_TRIBUTE") or GameManager.discovered_ids.has("APOLLO_TRIBUTE"):
+		var reveal := create_tween()
+		reveal.tween_interval(1.2)
+		reveal.tween_callback(_request_report)
+		return
+	var touchdown: Vector2 = %FlightArtwork.get_touchdown_screen_position()
+	%LunarVisitor.position = touchdown + Vector2(-95.0, -9.0)
 	%LunarVisitor.show()
 	%LunarVisitor.play("wave")
 	%Comms.text = "FICTIONAL ASTRONAUT  /  Nice landing, explorer. You made that look easy."
-	%EndFlight.text = "REPORT"
 	var arrival := create_tween()
-	arrival.tween_property(%LunarVisitor, "position:x", craft.position.x - 64.0, 1.4)
+	arrival.tween_property(%LunarVisitor, "position:x", touchdown.x - 32.0, 1.4)
 	arrival.tween_interval(2.8)
 	arrival.tween_callback(_request_report)
 

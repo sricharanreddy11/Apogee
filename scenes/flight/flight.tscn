@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c8p3pa1x8kp35" path="res://scripts/physics/flight_screen.gd" id="1"]
 [ext_resource type="Script" uid="uid://bqhth4o1s3qlq" path="res://scripts/ui/flight_hud.gd" id="2"]
 [ext_resource type="Script" uid="uid://g1bipiynsfhm" path="res://scripts/ui/orbit_map.gd" id="3"]
-[ext_resource type="Script" uid="uid://b5ylqmoqf571g" path="res://scripts/ui/rocket_preview.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/flight/flight_view.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/mission_backdrop.tscn" id="Backdrop"]
 
 [ext_resource type="SpriteFrames" path="res://assets/mission_control/astronaut_wave.tres" id="Astronaut"]
@@ -27,13 +27,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 20
+theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_bottom = 16
 
 [node name="Layout" type="VBoxContainer" parent="Margin" unique_id=483249276]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 
 [node name="Header" type="HBoxContainer" parent="Margin/Layout" unique_id=638209675]
 layout_mode = 2
@@ -142,23 +142,15 @@ layout_mode = 2
 mouse_filter = 1
 clip_contents = true
 
-[node name="FlightArtwork" type="Control" parent="Margin/Layout/Main/ViewFrame/ViewStack" unique_id=1793691273]
+[node name="FlightArtwork" parent="Margin/Layout/Main/ViewFrame/ViewStack" instance=ExtResource("4")]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("4")
-show_launchpad = false
-interactive_flight_controls = true
 
 [node name="LunarVisitor" type="AnimatedSprite2D" parent="Margin/Layout/Main/ViewFrame/ViewStack"]
 unique_name_in_owner = true
 visible = false
 texture_filter = 1
-scale = Vector2(1.65, 1.65)
+scale = Vector2(0.50, 0.50)
 sprite_frames = ExtResource("Astronaut")
 animation = &"wave"
 
@@ -190,7 +182,7 @@ size_flags_vertical = 3
 
 [node name="Stack" type="VBoxContainer" parent="Margin/Layout/Main/Console" unique_id=2020793019]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 3
 
 [node name="HUD" type="Label" parent="Margin/Layout/Main/Console/Stack" unique_id=1251304025]
 unique_name_in_owner = true
@@ -199,6 +191,13 @@ theme_type_variation = &"TelemetryLabel"
 theme_override_font_sizes/font_size = 16
 text = "Waiting for telemetry…"
 script = ExtResource("2")
+
+[node name="LandingGuidance" type="Label" parent="Margin/Layout/Main/Console/Stack"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"TelemetryLabel"
+theme_override_font_sizes/font_size = 14
 
 [node name="Rule" type="HSeparator" parent="Margin/Layout/Main/Console/Stack" unique_id=970900006]
 layout_mode = 2
@@ -215,6 +214,7 @@ theme_override_constants/separation = 10
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+step = 0.1
 
 [node name="ThrottleValue" type="Label" parent="Margin/Layout/Main/Console/Stack/ThrottleRow" unique_id=1190770910]
 unique_name_in_owner = true

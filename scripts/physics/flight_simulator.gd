@@ -16,7 +16,10 @@ const MIN_PREDICTION_S := 1800.0
 const SAFE_LANDING_RADIAL_MPS := 8.0
 const SAFE_LANDING_TANGENTIAL_MPS := 5.0
 const SAFE_LANDING_TILT_RAD := deg_to_rad(20.0)
-const TURN_RATE_RAD_S := deg_to_rad(120.0)
+const TURN_RATE_RAD_S := deg_to_rad(40.0)
+const STEERING_RAMP_S := 0.52
+const STEERING_BRAKE_S := 0.42
+const REFERENCE_STEERING_MASS_KG := 3600.0
 
 var _config: RocketConfig
 var _state := FlightState.new()
@@ -25,6 +28,7 @@ var _body_radius_m: float = 0.0
 var _bodies: Dictionary = {}
 var _parts: Dictionary = {}
 var _steering: float = 0.0
+var _turn_rate_rad_s := 0.0
 var _stage_dry_mass_kg: Array[float] = []
 var _stage_fuel_capacity_kg: Array[float] = []
 var _stage_thrust_n: Array[float] = []
@@ -37,6 +41,7 @@ func initialize(config: RocketConfig, scenario: Dictionary) -> void:
 	_config = config.copy()
 	_state = FlightState.new()
 	_steering = 0.0
+	_turn_rate_rad_s = 0.0
 	_body_id = String(scenario.get("body_id", "earth"))
 	var catalog_bodies: Dictionary = JsonData.read_object(BODIES_PATH).get("bodies", {})
 	_bodies = {}
@@ -112,6 +117,7 @@ func get_telemetry() -> FlightTelemetry:
 	telemetry.position_m = _state.position_m
 	telemetry.velocity_mps = _state.velocity_mps
 	telemetry.heading_rad = _state.heading_rad
+	telemetry.angular_velocity_rad_s = _turn_rate_rad_s
 	telemetry.throttle = _state.throttle
 	telemetry.elapsed_time_s = _state.elapsed_time_s
 	telemetry.active_stage = _state.active_stage
@@ -334,7 +340,11 @@ func _initialize_spawn(profile: String) -> void:
 
 
 func _integrate(dt_s: float) -> void:
-	_state.heading_rad = wrapf(_state.heading_rad + _steering * TURN_RATE_RAD_S * dt_s, -PI, PI)
+	var previous_turn_rate := _turn_rate_rad_s
+	var inertia := clampf(sqrt(_state.mass_kg / REFERENCE_STEERING_MASS_KG), 0.7, 1.6)
+	var ramp := STEERING_BRAKE_S if is_zero_approx(_steering) else STEERING_RAMP_S
+	_turn_rate_rad_s = move_toward(previous_turn_rate, _steering * TURN_RATE_RAD_S, TURN_RATE_RAD_S * dt_s / (ramp * inertia))
+	_state.heading_rad = wrapf(_state.heading_rad + (previous_turn_rate + _turn_rate_rad_s) * 0.5 * dt_s, -PI, PI)
 	var thrust_acceleration := Vector2.ZERO
 	var active := _state.active_stage
 	if active >= 0 and active < _state.stage_fuel_kg.size() and _state.throttle > 0.0:
@@ -410,6 +420,7 @@ func _resolve_collisions() -> void:
 		_state.impact_tilt_rad = tilt
 		_state.velocity_mps = body_velocity
 		_state.throttle = 0.0
+		_turn_rate_rad_s = 0.0
 		_state.status = FlightState.Status.LANDED if safe else FlightState.Status.CRASHED
 		_state.pod_intact = safe
 		return

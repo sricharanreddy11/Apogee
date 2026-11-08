@@ -78,7 +78,7 @@ func _run() -> void:
 	builder.free()
 	await _test_scene(mission.definition)
 	_test_preview(reference)
-	_test_advanced()
+	await _test_advanced()
 	await _test_workshop()
 	if _failures == 0:
 		print("Builder handoff tests passed.")
@@ -172,6 +172,85 @@ func _test_advanced() -> void:
 	rig.apply_flight(1, 0.75, true)
 	_check(not rig.get_node("Stage1").visible and rig.get_node("Stage2").get_child(0).visible, "Stage changes discard the lower visual and light the upper engine.")
 	rig.free()
+	await _test_flight_pivot(pioneer)
+	await _test_vehicle_cam(pioneer)
+
+
+func _test_flight_pivot(config: RocketConfig) -> void:
+	var preview: Control = load("res://scenes/flight/flight_view.tscn").instantiate()
+	preview.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	preview.size = Vector2(780, 490)
+	preview.setup(config)
+	root.add_child(preview)
+	await process_frame
+	var rig := preview.get_node("%RocketRig") as RocketRig
+	var craft := preview.get_node("%Craft") as Node2D
+	var camera := preview.get_node("%FlightCamera") as Camera2D
+	var terrain := preview.get_node("%Horizon") as Line2D
+	var telemetry := FlightTelemetry.new()
+	telemetry.body_id = "moon"
+	telemetry.moon_radius_m = 100000.0
+	telemetry.altitude_m = 5.0
+	telemetry.position_m = Vector2.UP * 100005.0
+	telemetry.heading_rad = deg_to_rad(62.0)
+	preview.update_visuals(telemetry)
+	_check((rig.transform * Vector2(0, -rig.height_px * 0.5)).is_zero_approx(), "The full stack rotates around its actual midpoint.")
+	var ground_at_five: Vector2 = preview.get_touchdown_screen_position()
+	var initial_zoom := camera.zoom
+	var upper_stage := rig.get_node("Stage2") as Node2D
+	telemetry.active_stage = 1
+	preview.update_visuals(telemetry)
+	var surviving_center := Vector2(0, (upper_stage.position.y - rig.height_px) * 0.5)
+	_check((rig.transform * surviving_center).is_zero_approx(), "Staging centers the surviving stack around its actual midpoint.")
+	telemetry.heading_rad = deg_to_rad(-20.0)
+	preview.update_visuals(telemetry)
+	_check((rig.transform * surviving_center).is_zero_approx() and camera.zoom == initial_zoom, "Steering preserves the pivot without a stage zoom jump.")
+	var engine_point := rig.get_global_transform_with_canvas() * (upper_stage.position - Vector2(0, 24))
+	_check(preview.call("_component_at", engine_point) == "engine", "The rotated upper engine remains clickable in the world viewport.")
+	_check(is_equal_approx(craft.position.y + rig.get_contact_depth_px(craft.rotation) * rig.scale.y + 5.0, terrain.points[24].y), "At five meters the lowest part of the rocket has a five-meter gap to the surface.")
+	telemetry.altitude_m = 0.0
+	telemetry.position_m = Vector2.UP * 100000.0
+	preview.update_visuals(telemetry)
+	_check(is_zero_approx(craft.position.y + rig.get_contact_depth_px(craft.rotation) * rig.scale.y), "Touchdown aligns the lowest point with the surface.")
+	_check(ground_at_five.y > preview.get_touchdown_screen_position().y, "The landing surface visibly rises as altitude decreases.")
+	preview.free()
+
+
+func _test_vehicle_cam(config: RocketConfig) -> void:
+	var lander := config.copy()
+	lander.attachment_ids.append("LEGS")
+	var flight: Control = load("res://scenes/flight/flight.tscn").instantiate()
+	flight.setup(lander, "M04")
+	root.add_child(flight)
+	flight.set_physics_process(false)
+	await process_frame
+	var view: Control = flight.get_node("%FlightArtwork")
+	var camera: PanelContainer = view.get_node("%VehicleCam")
+	var simulator: FlightSimulator = flight.get("_simulator")
+	var stage: Button = view.get_node("%VehicleStage")
+	var legs: Button = view.get_node("%VehicleLegs")
+	await create_timer(0.25).timeout
+	_check(view.get_node("%FarMarker").visible and camera.visible and is_equal_approx(camera.modulate.a, 1.0), "The vehicle camera fades in at long range.")
+	var panel_size := camera.size
+	_check(not stage.disabled and not legs.disabled, "The vehicle camera exposes available stage and landing-leg controls.")
+	stage.pressed.emit()
+	legs.pressed.emit()
+	var telemetry := simulator.get_telemetry()
+	view.update_visuals(telemetry)
+	flight.call("_update_control_state", telemetry)
+	var rig: RocketRig = view.get_node("%VehicleRig")
+	_check(telemetry.active_stage == 1 and rig.get_node("Stage2").visible and stage.disabled, "The camera stages the real vehicle and updates its rig and controls.")
+	_check(telemetry.legs_deployed and legs.text == "RETRACT", "The camera shows deployed gear and offers retraction.")
+	legs.pressed.emit()
+	_check(not simulator.get_telemetry().legs_deployed, "The camera retracts the real vehicle's landing gear.")
+	_check(camera.size == panel_size, "The vehicle camera stays fixed in size after staging.")
+	telemetry.altitude_m = 5.0
+	telemetry.position_m = telemetry.central_body_position_m + Vector2.UP * (telemetry.moon_radius_m + 5.0)
+	view.update_visuals(telemetry)
+	_check(not view.get_node("%FarMarker").visible and camera.visible, "The full rocket returns while the inset begins to fade.")
+	await create_timer(0.25).timeout
+	_check(not camera.visible, "The vehicle camera hides after the close-range fade.")
+	flight.free()
 
 
 func _test_workshop() -> void:
