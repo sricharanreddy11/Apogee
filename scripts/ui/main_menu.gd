@@ -31,7 +31,6 @@ func _ready() -> void:
 	%MasterVolume.value_changed.connect(_set_master_volume)
 	GameManager.navigation_error.connect(_show_error)
 	_build_mission_beacons()
-	%RocketTurntable.setup(GameManager.current_rocket_config)
 	_reveal_beacons()
 
 
@@ -127,17 +126,7 @@ func _animate_signal() -> void:
 		_signal_tween.kill()
 	%SignalDetails.modulate.a = 0.55
 	%SignalLight.modulate.a = 1.0
-	# Wait for the layout before changing offsets: the initial minimum size can
-	# otherwise become permanent negative margins on an anchored panel.
-	%SignalHousing.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	%SignalHousing.position = Vector2(0, 22)
-	%SignalHousing.modulate.a = 0.45
-	var glass := %SignalGlass.material as ShaderMaterial
-	glass.set_shader_parameter("reveal", 0.0)
 	_signal_tween = create_tween().set_parallel().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_signal_tween.tween_property(%SignalHousing, "position:y", 0.0, 0.26)
-	_signal_tween.tween_property(%SignalHousing, "modulate:a", 1.0, 0.20)
-	_signal_tween.tween_method(func(value: float) -> void: glass.set_shader_parameter("reveal", value), 0.0, 1.0, 0.24)
 	_signal_tween.tween_property(%SignalDetails, "modulate:a", 1.0, 0.22)
 	_signal_tween.tween_property(%SignalLight, "modulate:a", 0.45, 0.45)
 

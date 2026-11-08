@@ -14,6 +14,8 @@ func _ready() -> void:
 	var empty := StyleBoxEmpty.new()
 	for key: StringName in [&"normal", &"hover", &"pressed", &"disabled"]:
 		add_theme_stylebox_override(key, empty)
+	if kind == Kind.SETTINGS:
+		add_theme_stylebox_override(&"focus", empty)
 
 
 func _draw() -> void:
