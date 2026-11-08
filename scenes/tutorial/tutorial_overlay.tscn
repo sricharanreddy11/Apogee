@@ -1,0 +1,164 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/tutorial/tutorial_overlay.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="Highlight"]
+bg_color = Color(0.18, 0.8, 0.9, 0.06)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.4, 0.92, 0.96, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="Card"]
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
+bg_color = Color(0.035, 0.075, 0.105, 0.98)
+border_width_left = 2
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(0.31, 0.72, 0.78, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="TutorialOverlay" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DimTop" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+mouse_filter = 0
+color = Color(0.008, 0.018, 0.03, 0.76)
+
+[node name="DimBottom" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+mouse_filter = 0
+color = Color(0.008, 0.018, 0.03, 0.76)
+
+[node name="DimLeft" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+mouse_filter = 0
+color = Color(0.008, 0.018, 0.03, 0.76)
+
+[node name="DimRight" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+mouse_filter = 0
+color = Color(0.008, 0.018, 0.03, 0.76)
+
+[node name="FocusBlocker" type="Control" parent="Root"]
+unique_name_in_owner = true
+mouse_filter = 0
+
+[node name="PrimaryHighlight" type="Panel" parent="Root"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Highlight")
+
+[node name="SecondaryHighlight" type="Panel" parent="Root"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Highlight")
+
+[node name="Ghost" type="Label" parent="Root"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+size = Vector2(34, 34)
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.77, 0.42, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 27
+text = "◆"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Card" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+offset_left = 22.0
+offset_top = 450.0
+offset_right = 562.0
+offset_bottom = 688.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Card")
+
+[node name="Content" type="VBoxContainer" parent="Root/Card"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Progress" type="Label" parent="Root/Card/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+theme_override_colors/font_color = Color(0.4, 0.86, 0.91, 1)
+text = "GUIDED ORBIT"
+
+[node name="Title" type="Label" parent="Root/Card/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DisplayLabel"
+theme_override_font_sizes/font_size = 23
+text = "Tutorial"
+
+[node name="Body" type="Label" parent="Root/Card/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 15
+text = "Tutorial instructions"
+autowrap_mode = 3
+
+[node name="ActionHint" type="Label" parent="Root/Card/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"WarningLabel"
+theme_override_font_sizes/font_size = 13
+text = "Complete the highlighted action to continue."
+autowrap_mode = 3
+
+[node name="Actions" type="HBoxContainer" parent="Root/Card/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 9
+
+[node name="Exit" type="Button" parent="Root/Card/Content/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "Exit tutorial"
+
+[node name="Spacer" type="Control" parent="Root/Card/Content/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Back" type="Button" parent="Root/Card/Content/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 40)
+layout_mode = 2
+text = "‹ Back"
+
+[node name="Next" type="Button" parent="Root/Card/Content/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 40)
+layout_mode = 2
+text = "Continue ›"

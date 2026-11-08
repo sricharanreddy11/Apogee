@@ -13,8 +13,13 @@ var _has_payload := false
 
 
 func load_mission(id: String) -> bool:
-	definition = _catalog.load_mission(id)
+	var loaded := _catalog.load_mission(id)
 	last_error = _catalog.last_error
+	return use_definition(loaded)
+
+
+func use_definition(value: MissionDefinition) -> bool:
+	definition = value
 	_result = MissionResult.new()
 	_last_elapsed = -1.0
 	_orbit_since = -1.0

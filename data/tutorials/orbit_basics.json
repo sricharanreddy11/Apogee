@@ -1,0 +1,226 @@
+{
+  "id": "orbit_basics",
+  "title": "Build and Reach Orbit",
+  "steps": [
+	{
+	  "id": "builder_welcome",
+	  "scene": "RocketBuilder",
+	  "target": "RocketPreview",
+	  "presentation": "focus",
+	  "advance": "next",
+	  "title": "Welcome to Rocket Lab",
+	  "body": "Build a flight-ready rocket, check its engineering, pass preflight, and enter a safe Earth orbit. Compatible parts snap into the highlighted assembly area."
+	},
+	{
+	  "id": "open_pods",
+	  "scene": "RocketBuilder",
+	  "target": "Pods",
+	  "presentation": "focus",
+	  "advance": "press",
+	  "title": "Choose a command pod",
+	  "body": "Command pods protect the crew and flight computer. Open the Pods cabinet.",
+	  "hint": "Press Pods to continue."
+	},
+	{
+	  "id": "fit_pod",
+	  "scene": "RocketBuilder",
+	  "target": "POD_A",
+	  "secondary_target": "RocketPreview",
+	  "presentation": "drag_demo",
+	  "advance": "part_drop",
+	  "part_id": "POD_A",
+	  "title": "Fit the command pod",
+	  "body": "Drag the command pod to the POD mount. Follow the animated marker, then perform the drag yourself.",
+	  "hint": "Drag the highlighted pod onto its matching mount."
+	},
+	{
+	  "id": "open_fuel",
+	  "scene": "RocketBuilder",
+	  "target": "Fuel",
+	  "presentation": "focus",
+	  "advance": "press",
+	  "title": "Add propellant",
+	  "body": "Fuel tanks carry propellant and add liftoff mass. Open the Fuel cabinet.",
+	  "hint": "Press Fuel to continue."
+	},
+	{
+	  "id": "fit_tank",
+	  "scene": "RocketBuilder",
+	  "target": "TANK_L",
+	  "secondary_target": "RocketPreview",
+	  "presentation": "drag_demo",
+	  "advance": "part_drop",
+	  "part_id": "TANK_L",
+	  "title": "Fit a large tank",
+	  "body": "Drag the large tank to the TANK mount. More fuel adds delta-v, but the empty tank still has mass.",
+	  "hint": "Drag the highlighted tank onto its matching mount."
+	},
+	{
+	  "id": "open_engines",
+	  "scene": "RocketBuilder",
+	  "target": "Engines",
+	  "presentation": "focus",
+	  "advance": "press",
+	  "title": "Choose an engine",
+	  "body": "Engines turn propellant into thrust. Open the Engines cabinet.",
+	  "hint": "Press Engines to continue."
+	},
+	{
+	  "id": "fit_engine",
+	  "scene": "RocketBuilder",
+	  "target": "ENG_L",
+	  "secondary_target": "RocketPreview",
+	  "presentation": "drag_demo",
+	  "advance": "part_drop",
+	  "part_id": "ENG_L",
+	  "title": "Fit the launch engine",
+	  "body": "Drag the engine to the ENGINE mount. A launch rocket needs a thrust-to-weight ratio above 1 to overcome gravity.",
+	  "hint": "Drag the highlighted engine onto its matching mount."
+	},
+	{
+	  "id": "builder_metrics",
+	  "scene": "RocketBuilder",
+	  "target": "Telemetry",
+	  "presentation": "explain",
+	  "advance": "next",
+	  "title": "Read the engineering panel",
+	  "body": "Fuel is usable propellant. Mass includes the fueled vehicle. TWR compares thrust with weight; above 1 permits liftoff. Delta-v measures the ability to change velocity. Budget tracks cost."
+	},
+	{
+	  "id": "prepare_launch",
+	  "scene": "RocketBuilder",
+	  "target": "Primary",
+	  "presentation": "focus",
+	  "advance": "scene",
+	  "next_scene": "LaunchpadPreview",
+	  "title": "Prepare the rocket",
+	  "body": "A valid build displays GO. Prepare Launch checks the rocket again before leaving the lab.",
+	  "hint": "Press Prepare Launch to continue."
+	},
+	{
+	  "id": "preflight_review",
+	  "scene": "LaunchpadPreview",
+	  "target": "PreflightPanel",
+	  "presentation": "explain",
+	  "advance": "next",
+	  "title": "Preflight review",
+	  "body": "Preflight reviews the key numbers and mission rules. This is normally your last chance to edit the rocket."
+	},
+	{
+	  "id": "commit_launch",
+	  "scene": "LaunchpadPreview",
+	  "target": "LaunchButton",
+	  "presentation": "focus",
+	  "advance": "scene",
+	  "next_scene": "Flight",
+	  "title": "Commit the launch",
+	  "body": "This tutorial starts in a safe circular orbit so you can focus on the simulator controls.",
+	  "hint": "Press Launch to open the flight deck."
+	},
+	{
+	  "id": "orbit_map",
+	  "scene": "Flight",
+	  "target": "Map",
+	  "presentation": "explain",
+	  "advance": "next",
+	  "title": "Orbit is continuous free fall",
+	  "body": "An orbit is a fall that keeps missing the planet. Tangential velocity carries the craft around Earth while gravity bends its path. The map shows its trajectory."
+	},
+	{
+	  "id": "apsides",
+	  "scene": "Flight",
+	  "target": "OrbitGauge",
+	  "presentation": "explain",
+	  "advance": "next",
+	  "title": "Apogee, perigee, AP, and PE",
+	  "body": "Apogee is an Earth orbit's highest point; perigee is the lowest. Their general names are apoapsis (AP) and periapsis (PE). A PE above the atmosphere makes the orbit safe."
+	},
+	{
+	  "id": "ignite",
+	  "scene": "Flight",
+	  "target": "EngineButton",
+	  "presentation": "focus",
+	  "advance": "press",
+	  "title": "Ignite the engine",
+	  "body": "Ignition applies thrust where the rocket points. Burning with your motion raises orbital energy; burning against it lowers energy.",
+	  "hint": "Press IGNITE to continue."
+	},
+	{
+	  "id": "adjust_throttle",
+	  "scene": "Flight",
+	  "target": "Throttle",
+	  "presentation": "focus",
+	  "advance": "slider_change",
+	  "title": "Control thrust with throttle",
+	  "body": "Throttle controls engine thrust. High throttle changes velocity and burns fuel quickly; low throttle allows finer corrections.",
+	  "hint": "Drag the highlighted throttle control."
+	},
+	{
+	  "id": "steering",
+	  "scene": "Flight",
+	  "target": "FlightArtwork",
+	  "presentation": "explain",
+	  "advance": "next",
+	  "title": "Steering changes the burn direction",
+	  "body": "Use A/D or the arrow keys to rotate in normal missions. Radial velocity moves toward or away from the planet; tangential velocity moves around it. Keep PE above the surface."
+	},
+	{
+	  "id": "cutoff",
+	  "scene": "Flight",
+	  "target": "EngineButton",
+	  "presentation": "focus",
+	  "advance": "press",
+	  "title": "Cut off the engine",
+	  "body": "Coasting saves fuel and reveals the resulting orbit. Time warp requires the engine to be off and the trajectory to be safe.",
+	  "hint": "Press CUTOFF to continue."
+	},
+	{
+	  "id": "time_warp",
+	  "scene": "Flight",
+	  "target": "Warp5",
+	  "presentation": "focus",
+	  "advance": "press",
+	  "title": "Advance the simulation",
+	  "body": "Time warp speeds up orbital coasting. Return to 1× before steering or firing the engine.",
+	  "hint": "Select 5× time warp to continue."
+	},
+	{
+	  "id": "pause",
+	  "scene": "Flight",
+	  "target": "PauseFlight",
+	  "presentation": "focus",
+	  "advance": "press",
+	  "title": "Pause when you need time",
+	  "body": "Pause freezes the simulation but leaves instruments readable. Use it before precise burns or while studying telemetry.",
+	  "hint": "Press Pause to continue."
+	},
+	{
+	  "id": "resume",
+	  "scene": "Flight",
+	  "target": "PauseFlight",
+	  "presentation": "focus",
+	  "advance": "press",
+	  "title": "Resume flight",
+	  "body": "Resume when your next maneuver is planned. The help button opens the field manual during normal missions.",
+	  "hint": "Press Resume to continue."
+	},
+	{
+	  "id": "mission_parameters",
+	  "scene": "Flight",
+	  "target": "HUD",
+	  "presentation": "explain",
+	  "advance": "next",
+	  "title": "Parameters used by later missions",
+	  "body": "Altitude measures height above the surface. Fuel limits delta-v, while Isp measures engine efficiency. Staging drops empty mass and needs separators. Landings track speed, tilt, and legs; flybys track closest approach and payload."
+	},
+	{
+	  "id": "complete",
+	  "scene": "Flight",
+	  "target": "Map",
+	  "presentation": "explain",
+	  "advance": "complete",
+	  "title": "Guided orbit complete",
+	  "body": "You built a rocket, passed preflight, controlled its engine, read an orbit, and used time warp. Reopen Guided Tutorial anytime for a refresher."
+	}
+  ]
+}

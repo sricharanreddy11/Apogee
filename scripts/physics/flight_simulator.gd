@@ -306,6 +306,17 @@ func _initialize_spawn(profile: String) -> void:
 	var body_position := _body_position(_body_id, 0.0)
 	var body_velocity := _body_velocity(_body_id, 0.0)
 	match profile:
+		"tutorial_orbit":
+			var orbit_altitude := 150000.0
+			var orbit_radius := _body_radius_m + orbit_altitude
+			var body_data: Dictionary = _bodies.get(_body_id, {})
+			var mu := float(body_data.get("mu_m3_s2", 0.0))
+			var circular_speed := sqrt(mu / orbit_radius) if mu > 0.0 and orbit_radius > 0.0 else 0.0
+			_state.position_m = body_position + Vector2.UP * orbit_radius
+			_state.velocity_mps = body_velocity + Vector2.RIGHT * circular_speed
+			_state.heading_rad = PI * 0.5
+			_state.throttle = 0.0
+			_state.status = FlightState.Status.FLYING
 		"moon_flyby_demo":
 			# A safe, deliberately exaggerated lunar flyby for the physics showcase.
 			# These are Moon-relative offsets; adding the Moon's orbital velocity is
