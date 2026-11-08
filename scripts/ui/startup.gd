@@ -2,7 +2,7 @@ extends Control
 
 const MAIN_MENU := "res://scenes/ui/main_menu.tscn"
 const TITLE_DURATION := 3.0
-const GODOT_DURATION := 1.2
+const GODOT_DURATION := 1.8
 const TITLE_FADE := 0.3
 
 @onready var _title_card: Control = $TitleCard

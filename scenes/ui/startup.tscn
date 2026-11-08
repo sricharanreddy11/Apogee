@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/startup.gd" id="Startup"]
 [ext_resource type="Texture2D" path="res://assets/ui/apogee_wordmark.svg" id="Wordmark"]
 [ext_resource type="Shader" path="res://assets/ui/apogee_title_crt.gdshader" id="TitleCRT"]
 [ext_resource type="Texture2D" path="res://assets/ui/boot_splash.png" id="GodotSplash"]
+[ext_resource type="Texture2D" path="res://assets/ui/elevenlabs_logo_white.svg" id="ElevenLabsLogo"]
 
 [ext_resource type="FontFile" path="res://assets/ui/fonts/Oxanium.res" id="Oxanium"]
 
@@ -119,4 +120,32 @@ mouse_filter = 2
 accessibility_name = "Godot Game Engine"
 texture = ExtResource("GodotSplash")
 expand_mode = 1
+stretch_mode = 5
+
+[node name="ElevenLabsCredit" type="VBoxContainer" parent="GodotCard"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 565.0
+offset_bottom = 650.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Caption" type="Label" parent="GodotCard/ElevenLabsCredit"]
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+theme_override_colors/font_color = Color(0.68, 0.72, 0.76, 1)
+theme_override_font_sizes/font_size = 12
+text = "VOICE TECHNOLOGY BY"
+horizontal_alignment = 1
+
+[node name="Logo" type="TextureRect" parent="GodotCard/ElevenLabsCredit"]
+custom_minimum_size = Vector2(220, 29)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+accessibility_name = "ElevenLabs"
+texture = ExtResource("ElevenLabsLogo")
+expand_mode = 3
 stretch_mode = 5

@@ -1,32 +1,32 @@
 {
   "missions": [
-    {
-      "id": "M01",
-      "unlock_requirement": null,
-      "starting_location": "Earth surface",
-      "destination": "100 km above Earth",
-      "released": true
-    },
-    {
-      "id": "M02",
-      "unlock_requirement": "M01",
-      "starting_location": "Earth surface",
-      "destination": "Earth orbit",
-      "released": true
-    },
-    {
-      "id": "M03",
-      "unlock_requirement": "M02",
-      "starting_location": "Lunar approach checkpoint",
-      "destination": "Moon flyby",
-      "released": true
-    },
-    {
-      "id": "M04",
-      "unlock_requirement": "M02",
-      "starting_location": "Moon orbit",
-      "destination": "Moon surface",
-      "released": true
-    }
+	{
+	  "id": "M01",
+	  "unlock_requirement": null,
+	  "starting_location": "Earth surface",
+	  "destination": "100 km above Earth",
+	  "released": true
+	},
+	{
+	  "id": "M02",
+	  "unlock_requirement": "M01",
+	  "starting_location": "Earth surface",
+	  "destination": "Earth orbit",
+	  "released": true
+	},
+	{
+	  "id": "M03",
+	  "unlock_requirement": "M02",
+	  "starting_location": "Lunar approach checkpoint",
+	  "destination": "Moon flyby",
+	  "released": true
+	},
+	{
+	  "id": "M04",
+	  "unlock_requirement": "M02",
+	  "starting_location": "Moon orbit",
+	  "destination": "Moon surface",
+	  "released": true
+	}
   ]
 }
