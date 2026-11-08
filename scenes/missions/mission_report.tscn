@@ -152,6 +152,13 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 13
 text = "Replay scan"
 
+[node name="VoiceSubtitle" type="Label" parent="Foreground/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_type_variation = &"EyebrowLabel"
+autowrap_mode = 2
+
 [node name="Actions" type="HBoxContainer" parent="Foreground/Layout"]
 layout_mode = 2
 theme_override_constants/separation = 12

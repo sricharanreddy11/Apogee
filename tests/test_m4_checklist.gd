@@ -165,7 +165,7 @@ func _test_flight_inputs(flight: Control, sim: FlightSimulator) -> void:
 	flight.call("_physics_process", 0.3)
 	Input.action_release("steer_right")
 	check(sim.get_telemetry().angular_velocity_rad_s > 0.0, "Holding D reverses the turn.")
-	check(flight.get("_liftoff_announced"), "Liftoff comms are announced during ascent.")
+	check(root.get_node("MissionVoiceManager").rules._seen.has("liftoff"), "Liftoff narration follows measured ascent.")
 	await snapshot("04-active-flight")
 	await window_modes("flight")
 	_press_action(&"toggle_map")

@@ -16,6 +16,7 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]
 
+MissionVoiceManager="*res://scripts/audio/mission_voice_manager.gd"
 GameManager="*res://scripts/core/game_manager.gd"
 
 [display]

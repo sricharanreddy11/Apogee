@@ -47,6 +47,8 @@ func _ready() -> void:
 		%SessionNote.text = "Cannot prepare launch: %s" % last_error
 		return
 	_render()
+	MissionVoiceManager.subtitle_changed.connect(_voice_subtitle)
+	MissionVoiceManager.begin_preflight()
 
 
 func _check_configuration() -> bool:
@@ -107,3 +109,13 @@ func _menu() -> void:
 		GameManager.show_main_menu()
 	else:
 		menu_requested.emit()
+
+
+func _voice_subtitle(text: String) -> void:
+	%VoiceSubtitle.text = "CONTROL / " + text if not text.is_empty() else ""
+
+
+func _exit_tree() -> void:
+	if MissionVoiceManager.subtitle_changed.is_connected(_voice_subtitle):
+		MissionVoiceManager.subtitle_changed.disconnect(_voice_subtitle)
+	MissionVoiceManager.stop_all()

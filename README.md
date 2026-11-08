@@ -34,6 +34,8 @@ Mission briefings show a neon holographic route board with a grid, glowing trave
 
 The shared interface theme lives in `assets/ui/apogee_theme.tres`. Edit its type variations in Godot to update headings, controls, or readouts across scenes. Oxanium and IBM Plex Mono are bundled with their licenses under `assets/ui/fonts/`.
 
+Mission Control now uses a female ElevenLabs narrator with pronounced radio distortion, minimal background static, and distinct walkie-talkie key clicks across 29 bundled clips, with matching subtitles, priority interruption, stale-warning removal, pause support, and music ducking. Calls use validated launch state, measured altitude/fuel/engine/stage/gear telemetry, or confirmed mission results. The narrator does not invent Max Q, thermal damage, a countdown, or a crash when a flight is ended early. See [voiceover triggers and regeneration](docs/MISSION_VOICEOVER.md) for the evidence behind every line and the existing mismatch between lunar mission prose and simulator contact limits. No API key or online speech request is required by the game.
+
 ## Campaign flight
 
 On the star chart, select **First Flight → Build rocket → Prepare Launch → Launch**. Ignite and climb past 100 km with the pod intact. The result opens automatically and offers **Retry build** or the next unlocked mission. **End** reports an unfinished attempt as a failure. The orbit display shows the active orbit at AP and PE and the unpowered projection in gold. An impact marker, projected Moon position, and closest-approach label appear when relevant.
@@ -82,6 +84,7 @@ godot --headless --path . --script res://tests/test_component_effects.gd
 godot --headless --path . --script res://tests/test_lab_atmosphere.gd
 godot --headless --path . --script res://tests/test_projection_visuals.gd
 godot --headless --path . --script res://tests/test_campaign_vfx.gd
+godot --headless --path . --script res://tests/test_mission_voiceover.gd
 godot --headless --path . --script res://tests/test_menu_flow.gd
 godot --headless --path . --script res://tests/test_rocket_lab_flow.gd
 godot --headless --path . --script res://tests/test_mock_telemetry.gd

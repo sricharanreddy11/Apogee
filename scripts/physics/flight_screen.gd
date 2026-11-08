@@ -27,10 +27,6 @@ var _prediction_worker: Thread
 var _prediction_cancel: Semaphore
 var _finished := false
 var _paused := false
-var _comms: Dictionary
-var _mission_comms: Dictionary
-var _liftoff_announced := false
-var _comms_remaining := 0.0
 var _engine_audio_active := false
 var _engine_audio_fade: Tween
 var _ignition_blast_played := false
@@ -94,9 +90,8 @@ func _ready() -> void:
 				%Objective.text = "Lunar touchdown  /  Vertical ≤ %.0f m/s  ·  Sideways ≤ %.0f m/s  ·  Tilt ≤ %.0f°  ·  Legs deployed  ·  Pod intact" % [
 					limits.max_vertical_speed_mps, limits.max_horizontal_speed_mps, limits.max_orientation_deg,
 				]
-			_comms = JsonData.read_object("res://data/mission_comms.json")
-			_mission_comms = _comms.get(_mission_id, {})
-			_say(String(_mission_comms.get("intro", "")))
+			MissionVoiceManager.subtitle_changed.connect(_voice_subtitle)
+			MissionVoiceManager.begin_attempt(_mission.definition, _rocket_config, _simulator.get_telemetry())
 		%FlightArtwork.setup(_rocket_config)
 		%FlightArtwork.landing_mode = _mission_id == "M04"
 		%Map.reset_path()
@@ -129,6 +124,8 @@ func _physics_process(delta: float) -> void:
 	for _tick in maxi(roundi(_time_warp), 1):
 		_simulator.step(delta)
 		telemetry = _simulator.get_telemetry()
+		if not _showcase_mode:
+			MissionVoiceManager.observe(telemetry)
 		if not _showcase_mode and _mission.evaluate(telemetry):
 			_finished = true
 			break
@@ -138,7 +135,6 @@ func _physics_process(delta: float) -> void:
 	_commanded_throttle = telemetry.throttle
 	_update_views(telemetry, 0.0 if _finished else steering)
 	_update_control_state(telemetry)
-	_update_comms(telemetry, delta)
 	if _finished:
 		_finish_attempt.call_deferred()
 		return
@@ -168,6 +164,10 @@ func _collect_prediction() -> void:
 
 
 func _exit_tree() -> void:
+	if MissionVoiceManager.subtitle_changed.is_connected(_voice_subtitle):
+		MissionVoiceManager.subtitle_changed.disconnect(_voice_subtitle)
+	if not _finished:
+		MissionVoiceManager.stop_all()
 	if _prediction_worker != null:
 		_prediction_cancel.post()
 		_prediction_worker.wait_to_finish()
@@ -185,6 +185,7 @@ func _toggle_pause() -> void:
 	if _finished or not _configured:
 		return
 	_paused = not _paused
+	MissionVoiceManager.set_hold(_paused)
 	if _paused:
 		%FlightArtwork.stop_steering_effects()
 	%PauseFlight.tooltip_text = "Resume simulation [Esc]" if _paused else "Hold simulation [Esc]"
@@ -193,23 +194,8 @@ func _toggle_pause() -> void:
 	_update_control_state(_simulator.get_telemetry())
 
 
-func _say(line: String) -> void:
-	if line.is_empty():
-		return
-	%Comms.text = "CONTROL  /  " + line
-	_comms_remaining = 5.0
-
-
-func _update_comms(telemetry: FlightTelemetry, delta: float) -> void:
-	if _showcase_mode:
-		return
-	if not _liftoff_announced and _comms_remaining <= 0.0 and telemetry.status == FlightState.Status.FLYING and telemetry.elapsed_time_s >= 4.0:
-		_liftoff_announced = true
-		_say(String(_mission_comms.get("flying", "")))
-	elif _comms_remaining > 0.0:
-		_comms_remaining -= delta
-		if _comms_remaining <= 0.0:
-			%Comms.text = ""
+func _voice_subtitle(text: String) -> void:
+	%Comms.text = "CONTROL  /  " + text if not text.is_empty() else ""
 
 
 func _input(event: InputEvent) -> void:
@@ -254,12 +240,14 @@ func _input(event: InputEvent) -> void:
 
 func _open_manual() -> void:
 	%Manual.open()
+	MissionVoiceManager.set_hold(true)
 	%FlightArtwork.stop_steering_effects()
 	_update_control_state(_simulator.get_telemetry())
 
 
 func _close_manual() -> void:
 	%Manual.dismiss()
+	MissionVoiceManager.set_hold(_paused)
 	%HelpButton.grab_focus()
 	_update_control_state(_simulator.get_telemetry())
 
@@ -322,7 +310,8 @@ func _toggle_engine() -> void:
 func _request_stage() -> void:
 	if _configured and not _paused and not _finished and _simulator.stage():
 		%ControlStatus.text = "STAGE SEPARATED"
-		_say(String(_comms.get("stage", "")))
+		if not _showcase_mode:
+			MissionVoiceManager.observe(_simulator.get_telemetry())
 
 
 func _toggle_legs() -> void:
@@ -331,8 +320,8 @@ func _toggle_legs() -> void:
 	var deployed := not _simulator.get_telemetry().legs_deployed
 	_simulator.set_legs_deployed(deployed)
 	%ControlStatus.text = "LANDING LEGS DEPLOYED" if deployed else "LANDING LEGS RETRACTED"
-	if deployed:
-		_say(String(_comms.get("legs", "")))
+	if not _showcase_mode:
+		MissionVoiceManager.observe(_simulator.get_telemetry())
 
 
 func _on_throttle_changed(value: float) -> void:
@@ -451,7 +440,6 @@ func _finish_attempt() -> void:
 	if _simulator.get_telemetry().status == FlightState.Status.CRASHED:
 		%PauseFlight.disabled = true
 		%EndFlight.tooltip_text = "Skip to mission debrief"
-		_say("Impact detected. Signal lost.")
 		%FlightArtwork.crash_sequence_finished.connect(_request_report, CONNECT_ONE_SHOT)
 		return
 	var result := _mission.finalize_result()

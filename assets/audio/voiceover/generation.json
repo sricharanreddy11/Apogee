@@ -1,0 +1,209 @@
+{
+  "provider": "ElevenLabs",
+  "voice_id": "BFd5oBc2DDna33pSi4Gf",
+  "model_id": "eleven_multilingual_v2",
+  "output_format": "mp3_44100_128",
+  "voice_settings": {
+    "stability": 0.7,
+    "similarity_boost": 0.75,
+    "style": 0.08,
+    "use_speaker_boost": true
+  },
+  "radio_processing": {
+    "highpass_hz": 450,
+    "lowpass_hz": 2800,
+    "presence_hz": 1800,
+    "presence_gain_db": 4,
+    "compression_threshold": 0.06,
+    "compression_ratio": 5,
+    "compression_makeup": 2,
+    "saturation_drive": 5,
+    "saturation_threshold": 0.24,
+    "output_gain": 2.2,
+    "crusher_bits": 7,
+    "crusher_mix": 0.28,
+    "flutter_hz": 34,
+    "flutter_depth": 0.09,
+    "static_amplitude": 0.006,
+    "click_amplitude": 0.95,
+    "opening_click_ms": 75,
+    "closing_click_ms": 95,
+    "sample_rate_hz": 22050
+  },
+  "clips": {
+    "control_online": {
+      "sha256": "de72cc96abde03785d0479712cf425507d055246324cee35c434dc086d4ddf5f",
+      "bytes": 62736,
+      "radio_input_sha256": "47c2ecaa7a41067ef75357d5c7987800ae93eac6f0c98a18eb5303e237db844d",
+      "radio_bytes": 177560
+    },
+    "preflight_ready": {
+      "sha256": "e3f9a298dd795960f01e8eb712c280fa9fc06518c41d79fdf8dcac9f1b5a3a40",
+      "bytes": 53123,
+      "radio_input_sha256": "3531b4c4e04aca19bee5f2310f17fad99a1507d30400d593d4ffcd3a1eb56972",
+      "radio_bytes": 150936
+    },
+    "launch_committed": {
+      "sha256": "e2fb06f199cfd5721f3cc709fd7f9f9e309ff246ad077cec5301343ff6e93ef2",
+      "bytes": 42674,
+      "radio_input_sha256": "7aafb16c83f883ccc7f08275ca5f76c6592b8b2e260bfec32b4e0f8c807125bd",
+      "radio_bytes": 122264
+    },
+    "M01_intro": {
+      "sha256": "6ebda4eff627d09c2c6620437a4f7c0c156d5290c3fd8045fbe645b4cdebb4b2",
+      "bytes": 75275,
+      "radio_input_sha256": "31a5335f2369a956e6e8b5265ef308eea835c77289dd440c24c9b87dc90c4a3f",
+      "radio_bytes": 212376
+    },
+    "M02_intro": {
+      "sha256": "552626b0b5c234abaa673cf127672501d0e7a5020566d39e970247a8dbfce827",
+      "bytes": 68588,
+      "radio_input_sha256": "77ba6b6a8a6431ba3b717a6bd80af7217ac2f91adc44c7a1153271598167c212",
+      "radio_bytes": 193944
+    },
+    "M03_intro": {
+      "sha256": "f8bbe02258d6cf4c1dcd0b2edb8c60a95c1d31ec4d1858681dc9651cf76b5e03",
+      "bytes": 70260,
+      "radio_input_sha256": "e4b619cf8946c4d3289497a49193595d1b0dbdb7da50c162882d2f9a96b9570d",
+      "radio_bytes": 198040
+    },
+    "ignition": {
+      "sha256": "d5cba5804e386ff870870332561c16ac7f37f5129d49dd2f05b124c9d54b1527",
+      "bytes": 25538,
+      "radio_input_sha256": "0e7ee439ef6b7ad528233e94c1c6b46a9c57a929966cf0569d40a25c03f0ab86",
+      "radio_bytes": 75160
+    },
+    "M04_intro": {
+      "sha256": "29fc1843cf8d29d8d7e376637e21dad9a9778dc573dc94dca25b930fd0e969c1",
+      "bytes": 79873,
+      "radio_input_sha256": "342765a868b742890d9d0bee1292e5862ca03c2bbfdc68518ea8bd9817813d35",
+      "radio_bytes": 224664
+    },
+    "liftoff": {
+      "sha256": "879997f6853085c937a73a7f8bfabb9a12ba45b35721436818215b90f068dfe5",
+      "bytes": 44346,
+      "radio_input_sha256": "7477da2d9375bce051623c9e80767d05cb9cd5d4f03ca0ce41647da78fa8af23",
+      "radio_bytes": 126360
+    },
+    "stage": {
+      "sha256": "97a8d0e01099344720c6ae13f3086f28230081b41d7ebea97a4a78ff42f9c444",
+      "bytes": 33897,
+      "radio_input_sha256": "c2252aa0e501c404d57d6fe556e691b6bb11432fd9d13d56d56604aa907a22ae",
+      "radio_bytes": 97688
+    },
+    "legs": {
+      "sha256": "2147a8d89919134141d49d331da01217e2c1762d808ae11fe29d6692629f4df9",
+      "bytes": 26374,
+      "radio_input_sha256": "2a9cca125ecd80359da53da76799e50f7c72bd048a2bd724b198da6b33d38600",
+      "radio_bytes": 77208
+    },
+    "engine_cutoff": {
+      "sha256": "af8770037e37ce739f7ba608246c60087f648358579767f3ce1fa61f3c4121f3",
+      "bytes": 28464,
+      "radio_input_sha256": "0cc3e1a11420209f00daa63838a12f97c0085b9a78a39b557b01615c09d75b94",
+      "radio_bytes": 83352
+    },
+    "fuel_10": {
+      "sha256": "31b10205a58aa7af3c6ca9ed7c8d07bdd9f7608da55fd495f2fc3f90d8adf310",
+      "bytes": 50198,
+      "radio_input_sha256": "d73dec4f02454d839f0b7c1d1d07276443695ebcd17e59ca80c3a97a188aaef2",
+      "radio_bytes": 142744
+    },
+    "fuel_25": {
+      "sha256": "3d1522980755c9079492e405584fb8f80519f173468449412a0b599257a1de23",
+      "bytes": 58975,
+      "radio_input_sha256": "79b9e7d8a3767966032118079a50977b42b16d6aad3311f5111cd3f901c9febe",
+      "radio_bytes": 167320
+    },
+    "fuel_empty": {
+      "sha256": "a1826fe73f86c1858dbd22445c594781b6fc6b5920d966c400a0875dff48d9f6",
+      "bytes": 25538,
+      "radio_input_sha256": "fb00b2a39018ce6f5cdd28c72839716e4caa92f36018564f2047f0baafed64b7",
+      "radio_bytes": 75160
+    },
+    "altitude_50km": {
+      "sha256": "b022e8aa06136de9efb6cd761c405e68b11f4c65dc099aaa245b119de58eb940",
+      "bytes": 28464,
+      "radio_input_sha256": "8e6887cce376104fc8d14b83ceb484ee76e16d64fadab5bbf5ad0eae9f4128ef",
+      "radio_bytes": 83352
+    },
+    "lunar_100m": {
+      "sha256": "bb327a2f1fcabc20b40522ff2e55440c3f82e74ab3813300d38b626c6783e384",
+      "bytes": 28464,
+      "radio_input_sha256": "305ed6029a3e60f34fcf9096d3d0a51d2fcafed94063706124d0b4e04814832c",
+      "radio_bytes": 83352
+    },
+    "lunar_1000m": {
+      "sha256": "2faf5ee1d23b110865fba16ab6fedba74d40961f7581a6a948c1626519c25705",
+      "bytes": 30972,
+      "radio_input_sha256": "e245bc71a2c831df195075d70aa713ca697dc1830c325a112210e7786feda521",
+      "radio_bytes": 89496
+    },
+    "lunar_10m": {
+      "sha256": "046dd944dd37a116b3ef3f14a81eebca83dd2897adff4ad9eb2d581c233c4820",
+      "bytes": 24702,
+      "radio_input_sha256": "108412a28f4119453c73ed666dbbd47d9569528cece4f65496ae22664a1e0181",
+      "radio_bytes": 73112
+    },
+    "lunar_30m": {
+      "sha256": "17e99a75041486b04282061b4d7dc8c3900f32d9882cb80eadb1982305af3fea",
+      "bytes": 27210,
+      "radio_input_sha256": "803c8233f038be85c081f9019efb1aa0f8bfa2167b9f15a1d9d80aea9824ddc9",
+      "radio_bytes": 79256
+    },
+    "gear_warning": {
+      "sha256": "63d97c2291a244d13aee7d65b517c49756777e3d6a8d9981a165766ce2a20ca3",
+      "bytes": 52287,
+      "radio_input_sha256": "5e4c0cab651d48a38aa2450c08effb92cc0d61ea54ce6c3843c0d62fa4ad9fc9",
+      "radio_bytes": 148888
+    },
+    "descent_warning": {
+      "sha256": "30dcde6e588e1cd2ab0fd4d5dda6ebb5b31cfe566945da1fc340e64110f7fa17",
+      "bytes": 58975,
+      "radio_input_sha256": "dcb1a79901bd64d9fdcf21c72d51360025aa43fe9ed551d3c821373a4fda6ecd",
+      "radio_bytes": 167320
+    },
+    "M02_success": {
+      "sha256": "8497440f67756611a8b1d3bd94f159b1b5485d2b79359ee757371e7acd64930c",
+      "bytes": 58139,
+      "radio_input_sha256": "324de066fb7edc9bef77457017140521bd2a7a48e6f5670d08f74210f533e0ac",
+      "radio_bytes": 165272
+    },
+    "M01_success": {
+      "sha256": "12e6e072aafe40acf0bebc41b5064494d88f1a6bb91079b18f2d333a5e9ef773",
+      "bytes": 71514,
+      "radio_input_sha256": "123a4584ce1da1217917309cc922bb3c692033a2e1e724e48d1e9b6c7231402e",
+      "radio_bytes": 202136
+    },
+    "M03_success": {
+      "sha256": "9ed826a7e331185c845e3af0d5cd9624ae1b62a6dfa5449768d0a91c56307284",
+      "bytes": 64826,
+      "radio_input_sha256": "4bbf330b6255b92c08a3233fd3c1f15b268084e4ce5635a51d0dd725ce60edec",
+      "radio_bytes": 183704
+    },
+    "M04_success": {
+      "sha256": "22a205945f74d509b1e3983fffe67baf8447a6b248960f98f76178b7b438b6ae",
+      "bytes": 62736,
+      "radio_input_sha256": "df380690373891f65d3ade73748cde07bc35890e40ad5ea0277d029f583529e9",
+      "radio_bytes": 177560
+    },
+    "mission_success": {
+      "sha256": "6312a64bf6f7d4398b2603f13fb872406f7d168c9ec961820a24c76450676c33",
+      "bytes": 29300,
+      "radio_input_sha256": "a911b46340ef190346627eaf0cabae98ff9804d5904ba8e2534cf4e76a1e9412",
+      "radio_bytes": 85400
+    },
+    "vehicle_lost": {
+      "sha256": "885b6d6e4cc42c2e3a5bcaea1128e38f155e7b89afe9791c5549e14cf5dcdc75",
+      "bytes": 41003,
+      "radio_input_sha256": "6c26db6630d1510b97bf2d1438da76f1f7bd2db232c34895f3e8001c97d0ddcd",
+      "radio_bytes": 118168
+    },
+    "mission_failed": {
+      "sha256": "ef25d6597f845b49db65bd9bebd7aefb88f684225de8c162187ffcbeca43d66c",
+      "bytes": 55213,
+      "radio_input_sha256": "e8bf9b1b67eb1b9785ca494fee2f1f13e82bd89c0a76723ba139357f4c432d76",
+      "radio_bytes": 157080
+    }
+  }
+}

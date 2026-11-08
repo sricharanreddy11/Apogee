@@ -33,10 +33,12 @@ var _mission: MissionDefinition
 var _builder_draft: RocketConfig
 var _bgm_player: AudioStreamPlayer
 var _ui_click_player: AudioStreamPlayer
+var _voice_duck: Tween
 
 
 func _ready() -> void:
 	_start_bgm()
+	MissionVoiceManager.speaking_changed.connect(_duck_music_for_voice)
 	_start_ui_clicks()
 	var progress := _campaign_save.load_progress()
 	if progress.is_empty():
@@ -71,6 +73,13 @@ func _start_ui_clicks() -> void:
 	add_child(_ui_click_player)
 	get_tree().node_added.connect(_register_ui_button)
 	_register_ui_buttons(get_tree().root)
+
+
+func _duck_music_for_voice(speaking: bool) -> void:
+	if _voice_duck != null:
+		_voice_duck.kill()
+	_voice_duck = create_tween()
+	_voice_duck.tween_property(_bgm_player, "volume_db", BGM_VOLUME_DB - 8.0 if speaking else BGM_VOLUME_DB, 0.12 if speaking else 0.35)
 
 
 func _register_ui_buttons(node: Node) -> void:

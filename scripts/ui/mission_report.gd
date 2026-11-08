@@ -33,6 +33,10 @@ func _ready() -> void:
 	%Next.pressed.connect(func() -> void: next_requested.emit(_next.id))
 	%ReplayFact.pressed.connect(_replay_fact)
 	%LogButton.toggled.connect(_toggle_log)
+	if _result != null and not _is_sandbox:
+		MissionVoiceManager.subtitle_changed.connect(_voice_subtitle)
+		MissionVoiceManager.announce_result(_result)
+		_voice_subtitle(MissionVoiceManager.get_subtitle())
 
 
 func _render_sandbox() -> void:
@@ -140,3 +144,14 @@ func _render_discovery() -> void:
 
 func _set_heading_color(variation: StringName) -> void:
 	%Heading.add_theme_color_override("font_color", get_theme_color("font_color", variation))
+
+
+func _voice_subtitle(text: String) -> void:
+	%VoiceSubtitle.text = "CONTROL / " + text if not text.is_empty() else ""
+
+
+func _exit_tree() -> void:
+	if MissionVoiceManager.subtitle_changed.is_connected(_voice_subtitle):
+		MissionVoiceManager.subtitle_changed.disconnect(_voice_subtitle)
+	if not _is_sandbox:
+		MissionVoiceManager.stop_all()
