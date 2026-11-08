@@ -212,8 +212,8 @@ theme_type_variation = &"EyebrowLabel"
 layout_mode = 0
 offset_left = 23.0
 offset_top = 21.0
-theme_override_font_sizes/font_size = 16
-text = "FLIGHT PROJECTION"
+theme_override_font_sizes/font_size = 14
+text = "MISSION / HOLOTRACK"
 
 [node name="ProjectionMode" type="Label" parent="."]
 theme_type_variation = &"MutedLabel"
@@ -224,15 +224,15 @@ offset_top = 49.0
 theme_override_font_sizes/font_size = 15
 text = "ASCENT  /  SCHEMATIC"
 
-[node name="Replay" type="Button" parent="."]
-unique_name_in_owner = true
+[node name="SchematicNote" type="Label" parent="."]
 layout_mode = 1
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -144.0
-offset_top = -57.0
-offset_right = -17.0
-offset_bottom = -15.0
-text = "Replay track"
+offset_left = -227.0
+offset_right = -23.0
+offset_top = 24.0
+horizontal_alignment = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.45, 0.62, 0.72, 1)
+text = "SCHEMATIC / NOT TO SCALE"

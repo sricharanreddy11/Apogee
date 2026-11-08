@@ -1,76 +1,136 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/preflight_panel.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/builder/metric_card.gd" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="AnalysisPanel"]
+bg_color = Color(0.035, 0.067, 0.106, 0.97)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.31, 0.39, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_left = 12
+corner_radius_bottom_right = 12
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 14.0
+content_margin_bottom = 14.0
 
 [node name="PreflightPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(430, 0)
 script = ExtResource("1")
+theme_override_styles/panel = SubResource("AnalysisPanel")
 
 [node name="Stack" type="VBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 8
 
-[node name="Section" type="Label" parent="Stack"]
+[node name="Header" type="HBoxContainer" parent="Stack"]
+layout_mode = 2
+
+[node name="Section" type="Label" parent="Stack/Header"]
 theme_type_variation = &"EyebrowLabel"
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "PREFLIGHT CHECK"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "PREFLIGHT / ANALYSIS"
+
+[node name="ReadinessStatus" type="Label" parent="Stack/Header"]
+theme_type_variation = &"SuccessLabel"
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "HOLD"
 
 [node name="MissionName" type="Label" parent="Stack"]
 theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 22
 autowrap_mode = 3
 text = "Mission"
-
-[node name="ReadinessStatus" type="Label" parent="Stack"]
-theme_type_variation = &"SuccessLabel"
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "HOLD"
 
 [node name="ObjectiveLabel" type="Label" parent="Stack"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
 
 [node name="LocationLabel" type="Label" parent="Stack"]
-theme_type_variation = &"MutedLabel"
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-autowrap_mode = 3
 
-[node name="RocketName" type="Label" parent="Stack"]
+[node name="Scroll" type="ScrollContainer" parent="Stack"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Readouts" type="VBoxContainer" parent="Stack/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="RocketName" type="Label" parent="Stack/Scroll/Readouts"]
 theme_type_variation = &"DisplayLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 autowrap_mode = 3
 
-[node name="CostLabel" type="Label" parent="Stack"]
+[node name="Metrics" type="GridContainer" parent="Stack/Scroll/Readouts"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="FuelMetric" type="Control" parent="Stack/Scroll/Readouts/Metrics"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2")
+
+[node name="MassMetric" type="Control" parent="Stack/Scroll/Readouts/Metrics"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2")
+
+[node name="ThrustMetric" type="Control" parent="Stack/Scroll/Readouts/Metrics"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2")
+
+[node name="RangeMetric" type="Control" parent="Stack/Scroll/Readouts/Metrics"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2")
+
+[node name="CostLabel" type="Label" parent="Stack/Scroll/Readouts"]
 theme_type_variation = &"TelemetryLabel"
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
 
-[node name="MassLabel" type="Label" parent="Stack"]
-theme_type_variation = &"TelemetryLabel"
+[node name="BudgetBar" type="ProgressBar" parent="Stack/Scroll/Readouts"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+custom_minimum_size = Vector2(0, 6)
+show_percentage = false
 
-[node name="ValidationMessage" type="Label" parent="Stack"]
+[node name="BudgetHint" type="Label" parent="Stack/Scroll/Readouts"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="ValidationMessage" type="Label" parent="Stack/Scroll/Readouts"]
 theme_type_variation = &"WarningLabel"
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
-
-[node name="Space" type="Control" parent="Stack"]
-layout_mode = 2
-size_flags_vertical = 3
 
 [node name="EditRocketButton" type="Button" parent="Stack"]
 unique_name_in_owner = true
@@ -81,6 +141,6 @@ text = "Edit Rocket"
 [node name="LaunchButton" type="Button" parent="Stack"]
 theme_type_variation = &"PrimaryAction"
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 text = "LAUNCH"

@@ -38,6 +38,10 @@ func update_visuals(telemetry: FlightTelemetry) -> void:
 		return
 	_rig.apply_flight(telemetry.active_stage, telemetry.throttle, telemetry.legs_deployed)
 	_vehicle_rig.apply_flight(telemetry.active_stage, telemetry.throttle, telemetry.legs_deployed)
+	var powered := telemetry.status != FlightState.Status.CRASHED and telemetry.status != FlightState.Status.LANDED
+	var atmosphere := telemetry.body_id == "earth" and telemetry.altitude_m < 80000.0
+	_rig.update_effects(telemetry.fuel_fraction, atmosphere, powered)
+	_vehicle_rig.update_effects(telemetry.fuel_fraction, atmosphere, powered)
 	_vehicle_rig.position = -_vehicle_rig.get_active_stack_center()
 	if _config != null:
 		%StageReadout.text = "STAGE %d / %d" % [telemetry.active_stage + 1, _config.stages.size()]

@@ -2,6 +2,7 @@ class_name RocketRig
 extends Node2D
 
 const MANIFEST := "res://assets/rockets/manifest.json"
+const COMPONENT_FX := preload("res://scripts/effects/component_effect.gd")
 
 var _catalog: Dictionary
 var _textures: Dictionary = {}
@@ -14,6 +15,8 @@ var _active := 0
 var _throttle := 0.0
 var _clock := 0.0
 var height_px := 0.0
+var effect_context := "flight"
+var _effects: Array[Node2D] = []
 
 
 func setup(config: RocketConfig) -> void:
@@ -21,6 +24,7 @@ func setup(config: RocketConfig) -> void:
 		remove_child(child)
 		child.queue_free()
 	_stages.clear()
+	_effects.clear()
 	_flames.clear()
 	_legs = null
 	_legs_deployed = false
@@ -50,6 +54,7 @@ func setup(config: RocketConfig) -> void:
 			_legs = _sprite(stage_art, "res://assets/rockets/legs_folded.svg")
 			_legs_stowed_y = local_y
 			_legs.position.y = _legs_stowed_y
+			_add_effect(_legs, "LEGS", true, stage_index)
 		for tank_id in stage_config.tank_ids:
 			local_y = _stack_part(stage_art, tank_id, local_y)
 		if stage_index == 0 and config.stages.size() > 1 and config.attachment_ids.has("DECOUPLER"):
@@ -60,6 +65,7 @@ func setup(config: RocketConfig) -> void:
 	cursor = _stack_part(self, config.command_pod_id, cursor)
 	height_px = -cursor
 	_apply_flame()
+	update_effects(1.0, true)
 
 
 ## Length of the surviving stack, measured along its centerline.
@@ -99,13 +105,40 @@ func _stack_part(parent: Node2D, part_id: String, y: float) -> float:
 	var sprite := _sprite(parent, String(definition.sprite))
 	sprite.centered = false
 	sprite.position = Vector2(-float(bottom[0]), y - float(bottom[1]))
+	_add_effect(sprite, part_id, false, _stages.find(parent))
 	return sprite.position.y + float(top[1])
+
+
+func _add_effect(sprite: Sprite2D, part_id: String, centered: bool, stage_index: int) -> void:
+	var effect := COMPONENT_FX.new()
+	var kind := COMPONENT_FX.kind_for(part_id)
+	if kind.is_empty():
+		effect.free()
+		return
+	effect.configure(kind, part_id, sprite.texture.get_size(), effect_context, COMPONENT_FX.power_for(part_id))
+	if not centered:
+		effect.position = sprite.texture.get_size() * 0.5
+	effect.set_meta("home", effect.position)
+	effect.set_meta("stage", stage_index)
+	sprite.add_child(effect)
+	_effects.append(effect)
+
+
+func update_effects(fuel: float, in_atmosphere: bool, enabled: bool = true) -> void:
+	for effect in _effects:
+		var stage_index := int(effect.get_meta("stage", -1))
+		var retained := stage_index < 0 or stage_index >= _active
+		var firing := _throttle if stage_index == _active else 0.0
+		effect.set_state(firing if fuel > 0.0 else 0.0, fuel, in_atmosphere, enabled and retained, stage_index == _active)
 
 
 func _add_flame(parent: Node2D, engine_id: String) -> Sprite2D:
 	var flame := _sprite(parent, "res://assets/rockets/flame.svg")
 	flame.offset.y = 48.0
 	flame.visible = false
+	# Keep the legacy exhaust anchor for hit tests and integration contracts.
+	# The component's AnimatedSprite2D supplies the visible flame.
+	flame.self_modulate.a = 0.0
 	var engine: Dictionary = _catalog.get(engine_id, {})
 	var exhaust: Array = engine.get("exhaust_origin_px", [])
 	var attachment: Array = engine.get("attachment_bottom_px", [])
@@ -179,6 +212,7 @@ func apply_flight(active_stage: int, throttle: float, legs_deployed: bool) -> vo
 		_legs.position.y = -25.0 if legs_deployed else _legs_stowed_y
 		_legs.texture = _texture("res://assets/rockets/legs.svg" if legs_deployed else "res://assets/rockets/legs_folded.svg")
 	_apply_flame()
+	update_effects(1.0, true)
 
 
 func _drop_stage(stage_art: Node2D) -> void:

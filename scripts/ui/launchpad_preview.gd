@@ -26,6 +26,7 @@ func setup(mission: MissionDefinition, config: RocketConfig) -> bool:
 
 
 func _ready() -> void:
+	preload("res://scripts/ui/console_button.gd").apply(%MainMenu)
 	%PreflightPanel.launch_requested.connect(_request_launch)
 	%PreflightPanel.edit_requested.connect(_edit)
 	%MainMenu.pressed.connect(_menu)
@@ -36,6 +37,7 @@ func _ready() -> void:
 		if mission != null:
 			var builder := BuilderController.new()
 			builder.setup(mission)
+			builder.call("_reset_assembly")
 			var reference := builder.build_config()
 			builder.free()
 			setup(mission, reference)

@@ -16,6 +16,7 @@ func _run() -> void:
 		return
 	var builder := BuilderController.new()
 	builder.setup(mission)
+	builder.call("_reset_assembly")
 	var config := builder.build_config()
 	builder.free()
 

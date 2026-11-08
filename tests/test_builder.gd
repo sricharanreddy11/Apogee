@@ -17,6 +17,8 @@ func _run() -> void:
 		return
 	var builder := BuilderController.new()
 	builder.setup(mission.definition)
+	_check(builder.calculate(builder.build_config()).wet_mass_kg == 0.0, "New builds start empty.")
+	builder.call("_reset_assembly")
 	var reference := builder.build_config()
 	_check(builder.validate(reference, mission.definition).valid, "Reference Sparrow I is valid.")
 	_check(builder.calculate(reference).cost_credits == 1600, "Reference cost is derived from catalog.")
@@ -91,6 +93,7 @@ func _test_scene(mission: MissionDefinition) -> void:
 	scene.configuration_confirmed.connect(_on_confirmed)
 	root.add_child(scene)
 	await process_frame
+	scene.get_node("%Reset").pressed.emit()
 	var name_edit := scene.get_node("%RocketName") as LineEdit
 	name_edit.text = "Renamed Sparrow"
 	name_edit.text_changed.emit(name_edit.text)
@@ -140,6 +143,7 @@ func _test_advanced() -> void:
 	var orbital := catalog.load_mission("M02")
 	var builder := BuilderController.new()
 	builder.setup(orbital)
+	builder.call("_reset_assembly")
 	_check(is_equal_approx(builder.calculate(builder.build_config()).delta_v_mps, 3600.0 * 9.80665 * log(3600.0 / 1400.0)), "Sparrow I Δv matches the rocket equation.")
 	_check(builder.add_stage() and not builder.add_stage(), "The editor supports a maximum of two stages.")
 	_check(builder.install_part("tank_1_0", "TANK_L") and builder.install_part("engine_1", "ENG_V"), "The upper stage accepts its own tank and engine.")
@@ -157,10 +161,12 @@ func _test_advanced() -> void:
 	_check(builder.build_config().stages[0].tank_ids == ["TANK_L", "TANK_S"], "Detaching a tank compacts the remaining stack.")
 	var flyby := catalog.load_mission("M03")
 	builder.setup(flyby)
+	builder.call("_reset_assembly")
 	_check(not builder.validate(builder.build_config(), flyby).valid, "Lunar Encounter requires a science payload.")
 	_check(builder.install_part("payload", "PROBE") and builder.validate(builder.build_config(), flyby).valid, "Fitting PROBE meets the flyby build requirement.")
 	var landing := catalog.load_mission("M04")
 	builder.setup(landing)
+	builder.call("_reset_assembly")
 	_check(not builder.validate(builder.build_config(), landing).valid, "One Small Step requires landing legs.")
 	_check(builder.install_part("legs", "LEGS") and builder.validate(builder.build_config(), landing).valid, "Fitting LEGS meets the lunar landing build requirement.")
 	builder.free()
@@ -270,9 +276,7 @@ func _test_workshop() -> void:
 	preview._drop_data(mount.get_center(), legs)
 	var config := hangar.build_config()
 	_check(config.stages.size() == 2 and config.attachment_ids.has("LEGS"), "The Workshop assembles both stages and landing legs.")
-	hangar.get_node("%TestFire").pressed.emit()
-	_check(preview.get_node("%TestRig").visible, "Test fire switches to the animated native rig.")
-	_check(hangar.build_config().attachment_ids == config.attachment_ids, "Test fire preserves the design.")
+	_check(hangar.get_node_or_null("%TestFire") == null, "The builder removes the Test Fire action.")
 	hangar.get_node("%Secondary").pressed.emit()
 	await scene_changed
 	_check(current_scene.name == "MainMenu", "Workshop returns to the star chart.")

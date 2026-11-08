@@ -15,6 +15,7 @@ func _run() -> void:
 		return
 	var builder := BuilderController.new()
 	builder.setup(mission.definition)
+	builder.call("_reset_assembly")
 	var config := builder.build_config()
 	var totals := builder.calculate(config)
 	_check(totals.cost_credits == 1600, "Sparrow I costs 1,600 credits.")
